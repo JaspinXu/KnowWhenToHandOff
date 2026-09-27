@@ -7,7 +7,7 @@
 **English** · [简体中文](README.zh-CN.md)
 
 <p>
-<img src="https://img.shields.io/badge/Status-Design%20phase-F59E0B" alt="Status: design phase">
+<img src="https://img.shields.io/badge/Status-Implementation%20started-2563EB" alt="Status: implementation started">
 <img src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white" alt="Python 3.12">
 <img src="https://img.shields.io/badge/Env-%CF%84%C2%B2--bench-4B32C3" alt="tau2-bench">
 <img src="https://img.shields.io/badge/RL-GRPO%20%7C%20PPO-EE4C2C" alt="GRPO and PPO">
@@ -37,7 +37,7 @@
 LLM customer-service agents are widely deployed, yet they still break business policies, hand off to human staff at the wrong time, and serve users unevenly depending on how those users talk. **KnowWhenToHandOff** trains a small open model (about 4B parameters) with multi-turn reinforcement learning on [τ²-bench](https://github.com/sierra-research/tau2-bench) so that it completes airline and retail support tasks while meeting four Responsible-AI goals: **accountability** (no policy violations), **trust** (escalating when, and only when, needed), **fairness** (similar success across communication styles) and **transparency** (citing the policy behind every refusal or hand-off). We then measure what each goal costs in task success.
 
 > [!NOTE]
-> **Status (27 Sep 2026): design phase, no code yet.** This README is the top-level design and the execution plan; [AGENTS.md](AGENTS.md) tells coding agents how to work in this repo. Course context: NUS CS4246/5446 *Reinforcement Learning and Sequential Decision Making*, AY2026/27 Semester 1 — proposal 28 Sep, presentation in the week of 10 Nov, report due 15 Nov 2026.
+> **Status (27 Sep 2026): foundation code implemented; experiments have not run.** This README is the top-level design and the execution plan; [AGENTS.md](AGENTS.md) tells coding agents how to work in this repo. Course context: NUS CS4246/5446 *Reinforcement Learning and Sequential Decision Making*, AY2026/27 Semester 1 — proposal 28 Sep, presentation in the week of 10 Nov, report due 15 Nov 2026.
 
 <details>
 <summary><b>Contents</b></summary>
@@ -64,6 +64,30 @@ LLM customer-service agents are widely deployed, yet they still break business p
 - [References](#references)
 
 </details>
+
+---
+
+## Development setup
+
+Python 3.12 and uv are required. Run from this checkout:
+
+```bash
+uv sync --locked
+uv run --locked ruff check .
+uv run --locked ruff format --check .
+uv run --locked pytest -q
+uv build
+```
+
+Optional local configuration: `cp .env.example .env` on POSIX, or
+`Copy-Item .env.example .env` in PowerShell. CPU tests require no credentials or
+model servers, and network access is disabled during tests. Dependency setup can
+use the network. To enable commit hooks: `uv run pre-commit install`.
+
+T0.1 is locally verified; remote CI is pending. No trained checkpoint or benchmark
+result is available. The original scientific definitions remain unchanged while
+[ADR-006](docs/adr/ADR-006-preimplementation-contracts.md) is deferred.
+See the [implementation status](docs/implementation-status.md) for exact boundaries.
 
 ---
 
@@ -485,7 +509,7 @@ Each task has a definition of done (DoD). Tick the box when the DoD is met and t
 
 - [ ] **T0.1 Scaffold the repo.**
     - *Work:* `pyproject.toml` (uv, Python 3.12), `src/handoff`, ruff, pytest, pre-commit, GitHub Actions for CPU tests, MIT LICENSE, `.gitignore`, `.env.example`.
-    - *DoD:* `uv run pytest` passes and CI is green.
+    - *DoD:* `uv run pytest` passes and CI is green. Local checks pass; remote CI pending.
 - [ ] **T0.2 Pin τ²-bench.**
     - *Work:* pin to a commit; run `tau2 run` on 5 airline tasks with any available model.
     - *DoD:* results in `data/simulations/` and a script that parses them.

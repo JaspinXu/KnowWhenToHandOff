@@ -18,7 +18,7 @@ We train a ~4B open model (Qwen3 family) with multi-turn reinforcement learning 
 
 **Pipeline:** baseline audit (B0, B1) → imitation warm start (B2) → GRPO or PPO with Responsible-AI rewards (R1, R2, R3, P1).
 
-**Status:** design phase. Build strictly in the order of the task IDs (T0.x → T4.x) in the README execution plan.
+**Status:** foundation implementation started; experiments remain pending. Follow task-ID order for implementation. Owner clarification (27 Sep 2026): implement and CPU-test code before cluster access; GPU-dependent acceptance remains pending and does not block independent code work. Scientific definition changes still require approval.
 
 ---
 
@@ -74,16 +74,17 @@ The package name is `handoff` (src layout). Directories are created by the tasks
 
 ## 4. Commands
 
-> These are the **planned** commands. When a task implements or changes one, update this section in the same commit, and mark anything not yet working as *(planned)*.
+> Setup and CPU quality commands below work locally. Serving, evaluation and training remain planned unless explicitly marked implemented. Remote CI and GPU experiments require their own evidence.
 
 ```bash
 # setup (Python 3.12, uv)
-uv sync
+uv sync --locked
 cp .env.example .env                      # fill in keys locally; never commit
 
 # quality gates — run before every commit
 uv run ruff check . && uv run ruff format --check .
-uv run pytest -q                          # CPU only, no network
+uv run pytest -q                          # CPU only, sockets disabled
+uv build                                 # build sdist and wheel
 
 # serving on the cluster                  (planned, T0.3)
 sbatch slurm/serve_policy.sbatch   model=qwen3_4b
@@ -98,6 +99,8 @@ sbatch slurm/train.sbatch train=sft_b2
 sbatch slurm/train.sbatch train=grpo_r1
 sbatch slurm/train.sbatch train=grpo_r2 reward.lambda_fp=0.5 reward.lambda_fn=1.0
 ```
+
+PowerShell setup uses `Copy-Item .env.example .env`. Dependency installation may use the network; tests must not.
 
 Always run the **smoke** configuration before launching a full run.
 

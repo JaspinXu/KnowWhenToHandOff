@@ -7,7 +7,7 @@
 [English](README.md) · **简体中文**
 
 <p>
-<img src="https://img.shields.io/badge/%E7%8A%B6%E6%80%81-%E8%AE%BE%E8%AE%A1%E9%98%B6%E6%AE%B5-F59E0B" alt="状态：设计阶段">
+<img src="https://img.shields.io/badge/%E7%8A%B6%E6%80%81-%E5%BC%80%E5%A7%8B%E5%AE%9E%E7%8E%B0-2563EB" alt="状态：开始实现">
 <img src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white" alt="Python 3.12">
 <img src="https://img.shields.io/badge/%E7%8E%AF%E5%A2%83-%CF%84%C2%B2--bench-4B32C3" alt="环境：tau2-bench">
 <img src="https://img.shields.io/badge/RL-GRPO%20%7C%20PPO-EE4C2C" alt="GRPO 与 PPO">
@@ -44,7 +44,7 @@ LLM 客服 Agent 已经大量上线，但仍然会违反业务政策、在错误
 最后量化每个目标要付出多少任务成功率。
 
 > [!NOTE]
-> **现状（2026 年 9 月 27 日）：设计阶段，还没有代码。** 本 README 是顶层设计和执行计划；[AGENTS.md](AGENTS.md) 规定编码 Agent 在本仓库里怎么干活。课程背景：NUS CS4246/5446《强化学习与序贯决策》，2026/27 学年第一学期。proposal 9 月 28 日交，展示在 11 月 10 日当周，报告 11 月 15 日截止。
+> **状态（2026 年 9 月 27 日）：基础工程代码已实现，实验尚未运行。** 本 README 是项目设计与执行计划；[AGENTS.md](AGENTS.md) 规定仓库工作方式。课程为 NUS CS4246/5446，proposal 截止 9 月 28 日，展示在 11 月 10 日当周，报告截止 11 月 15 日。
 
 <details>
 <summary><b>目录</b></summary>
@@ -71,6 +71,28 @@ LLM 客服 Agent 已经大量上线，但仍然会违反业务政策、在错误
 - [参考文献](#参考文献)
 
 </details>
+
+---
+
+## 开发环境
+
+需要 Python 3.12 和 uv。在仓库目录执行：
+
+```bash
+uv sync --locked
+uv run --locked ruff check .
+uv run --locked ruff format --check .
+uv run --locked pytest -q
+uv build
+```
+
+可选本地配置：POSIX 使用 `cp .env.example .env`，PowerShell 使用
+`Copy-Item .env.example .env`。CPU 测试无需密钥或模型服务，测试期间禁用网络；
+安装依赖时可以访问网络。启用提交检查：`uv run pre-commit install`。
+
+T0.1 已通过本机检查，远程 CI 待验证。目前没有训练检查点或基准实验结果。
+[ADR-006](docs/adr/ADR-006-preimplementation-contracts.md) 暂缓期间保留原研究定义。
+具体实现边界见[实施状态](docs/implementation-status.md)。
 
 ---
 
@@ -505,7 +527,7 @@ gantt
 
 - [ ] **T0.1 搭仓库骨架。**
     - *工作：* `pyproject.toml`（uv，Python 3.12）、`src/handoff`、ruff、pytest、pre-commit、跑 CPU 测试的 GitHub Actions、MIT LICENSE、`.gitignore`、`.env.example`。
-    - *完成标准：* `uv run pytest` 通过，CI 为绿。
+    - *完成标准：* `uv run pytest` 通过，CI 为绿。本机检查已通过，远程 CI 待验证。
 - [ ] **T0.2 固定 τ²-bench 版本。**
     - *工作：* 锁定到某个 commit；用任意可用模型在 5 个航空任务上跑 `tau2 run`。
     - *完成标准：* `data/simulations/` 下有结果，并有一个解析结果的脚本。

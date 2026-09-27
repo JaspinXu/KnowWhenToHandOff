@@ -1,0 +1,45 @@
+# Secrets (including nested service directories).
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials*.json
+
+# Python and tooling.
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+build/
+dist/
+.superpowers/
+.worktrees/
+
+# Experiment artifacts belong on scratch.
+runs/
+wandb/
+swanlog/
+checkpoints/
+trajectories/
+scratch/
+data/simulations/
+data/upstream/
+.cache/
+hf_cache/
+*.safetensors
+*.pt
+*.pth
+*.ckpt
+*.bin
+
+# Local editor / operating-system files.
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
