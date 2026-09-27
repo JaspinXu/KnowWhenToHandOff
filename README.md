@@ -93,6 +93,10 @@ T0.3 [offline server planning](slurm/README.md) is also implemented: validate
 configuration and generate Slurm scripts locally. It does not install models,
 submit jobs or change research definitions. Real cluster acceptance is pending.
 
+Independent [run provenance and token accumulation](docs/runtime-utilities.md)
+are implemented and CPU-tested. They support later experiment recording and
+multi-turn training; complete evaluation, trainers and reward parity are pending.
+
 ---
 
 ## Highlights
