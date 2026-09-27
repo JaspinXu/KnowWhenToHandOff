@@ -89,6 +89,10 @@ result is available. The original scientific definitions remain unchanged while
 [ADR-006](docs/adr/ADR-006-preimplementation-contracts.md) is deferred.
 See the [implementation status](docs/implementation-status.md) for exact boundaries.
 
+T0.3 [offline server planning](slurm/README.md) is also implemented: validate
+configuration and generate Slurm scripts locally. It does not install models,
+submit jobs or change research definitions. Real cluster acceptance is pending.
+
 ---
 
 ## Highlights
@@ -515,7 +519,7 @@ Each task has a definition of done (DoD). Tick the box when the DoD is met and t
     - *DoD:* results in `data/simulations/` and a script that parses them.
 - [ ] **T0.3 Bring up the cluster.**
     - *Work:* Slurm templates for the policy server, the user-simulator server and training; HF cache on scratch.
-    - *DoD:* both servers answer OpenAI-style tool-calling requests from a compute node; throughput measured.
+    - *DoD:* both servers answer OpenAI-style tool-calling requests from a compute node; throughput measured. Offline server planning is implemented; cluster acceptance and training templates remain pending.
 - [ ] **T0.4 Trainer spike (ADR-001).**
     - *Work:* run verl's multi-turn agent-loop example end to end on 1–2 GPUs.
     - *DoD:* ADR-001 written with measured step time and the go/no-go decision.

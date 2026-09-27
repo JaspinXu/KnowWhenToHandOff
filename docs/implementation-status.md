@@ -18,7 +18,7 @@ has been produced.
 | --- | --- | --- |
 | T0.1 | Installable package, Hydra root config, locked tooling, CPU tests, CI workflow, license and secret/artifact ignore rules | Actual remote CI run |
 | T0.2 | Not implemented; proposed upstream pin is deferred | Accepted pin, real five-task smoke and parser |
-| T0.3 | Server planning infrastructure is being implemented | Confirmed cluster configuration, server responses and measured throughput |
+| T0.3 | Validated offline server planner, Hydra templates, exclusive output bundles and CLI | Confirmed cluster configuration, server responses and measured throughput |
 | T0.4–T4.5 | Not implemented | Their README definitions of done |
 
 ## Foundation evidence
@@ -30,6 +30,17 @@ also passed. These are local engineering checks, not model experiments.
 
 Reproduce: `uv sync --locked && uv run pytest -q` (run as separate commands in
 Windows PowerShell 5). Full gates are listed in AGENTS.md.
+
+## Offline serving evidence
+
+The CPU suite currently has 53 passing tests, including script/argv rendering,
+invalid configuration, immutable revision validation, non-overwrite behavior,
+partial-write cleanup and real CLI calls from another working directory. Generated Bash passed syntax validation and refused execution outside a Slurm
+allocation. An independent review found CLI argument-value leakage; regression
+tests reproduced it, the handler was fixed, and the complete suite passed. No
+Slurm job was submitted; no model weights or GPU runtime were installed.
+
+Reproduce: `uv run pytest -q`. Usage: [offline server preparation](../slurm/README.md).
 
 ## Operational boundaries
 

@@ -1,0 +1,9 @@
+defaults:
+  - model: qwen3_1p7b
+  - server: vllm
+  - slurm@cluster: single_gpu
+  - _self_
+
+seed: 0
+# null prints the generated script; a new directory writes an offline plan bundle.
+output_dir: null

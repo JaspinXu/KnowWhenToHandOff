@@ -74,7 +74,7 @@ The package name is `handoff` (src layout). Directories are created by the tasks
 
 ## 4. Commands
 
-> Setup and CPU quality commands below work locally. Serving, evaluation and training remain planned unless explicitly marked implemented. Remote CI and GPU experiments require their own evidence.
+> Setup, CPU quality and offline planning commands below work locally. Serving, evaluation and training remain planned unless explicitly marked implemented. Remote CI and GPU experiments require their own evidence.
 
 ```bash
 # setup (Python 3.12, uv)
@@ -85,6 +85,10 @@ cp .env.example .env                      # fill in keys locally; never commit
 uv run ruff check . && uv run ruff format --check .
 uv run pytest -q                          # CPU only, sockets disabled
 uv build                                 # build sdist and wheel
+
+# offline server planning                 (implemented; no job submission)
+uv run python scripts/plan_server.py --help
+# See slurm/README.md for required configuration and output bundles.
 
 # serving on the cluster                  (planned, T0.3)
 sbatch slurm/serve_policy.sbatch   model=qwen3_4b

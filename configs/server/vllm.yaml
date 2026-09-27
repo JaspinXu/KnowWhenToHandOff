@@ -1,0 +1,8 @@
+# Supplied after the cluster's compatible serving stack is selected.
+vllm_version: ???
+host: 127.0.0.1
+port: 8000
+dtype: bfloat16
+max_model_len: 8192
+gpu_memory_utilization: 0.85
+tensor_parallel_size: 1
