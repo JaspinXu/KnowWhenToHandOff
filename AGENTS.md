@@ -54,6 +54,7 @@ The package name is `handoff` (src layout). Directories are created by the tasks
 | `pyproject.toml`, `.pre-commit-config.yaml`, `.github/workflows/` | Tooling, pinned deps, CI | T0.1 |
 | `configs/` | Hydra configs: `env/`, `model/`, `reward/`, `train/`, `eval/`, `slurm/` | T0.1+ |
 | `src/handoff/envs/` | Task registry, split manifests, persona injection, hand-off task generator, should-transfer labels | T1.1–T1.4 |
+| `src/handoff/ops/` | Run provenance and configuration integrity utilities | T0.3 supporting infrastructure |
 | `src/handoff/sim/` | User-simulator clients, serving helpers | T0.3, T0.5 |
 | `src/handoff/agents/` | Prompted baseline agent and policy client registered with the τ²-bench runner | T0.5, T1.6 |
 | `src/handoff/rollout/` | `Trajectory` schema, eval driver, verl `Tau2AgentLoop` | T1.5, T3.1 |
