@@ -37,7 +37,7 @@
 LLM customer-service agents are widely deployed, yet they still break business policies, hand off to human staff at the wrong time, and serve users unevenly depending on how those users talk. **KnowWhenToHandOff** trains a small open model (about 4B parameters) with multi-turn reinforcement learning on [τ²-bench](https://github.com/sierra-research/tau2-bench) so that it completes airline and retail support tasks while meeting four Responsible-AI goals: **accountability** (no policy violations), **trust** (escalating when, and only when, needed), **fairness** (similar success across communication styles) and **transparency** (citing the policy behind every refusal or hand-off). We then measure what each goal costs in task success.
 
 > [!NOTE]
-> **Status (27 Sep 2026): foundation code implemented; experiments have not run.** This README is the top-level design and the execution plan; [AGENTS.md](AGENTS.md) tells coding agents how to work in this repo. Course context: NUS CS4246/5446 *Reinforcement Learning and Sequential Decision Making*, AY2026/27 Semester 1 — proposal 28 Sep, presentation in the week of 10 Nov, report due 15 Nov 2026.
+> **Status (28 Sep 2026): partial implementation; the training/evaluation pipeline is not runnable yet.** GPU access alone is insufficient; see the [code-readiness audit](docs/code-readiness.md). This README is the top-level design and the execution plan; [AGENTS.md](AGENTS.md) tells coding agents how to work in this repo. Course context: NUS CS4246/5446 *Reinforcement Learning and Sequential Decision Making*, AY2026/27 Semester 1 — proposal 28 Sep, presentation in the week of 10 Nov, report due 15 Nov 2026.
 
 <details>
 <summary><b>Contents</b></summary>
@@ -100,6 +100,11 @@ multi-turn training; complete evaluation, trainers and reward parity are pending
 T1.4 [six style cards and persona injection](docs/personas.md) are implemented for
 serialized task dictionaries. CPU tests verify that other task fields are
 unchanged; upstream Task integration and the live dialogue audit remain pending.
+
+The [completion parser](docs/model-responses.md) handles text and function-call
+responses without executing tools. The project is **not yet code-complete**:
+[workflow gaps](docs/code-readiness.md) include model transport, benchmark
+integration, evaluation, rewards, SFT and RL drivers, beyond pending GPU runs.
 
 ---
 

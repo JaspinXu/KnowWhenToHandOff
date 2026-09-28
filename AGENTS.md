@@ -94,6 +94,9 @@ uv run python scripts/plan_server.py --help
 # persona injection invariance            (implemented; synthetic tasks only)
 uv run --locked pytest -q tests/test_personas.py
 
+# model-response parsing                  (implemented; no model requests)
+uv run --locked pytest -q tests/test_completions.py
+
 # serving on the cluster                  (planned, T0.3)
 sbatch slurm/serve_policy.sbatch   model=qwen3_4b
 sbatch slurm/serve_usersim.sbatch  model=qwen3_30b_a3b

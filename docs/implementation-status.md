@@ -10,6 +10,7 @@ has been produced.
 - One A100 and one H200 are available according to the owner. VRAM, scheduler
   topology, account, partition and scratch path are not yet specified.
 - ADR-006 is deferred. Do not adopt its benchmark pin, split or reward changes.
+- ADR-007's HTTPX dependency is deferred; only the pure parser was authorized.
 - Independent infrastructure may advance while real GPU acceptance remains open.
 
 ## Progress
@@ -19,6 +20,7 @@ has been produced.
 | T0.1 | Installable package, Hydra root config, locked tooling, CPU tests, CI workflow, license and secret/artifact ignore rules | Actual remote CI run |
 | T0.2 | Not implemented; proposed upstream pin is deferred | Accepted pin, real five-task smoke and parser |
 | T0.3 | Offline server planner, Hydra templates, exclusive plan bundles, run provenance and CLI | Confirmed cluster configuration, server responses and measured throughput |
+| T0.5 prerequisite | Pure completion parser with tool allowlists and strict argument JSON | Async transport (ADR-007 deferred), tau2 registration and full local-model smoke |
 | T1.4 | Six configured style cards and serialized-task persona injector | Accepted upstream Task adapter and ten reviewed simulated dialogues per style |
 | T3.1 prerequisite | Sampled-token accumulator and policy/context masks | Live verl adapter, generation log probabilities, reward parity and GPU validation |
 | Other T0.4–T4.5 work (except prerequisites listed above) | Not implemented | Their README definitions of done |
@@ -70,12 +72,31 @@ a no-op control; populated personas cannot be overwritten with a style card.
 The library composes through Hydra and provides content hashes for run records.
 Independent review found no actionable issues. A subsequent boundary regression
 exposed shared scenario references changing unrelated fields; detaching the styled
-branch fixed it. The full suite passes 148 CPU tests; Ruff, format and package
-build checks pass.
+branch fixed it. That slice passed 148 CPU tests; Ruff, format and package
+build checks passed.
 See [persona usage and review requirements](personas.md). Live upstream Task
 integration and simulator behavior have not been validated.
 
+## Model response parsing evidence
+
+The first 43 parser tests failed because the module was absent, then passed after
+implementation. Independent review identified escaped lone Unicode surrogates
+that passed parsing but could not be encoded for a later request. Seven regression
+cases reproduced the failure; decoded string/key validation fixed it while two
+positive cases preserve normal Unicode and valid surrogate pairs. The full suite
+now passes 200 CPU tests. Ruff, formatting and wheel/sdist builds pass.
+
+Parsing preserves tool IDs and original argument text, rejects unknown tools and
+ambiguous JSON, and validates usage counts without replacing missing counts by
+zero. No network client, tool execution, benchmark adapter or experiment was
+introduced; dependency files remain unchanged.
+
 ## Operational boundaries
+
+The project is **not code-complete before GPU execution**. See the
+[end-to-end readiness audit](code-readiness.md) for the missing workflow pieces.
+The [model response parser](model-responses.md) is a pure prerequisite; it cannot
+connect a model server. The owner deferred the HTTPX dependency in ADR-007.
 
 The upstream scientific definitions in both READMEs remain unchanged. Planning
 files and CPU fake responses must never be cited as real model results. Do not
