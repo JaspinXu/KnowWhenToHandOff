@@ -82,6 +82,11 @@ This helper does not supply behavior log probabilities, attention/position IDs,
 advantages, rewards or a verl `AgentLoopOutput`. The live trainer adapter must
 integrate those and prove eval/train parity before T3.1 is complete.
 
+For supervised training preparation, [SFT batching](sft-batches.md) now consumes
+these exact three token arrays with a caller-supplied train split declaration.
+It retains policy IDs and masks prompt/observation/padding positions in the loss
+labels. It is not a trainer or a verifier of upstream task membership.
+
 ## Local verification
 
 ```bash

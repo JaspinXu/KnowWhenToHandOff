@@ -12,7 +12,7 @@ tests cover the implemented components; they do not measure project completion.
 | Benchmark and tasks | Persona injection on serialized dictionaries | Accepted benchmark pin, task loading, frozen manifests and label/generator implementation |
 | Baseline/evaluation | No evaluation runner | Task environment adapter, trajectory recording, metrics, task bootstrap, result export |
 | Reward | No reward implementation | Deterministic task adapter, violation/format checks, composer and parity tests |
-| SFT | No data builder or trainer | Train-only teacher rollouts, eligibility filtering, dataset export, assistant-only loss and checkpoint handling |
+| SFT | Assistant-only token batching with declared train guard | Teacher rollouts, registry-backed membership/eligibility filtering, dataset export, actual loss/optimizer integration and checkpoint handling |
 | Multi-turn RL | Token IDs and response masks can be accumulated | Live token-based generation, tool/user environment steps, verl adapter, algorithm configs and launchers |
 | Reproducibility | Config/model/source/seed/hardware records | Driver integration, tracker export, experiment-log generation |
 | Presentation | Design documents | Real result figures/tables, report, slides and working demo |

@@ -106,6 +106,10 @@ responses without executing tools. The project is **not yet code-complete**:
 [workflow gaps](docs/code-readiness.md) include model transport, benchmark
 integration, evaluation, rewards, SFT and RL drivers, beyond pending GPU runs.
 
+[Assistant-only SFT batching](docs/sft-batches.md) now consumes preserved rollout
+IDs and builds padded inputs, attention masks and loss labels on CPU. Dataset
+eligibility checks and the actual SFT trainer remain pending.
+
 ---
 
 ## Highlights

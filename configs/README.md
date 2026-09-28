@@ -15,3 +15,7 @@ into experiment records.
 `personas.yaml` composes the six draft communication-style cards from
 `persona/styles_v1.yaml`. This config does not select tasks, splits or a simulator.
 See [persona injection](../docs/personas.md) for usage and the pending dialogue audit.
+
+`sft_batch.yaml` composes `train/sft_batch.yaml` for CPU token-batch preparation.
+Supply the actual tokenizer's `train.pad_token_id` before resolving it. This does
+not launch training or choose a checkpoint; see [SFT batches](../docs/sft-batches.md).

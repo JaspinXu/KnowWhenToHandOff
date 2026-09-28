@@ -22,6 +22,7 @@ has been produced.
 | T0.3 | Offline server planner, Hydra templates, exclusive plan bundles, run provenance and CLI | Confirmed cluster configuration, server responses and measured throughput |
 | T0.5 prerequisite | Pure completion parser with tool allowlists and strict argument JSON | Async transport (ADR-007 deferred), tau2 registration and full local-model smoke |
 | T1.4 | Six configured style cards and serialized-task persona injector | Accepted upstream Task adapter and ten reviewed simulated dialogues per style |
+| T2.2 prerequisite | Assistant-only SFT token batching, right padding and declared train guard | Dataset membership/eligibility checks, actual loss/optimizer integration, launcher and B2 evaluation |
 | T3.1 prerequisite | Sampled-token accumulator and policy/context masks | Live verl adapter, generation log probabilities, reward parity and GPU validation |
 | Other T0.4–T4.5 work (except prerequisites listed above) | Not implemented | Their README definitions of done |
 
@@ -84,12 +85,26 @@ implementation. Independent review identified escaped lone Unicode surrogates
 that passed parsing but could not be encoded for a later request. Seven regression
 cases reproduced the failure; decoded string/key validation fixed it while two
 positive cases preserve normal Unicode and valid surrogate pairs. The full suite
-now passes 200 CPU tests. Ruff, formatting and wheel/sdist builds pass.
+passed 200 CPU tests at the end of that slice. Ruff, formatting and wheel/sdist
+builds passed.
 
 Parsing preserves tool IDs and original argument text, rejects unknown tools and
 ambiguous JSON, and validates usage counts without replacing missing counts by
 zero. No network client, tool execution, benchmark adapter or experiment was
 introduced; dependency files remain unchanged.
+
+## SFT batch preparation evidence
+
+The initial 41 tests failed because the train module did not exist, then passed
+after implementing assistant-only token labels and position-based right padding.
+Tests use the actual TokenAccumulator for multistep synthetic rollouts. They
+preserve real EOS targets when the pad ID matches, verify causal target positions,
+reject declared dev/test rows in mixed batches, and reject malformed/oversize
+samples instead of truncating them. See [SFT batch usage](sft-batches.md).
+The full suite passes 241 CPU tests; Ruff, format and wheel/sdist builds pass.
+Independent review reran all 60 batch/token tests with no actionable findings.
+This does not prove official dataset membership or teacher eligibility, and no
+real loss, optimizer, model or GPU execution has occurred.
 
 ## Operational boundaries
 

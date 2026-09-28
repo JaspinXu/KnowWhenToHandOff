@@ -1,0 +1,5 @@
+# Batch preparation only, not an executable trainer or a frozen experiment config.
+max_length: 4096
+pad_token_id: ???  # Supply the actual policy tokenizer's ID; never infer it from EOS.
+ignore_index: -100 # The eventual trainer's loss must use the same ignore index.
+pad_to_multiple_of: 8

@@ -1,0 +1,3 @@
+defaults:
+  - train: sft_batch
+  - _self_

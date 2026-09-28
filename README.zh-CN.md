@@ -107,6 +107,10 @@ CPU 测试验证其他任务字段保持不变；上游 Task 接入与真实模�
 项目**尚未达到代码完整状态**：[流程缺口](docs/code-readiness.md)包括模型通信、基准接入、
 评测、奖励、SFT 和 RL 驱动，并非只差 GPU 实验。
 
+[仅对 assistant token 计算损失的 SFT 批处理](docs/sft-batches.md)已能在 CPU 上接收
+保留的 rollout token IDs，构造补齐输入、注意力掩码与损失标签；数据资格筛选与实际
+SFT 训练器仍待实现。
+
 ---
 
 ## 项目亮点
