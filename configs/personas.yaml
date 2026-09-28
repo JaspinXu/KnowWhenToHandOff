@@ -1,0 +1,3 @@
+defaults:
+  - persona: styles_v1
+  - _self_

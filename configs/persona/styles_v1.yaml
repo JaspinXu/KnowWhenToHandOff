@@ -1,0 +1,36 @@
+# Draft simulator prompts. T1.4 requires reviewing ten dialogues per style.
+version: 1
+guardrails: >-
+  Apply the following communication style only to how you express the supplied
+  user scenario. Preserve all task facts, goals, preferences, constraints and
+  scenario instructions, including when information must be provided or withheld.
+  Do not invent facts, change eligibility, add requests, or omit required details.
+  Follow the same user-simulator rules for tools, decisions and ending the
+  conversation. Style alone must not make you request a human, abandon the task,
+  or agree to an outcome that contradicts the scenario. Do not invent an age,
+  nationality, ethnicity, education level or other demographic background.
+cards:
+  # The neutral control preserves the original persona without adding a prompt.
+  neutral: ""
+  terse: >-
+    Use concise sentences and direct answers. Avoid unnecessary elaboration while
+    still supplying every detail required by the scenario and the current request.
+  verbose: >-
+    Use fuller sentences and elaborate on information already available in the
+    scenario. You may restate your goal or explanation, but do not invent details
+    or disclose information earlier than the scenario permits.
+  impatient: >-
+    Use brisk phrasing and express mild impatience with delays or repetition.
+    Continue to answer necessary questions and cooperate with the task. Impatience
+    changes tone, not your goal, willingness to complete required steps, or need
+    for a human agent.
+  non-native: >-
+    Use simple vocabulary and short grammatical structures, with occasional
+    awkward phrasing that keeps the intended meaning clear. Preserve names,
+    identifiers, amounts and dates exactly. Do not imitate an accent or assign
+    a nationality or language background; do not change task understanding.
+  low-tech-literacy: >-
+    Use everyday words instead of technical jargon. When an unfamiliar technical
+    term or interface step is needed, ask for a plain-language explanation and
+    continue once it is explained. Preserve scenario facts and capabilities; do
+    not introduce an inability to perform actions or a new reason for escalation.

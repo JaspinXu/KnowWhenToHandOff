@@ -19,8 +19,9 @@ has been produced.
 | T0.1 | Installable package, Hydra root config, locked tooling, CPU tests, CI workflow, license and secret/artifact ignore rules | Actual remote CI run |
 | T0.2 | Not implemented; proposed upstream pin is deferred | Accepted pin, real five-task smoke and parser |
 | T0.3 | Offline server planner, Hydra templates, exclusive plan bundles, run provenance and CLI | Confirmed cluster configuration, server responses and measured throughput |
+| T1.4 | Six configured style cards and serialized-task persona injector | Accepted upstream Task adapter and ten reviewed simulated dialogues per style |
 | T3.1 prerequisite | Sampled-token accumulator and policy/context masks | Live verl adapter, generation log probabilities, reward parity and GPU validation |
-| Other T0.4–T4.5 work | Not implemented | Their README definitions of done |
+| Other T0.4–T4.5 work (except prerequisites listed above) | Not implemented | Their README definitions of done |
 
 ## Foundation evidence
 
@@ -45,8 +46,9 @@ Reproduce: `uv run pytest -q`. Usage: [offline server preparation](../slurm/READ
 
 ## Runtime utility evidence
 
-The complete CPU suite now passes 103 tests. Added tests cover immutable run
-records, nested credential redaction, unresolved config rejection, config hashes,
+The runtime utility slice brought the CPU suite to 103 passing tests. Its tests
+cover immutable run records, nested credential redaction, unresolved config
+rejection, config hashes,
 exclusive completion markers, input validation and exact token/mask preservation.
 Independent review exposed cleanup failures during file close/flush and URL
 validation bypasses with leading whitespace. Five regression tests reproduced
@@ -57,6 +59,21 @@ are in [runtime utilities](runtime-utilities.md).
 The G: checkout is on `codex/handoff-local`. Initial audit drafts were preserved
 in a Git stash before checking out the implemented code. The implementation
 worktree and earlier commits are retained. No remote push was performed.
+
+## Persona injection evidence
+
+The initial 44 persona tests failed because the module did not exist, then passed
+after implementation. They exercise the six styles on synthetic task dictionaries
+and prove that injection preserves every field except `user_scenario.persona`,
+does not mutate source tasks, and keeps nested variants independent. Neutral is
+a no-op control; populated personas cannot be overwritten with a style card.
+The library composes through Hydra and provides content hashes for run records.
+Independent review found no actionable issues. A subsequent boundary regression
+exposed shared scenario references changing unrelated fields; detaching the styled
+branch fixed it. The full suite passes 148 CPU tests; Ruff, format and package
+build checks pass.
+See [persona usage and review requirements](personas.md). Live upstream Task
+integration and simulator behavior have not been validated.
 
 ## Operational boundaries
 

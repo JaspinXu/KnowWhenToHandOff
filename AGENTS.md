@@ -91,6 +91,9 @@ uv build                                 # build sdist and wheel
 uv run python scripts/plan_server.py --help
 # See slurm/README.md for required configuration and output bundles.
 
+# persona injection invariance            (implemented; synthetic tasks only)
+uv run --locked pytest -q tests/test_personas.py
+
 # serving on the cluster                  (planned, T0.3)
 sbatch slurm/serve_policy.sbatch   model=qwen3_4b
 sbatch slurm/serve_usersim.sbatch  model=qwen3_30b_a3b

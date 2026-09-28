@@ -11,3 +11,7 @@ the directory from their own location, not the shell's current directory.
 Configuration templates contain no credentials. Store credentials in the ignored
 `.env` or the cluster environment. Do not copy the complete process environment
 into experiment records.
+
+`personas.yaml` composes the six draft communication-style cards from
+`persona/styles_v1.yaml`. This config does not select tasks, splits or a simulator.
+See [persona injection](../docs/personas.md) for usage and the pending dialogue audit.
