@@ -5,6 +5,10 @@ using the standard library. It does not load a model, select teacher trajectorie
 write a dataset, run an optimizer or produce a checkpoint. No new dependencies
 or scientific definitions are introduced.
 
+For file-based preparation, the [offline exporter](sft-export.md) now streams
+tokenized JSONL through this builder and writes batches with a hashed manifest.
+It still does not select or certify eligible teacher data.
+
 ## Input and output
 
 Each sample contains exactly `split`, `prompt_ids`, `response_ids` and

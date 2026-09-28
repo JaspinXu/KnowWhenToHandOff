@@ -19,3 +19,7 @@ See [persona injection](../docs/personas.md) for usage and the pending dialogue 
 `sft_batch.yaml` composes `train/sft_batch.yaml` for CPU token-batch preparation.
 Supply the actual tokenizer's `train.pad_token_id` before resolving it. This does
 not launch training or choose a checkpoint; see [SFT batches](../docs/sft-batches.md).
+
+`prepare_sft.yaml` adds input/output paths, batch size and a record-byte bound for
+the [offline export command](../docs/sft-export.md). Its output must be a new
+scratch directory outside the checkout; it makes no dataset eligibility decision.

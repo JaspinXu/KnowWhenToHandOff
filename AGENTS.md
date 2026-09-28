@@ -100,6 +100,10 @@ uv run --locked pytest -q tests/test_completions.py
 # assistant-only SFT batch preparation     (implemented; no optimization)
 uv run --locked pytest -q tests/test_sft_batch.py tests/test_tokens.py
 
+# offline token batch export               (implemented; no dataset selection)
+uv run python scripts/prepare_sft.py --help
+# See docs/sft-export.md for input, scratch output and tokenizer-pad configuration.
+
 # serving on the cluster                  (planned, T0.3)
 sbatch slurm/serve_policy.sbatch   model=qwen3_4b
 sbatch slurm/serve_usersim.sbatch  model=qwen3_30b_a3b

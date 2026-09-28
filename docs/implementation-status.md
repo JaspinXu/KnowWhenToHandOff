@@ -22,7 +22,7 @@ has been produced.
 | T0.3 | Offline server planner, Hydra templates, exclusive plan bundles, run provenance and CLI | Confirmed cluster configuration, server responses and measured throughput |
 | T0.5 prerequisite | Pure completion parser with tool allowlists and strict argument JSON | Async transport (ADR-007 deferred), tau2 registration and full local-model smoke |
 | T1.4 | Six configured style cards and serialized-task persona injector | Accepted upstream Task adapter and ten reviewed simulated dialogues per style |
-| T2.2 prerequisite | Assistant-only SFT token batching, right padding and declared train guard | Dataset membership/eligibility checks, actual loss/optimizer integration, launcher and B2 evaluation |
+| T2.2 prerequisite | Assistant-only SFT token batching, streaming JSONL export CLI, right padding and declared train guard | Dataset membership/eligibility checks, actual loss/optimizer integration, launcher and B2 evaluation |
 | T3.1 prerequisite | Sampled-token accumulator and policy/context masks | Live verl adapter, generation log probabilities, reward parity and GPU validation |
 | Other T0.4–T4.5 work (except prerequisites listed above) | Not implemented | Their README definitions of done |
 
@@ -101,10 +101,22 @@ Tests use the actual TokenAccumulator for multistep synthetic rollouts. They
 preserve real EOS targets when the pad ID matches, verify causal target positions,
 reject declared dev/test rows in mixed batches, and reject malformed/oversize
 samples instead of truncating them. See [SFT batch usage](sft-batches.md).
-The full suite passes 241 CPU tests; Ruff, format and wheel/sdist builds pass.
+That slice passed 241 CPU tests; Ruff, format and wheel/sdist builds passed.
 Independent review reran all 60 batch/token tests with no actionable findings.
 This does not prove official dataset membership or teacher eligibility, and no
 real loss, optimizer, model or GPU execution has occurred.
+
+## Offline SFT export evidence
+
+The exporter initially failed 22 missing-module tests; the CLI initially failed
+nine command tests. Both then passed after implementation, with two additional
+read-bound/cleanup checks. The real CLI is tested from another working directory,
+including relative paths with spaces and scratch-only output. Tests verify exact
+source/output/config hashes, counts, final remainder batches, failure cleanup and
+safe CLI diagnostics. See [offline export usage](sft-export.md).
+The full suite passed 274 CPU tests; Ruff, format and wheel/sdist builds passed.
+Independent review reran all 33 export/CLI tests with no actionable findings.
+This remains a data transformation, not teacher selection or model training.
 
 ## Operational boundaries
 

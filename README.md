@@ -110,6 +110,10 @@ integration, evaluation, rewards, SFT and RL drivers, beyond pending GPU runs.
 IDs and builds padded inputs, attention masks and loss labels on CPU. Dataset
 eligibility checks and the actual SFT trainer remain pending.
 
+The [offline SFT export command](docs/sft-export.md) streams tokenized JSONL into
+batch files with configuration, hashes and counts. It does not construct or
+certify the teacher dataset, and never starts training.
+
 ---
 
 ## Highlights
