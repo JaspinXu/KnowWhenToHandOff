@@ -196,7 +196,8 @@ def dataset_statistics(
     meta_path: Path,
 ) -> dict[str, Any]:
     """Summary written next to the dataset (T2.1 definition of done)."""
-    rows = [json.loads(line) for line in meta_path.read_text().splitlines() if line]
+    text = meta_path.read_text(encoding="utf-8")
+    rows = [json.loads(line) for line in text.splitlines() if line]
     by: dict[str, Counter[str]] = {
         key: Counter(str(row[key]) for row in rows)
         for key in ("domain", "kind", "persona")

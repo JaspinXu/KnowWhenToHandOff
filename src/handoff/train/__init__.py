@@ -1,1 +1,1 @@
-"""Training preparation utilities; actual optimization backends remain separate."""
+"""Training: SFT data and trainer, verl RL data, launch, export and monitors."""

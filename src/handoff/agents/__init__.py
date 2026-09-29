@@ -1,1 +1,1 @@
-"""Model response handling for future baseline and simulator integrations."""
+"""Agent side of both drivers: the shared system prompt and the tau2 eval agent."""

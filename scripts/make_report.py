@@ -19,7 +19,14 @@ import argparse
 import json
 from pathlib import Path
 
-from handoff.cli import CliError, compose_config, fail, repo_root, require_scratch
+from handoff.cli import (
+    CliError,
+    compose_config,
+    fail,
+    repo_root,
+    require_scratch,
+    run_trajectories_path,
+)
 from handoff.eval.report import (
     RunSource,
     label_metrics,
@@ -66,8 +73,7 @@ def main() -> int:
             sources = []
             for run_id in run_ids.split("+"):
                 run_dir = Path(config.paths.runs_dir) / run_id
-                if not (run_dir / "trajectories.jsonl").exists():
-                    raise CliError(f"{run_id} has no trajectories (not an evaluation)")
+                run_trajectories_path(run_dir.parent, run_id)
                 sources.append(RunSource(run_id, run_dir))
             labels.append(
                 load_label(label, sources, allow_synthetic=args.allow_synthetic)

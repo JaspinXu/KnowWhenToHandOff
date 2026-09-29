@@ -58,11 +58,18 @@ def missing_keys(config: DictConfig, keys: Sequence[str]) -> list[str]:
     for key in keys:
         parent_path, _, leaf = key.rpartition(".")
         parent = OmegaConf.select(config, parent_path) if parent_path else config
-        if not isinstance(parent, DictConfig) or leaf not in parent:
-            missing.append(key)
-        elif OmegaConf.is_missing(parent, leaf):
+        absent = not isinstance(parent, DictConfig) or leaf not in parent
+        if absent or OmegaConf.is_missing(parent, leaf):
             missing.append(key)
     return missing
+
+
+def run_trajectories_path(runs_dir: Path, run_id: str) -> Path:
+    """``<runs_dir>/<run_id>/trajectories.jsonl``; fail clearly if it is missing."""
+    path = Path(runs_dir) / str(run_id) / "trajectories.jsonl"
+    if not path.exists():
+        raise CliError(f"no trajectories for {run_id} (not an evaluation run?)")
+    return path
 
 
 def setup_logging(verbose: bool = False) -> None:

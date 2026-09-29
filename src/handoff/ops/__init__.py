@@ -1,1 +1,1 @@
-"""Experiment bookkeeping without implicit model, evaluator or tracker calls."""
+"""Experiment bookkeeping: run IDs, provenance, test ledger and Slurm queries."""

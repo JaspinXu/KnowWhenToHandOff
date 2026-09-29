@@ -26,6 +26,7 @@ from handoff.cli import (
     missing_keys,
     repo_root,
     require_scratch,
+    run_trajectories_path,
     setup_logging,
 )
 from handoff.envs.registry import TaskRegistry
@@ -72,9 +73,7 @@ def main() -> int:
         trajectories = []
         run_files = []
         for run_id in config.teacher_runs:
-            path = Path(paths.runs_dir) / str(run_id) / "trajectories.jsonl"
-            if not path.exists():
-                raise CliError(f"no trajectories for teacher run {run_id}")
+            path = run_trajectories_path(Path(paths.runs_dir), str(run_id))
             run_files.append({"run_id": str(run_id), "sha256": file_sha256(path)})
             trajectories.extend(iter_trajectories(path))
         kept, rejected = select_teacher_episodes(

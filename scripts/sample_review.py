@@ -21,7 +21,14 @@ import argparse
 import json
 from pathlib import Path
 
-from handoff.cli import CliError, compose_config, fail, repo_root, require_scratch
+from handoff.cli import (
+    CliError,
+    compose_config,
+    fail,
+    repo_root,
+    require_scratch,
+    run_trajectories_path,
+)
 from handoff.envs.registry import read_json
 from handoff.envs.tau2_adapter import read_task_file
 from handoff.eval.analysis import (
@@ -37,10 +44,7 @@ ROOT = repo_root(__file__)
 
 
 def _trajectories(runs_dir: Path, run_id: str):
-    path = runs_dir / run_id / "trajectories.jsonl"
-    if not path.exists():
-        raise CliError(f"no trajectories for {run_id}")
-    return list(iter_trajectories(path))
+    return list(iter_trajectories(run_trajectories_path(runs_dir, run_id)))
 
 
 def main() -> int:

@@ -52,6 +52,7 @@ class HandoffTaskRunner(TaskRunner):
     """verl TaskRunner that exports saved checkpoints."""
 
     def run(self, config):
+        """Install the export hook in this (TaskRunner) process, then train."""
         _install_checkpoint_export(config)
         return super().run(config)
 

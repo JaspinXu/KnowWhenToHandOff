@@ -333,7 +333,7 @@ def generate_handoff_tasks(
         ),
     )
     results: list[tuple[dict[str, Any], TaskRef]] = []
-    position: dict[str, int] = {kind: 0 for kind in KIND_CODES}
+    position: dict[str, int] = dict.fromkeys(KIND_CODES, 0)
     for source in ordered:
         source_id = str(source["id"])
         split = split_of.get(source_id)

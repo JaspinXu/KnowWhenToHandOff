@@ -106,7 +106,9 @@ def export_step(step_dir: Path, target: Path, *, python: str = sys.executable) -
         raise RuntimeError(f"export of {step_dir} produced no weights")
     copy_missing_metadata(actor / "huggingface", work)
     record = {"source": str(step_dir), "step": step_dir.name, "lora_merged": lora}
-    (work / EXPORT_RECORD).write_text(json.dumps(record, indent=2) + "\n")
+    (work / EXPORT_RECORD).write_text(
+        json.dumps(record, indent=2) + "\n", encoding="utf-8"
+    )
     work.replace(target)
     return target
 

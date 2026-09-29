@@ -14,7 +14,14 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from handoff.cli import CliError, compose_config, fail, repo_root, require_scratch
+from handoff.cli import (
+    CliError,
+    compose_config,
+    fail,
+    repo_root,
+    require_scratch,
+    run_trajectories_path,
+)
 from handoff.demo.viewer import render_html
 from handoff.rollout.schema import iter_trajectories
 
@@ -49,9 +56,7 @@ def main() -> int:
     try:
         config = compose_config(ROOT, "base", args.paths)
         require_scratch(config)
-        path = Path(config.paths.runs_dir) / args.run / "trajectories.jsonl"
-        if not path.exists():
-            raise CliError(f"no trajectories for {args.run}")
+        path = run_trajectories_path(Path(config.paths.runs_dir), args.run)
         trajectories = list(iter_trajectories(path))
         if args.episodes:
             wanted = set(args.episodes)

@@ -2,8 +2,8 @@
 
 The agent loop writes one record per training episode. These functions compute
 the watch-list from the most recent records and compare it with the B2
-evaluation (see :func:`handoff.eval.metrics.hacking_indicators`), flagging any
-indicator that drifts more than twice its baseline value.
+evaluation (see :func:`handoff.eval.metrics.hacking_indicators`); an indicator
+is flagged when it exceeds ``max(2 x baseline, 0.02)``.
 
 Learning curves come from verl's own per-step dumps (``trainer.rollout_data_dir``
 and ``trainer.validation_data_dir``, one ``<step>.jsonl`` per step), which carry

@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections import Counter
 from collections.abc import Mapping, Sequence
 from typing import Any
 
@@ -78,11 +79,8 @@ def rl_rows(
 
 def rows_summary(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     """Counts by domain, kind, split and persona for the data manifest."""
-    summary: dict[str, dict[str, int]] = {}
-    for key in ("domain", "kind", "split", "persona"):
-        counts: dict[str, int] = {}
-        for row in rows:
-            value = str(row["extra_info"][key])
-            counts[value] = counts.get(value, 0) + 1
-        summary[key] = dict(sorted(counts.items()))
+    summary = {
+        key: dict(sorted(Counter(str(r["extra_info"][key]) for r in rows).items()))
+        for key in ("domain", "kind", "split", "persona")
+    }
     return {"n_rows": len(rows), **summary}

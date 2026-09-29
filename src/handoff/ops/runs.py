@@ -20,6 +20,7 @@ from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
+from handoff.envs.registry import read_json
 from handoff.ops.provenance import RUN_ID_PATTERN
 
 FINGERPRINT_CACHE = ".handoff_fingerprint.json"
@@ -156,13 +157,7 @@ def checkpoint_fingerprint(path: Path) -> str:
 
 def read_models_lock(path: Path) -> dict[str, Any]:
     """Read the models lock written by ``scripts/download_models.py``."""
-    if not path.exists():
-        return {}
-    with path.open(encoding="utf-8") as stream:
-        data = json.load(stream)
-    if not isinstance(data, dict):
-        raise ValueError(f"{path} is not a JSON object")
-    return data
+    return read_json(path) if path.exists() else {}
 
 
 def model_identity(

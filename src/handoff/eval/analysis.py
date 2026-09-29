@@ -15,6 +15,7 @@ from collections.abc import Callable, Mapping, Sequence
 from typing import Any
 
 from handoff.eval.citations import citation_events
+from handoff.eval.metrics import group_by, task_key
 from handoff.rollout.schema import Trajectory
 
 DIALOGUE_RUBRIC = (
@@ -141,11 +142,9 @@ def per_task_changes(
 ) -> dict[str, list[str]]:
     """Tasks whose success rate went up or down between two runs."""
 
-    def rates(trajectories: Sequence[Trajectory]) -> dict[tuple[str, str], float]:
-        grouped: dict[tuple[str, str], list[bool]] = defaultdict(list)
-        for t in trajectories:
-            grouped[(t.domain, t.task_id)].append(t.success)
-        return {k: sum(v) / len(v) for k, v in grouped.items()}
+    def rates(trajectories: Sequence[Trajectory]) -> dict[Any, float]:
+        groups = group_by(trajectories, task_key)
+        return {k: sum(t.success for t in v) / len(v) for k, v in groups.items()}
 
     a, b = rates(candidate), rates(baseline)
     improved = sorted(

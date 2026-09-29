@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import logging
+from collections import Counter
 from collections.abc import Mapping, Sequence
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
@@ -230,14 +231,10 @@ def _infra_record(
 
 def infra_breakdown(records: Sequence[Mapping[str, Any]]) -> dict[str, dict[str, int]]:
     """Counts of lost episodes by style, kind and error type."""
-    breakdown: dict[str, dict[str, int]] = {}
-    for key in ("persona", "kind", "error_type"):
-        counts: dict[str, int] = {}
-        for record in records:
-            value = str(record.get(key))
-            counts[value] = counts.get(value, 0) + 1
-        breakdown[f"by_{key}"] = dict(sorted(counts.items()))
-    return breakdown
+    return {
+        f"by_{key}": dict(sorted(Counter(str(r.get(key)) for r in records).items()))
+        for key in ("persona", "kind", "error_type")
+    }
 
 
 def run_evaluation(

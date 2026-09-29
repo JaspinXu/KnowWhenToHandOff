@@ -1,1 +1,1 @@
-"""Rollout support utilities; live environment drivers are separate integrations."""
+"""Episode records and drivers: schema, tau2 conversion, scoring, verl loop."""

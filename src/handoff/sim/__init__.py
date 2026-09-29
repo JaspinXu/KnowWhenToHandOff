@@ -1,1 +1,1 @@
-"""Serving preparation; simulation adapters are implemented in later tasks."""
+"""Model serving: vLLM launch, endpoint files, LiteLLM settings, API-key guard."""
