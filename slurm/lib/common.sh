@@ -48,7 +48,7 @@ parse_extra() {
 
 # Fail before any GPU time is spent when a config name has a typo.
 require_config() {  # require_config <group> <name>
-  if [[ ! -f "${HANDOFF_REPO}/configs/$1/$2.yaml" ]]; then
+  if [[ "$2" == _* || ! -f "${HANDOFF_REPO}/configs/$1/$2.yaml" ]]; then
     echo "unknown $1 config '$2' (see configs/$1/)" >&2
     exit 2
   fi

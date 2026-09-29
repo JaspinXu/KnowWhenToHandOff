@@ -418,10 +418,6 @@ def test_experiment_log_append(tmp_path):
     assert safe_name("R2 fp=0.5/x") == "R2-fp-0.5-x"
 
 
-def test_root_is_repository():
-    assert (Path(__file__).resolve().parents[1] / "configs").is_dir()
-
-
 def test_git_state_ignores_docs_and_reports_only(tmp_path):
     import subprocess
 

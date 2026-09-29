@@ -13,9 +13,6 @@ __pycache__/
 *.egg-info/
 .pytest_cache/
 .ruff_cache/
-.mypy_cache/
-.coverage
-htmlcov/
 build/
 dist/
 .superpowers/
@@ -30,12 +27,10 @@ reports/review/
 # Experiment artifacts belong on scratch.
 runs/
 wandb/
-swanlog/
 checkpoints/
 trajectories/
 scratch/
 data/simulations/
-data/upstream/
 .cache/
 hf_cache/
 *.safetensors

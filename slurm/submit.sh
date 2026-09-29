@@ -44,7 +44,7 @@ gpu() {  # gpu <type-or-empty> <count>
   if [[ -n "$1" ]]; then echo "--gres=gpu:$1:$2"; else echo "--gpus=$2"; fi
 }
 config_exists() {  # config_exists <group> <name>: catch typos before queueing
-  if [[ ! -f "${repo}/configs/$1/$2.yaml" ]]; then
+  if [[ "$2" == _* || ! -f "${repo}/configs/$1/$2.yaml" ]]; then
     echo "unknown $1 config '$2' (see configs/$1/)" >&2; exit 2
   fi
 }

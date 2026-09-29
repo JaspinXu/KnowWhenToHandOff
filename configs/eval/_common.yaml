@@ -1,0 +1,22 @@
+# Keys shared by every evaluation preset (not a preset itself). Each preset
+# pulls this in with `defaults: [_common, _self_]` and overrides what differs.
+domains: [airline, retail]
+personas: [neutral]
+seed: 300
+max_tasks_per_domain: null
+task_ids: null
+max_steps: 200
+max_errors: 10
+max_concurrency: 32
+prompt_variant: handoff_v1
+agent_temperature: 0.0
+agent_max_tokens: 2048
+agent_extra_body: null
+user_temperature: 0.7
+user_max_tokens: 1024
+user_extra_body: null
+simulation_timeout_s: 1800
+max_retries: 3
+allow_test: false
+bootstrap_resamples: 1000
+max_infra_failure_share: 0.0  # more lost episodes: the run is incomplete

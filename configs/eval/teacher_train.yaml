@@ -1,27 +1,14 @@
 # T2.1 teacher rollouts: train split only (official + hand-off train set),
 # all styles, sampled agent so successful trajectories are diverse.
+defaults: [_common, _self_]
 name: teacher_train
-domains: [airline, retail]
 splits: [train]
 kinds: [upstream, explicit_request, out_of_scope, hard_negative]
 personas: [neutral, terse, verbose, impatient, non-native, low-tech-literacy]
 num_trials: 2
+pass_k: 2
 seed: 1234
-max_tasks_per_domain: null
-task_ids: null
-max_steps: 200
-max_errors: 10
 max_concurrency: 48
-prompt_variant: handoff_v1
 agent_temperature: 0.6
-agent_max_tokens: 2048
-agent_extra_body: null
-user_temperature: 0.7
-user_max_tokens: 1024
-user_extra_body: null
-simulation_timeout_s: 1800
-max_retries: 3
-allow_test: false
 bootstrap_resamples: 200
 max_infra_failure_share: 0.05  # teacher data tolerate a few lost episodes
-pass_k: 2

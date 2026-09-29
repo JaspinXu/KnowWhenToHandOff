@@ -29,6 +29,8 @@ addopts = ["--disable-socket", "--strict-markers"]
 [tool.ruff]
 target-version = "py312"
 line-length = 88
+# Explicit: newer ruff also formats Markdown code blocks, which would reflow
+# the compact interface sketches in the READMEs.
 include = ["*.py", "*.pyi", "*.ipynb", "pyproject.toml"]
 
 [tool.ruff.lint]

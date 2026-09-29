@@ -1,26 +1,7 @@
 # Model and lambda selection (AGENTS hard rule 1): dev split, all task kinds.
+defaults: [_common, _self_]
 name: dev
-domains: [airline, retail]
 splits: [dev]
 kinds: [upstream, explicit_request, out_of_scope, hard_negative]
-personas: [neutral]
 num_trials: 4
-seed: 300
-max_tasks_per_domain: null
-task_ids: null
-max_steps: 200
-max_errors: 10
-max_concurrency: 32
-prompt_variant: handoff_v1
-agent_temperature: 0.0
-agent_max_tokens: 2048
-agent_extra_body: null
-user_temperature: 0.7
-user_max_tokens: 1024
-user_extra_body: null
-simulation_timeout_s: 1800
-max_retries: 3
-allow_test: false
-bootstrap_resamples: 1000
-max_infra_failure_share: 0.0  # more lost episodes: the run is incomplete
 pass_k: 4

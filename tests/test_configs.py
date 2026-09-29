@@ -24,7 +24,8 @@ CONFIGS = ROOT / "configs"
 
 
 def names(group: str) -> list[str]:
-    return sorted(p.stem for p in (CONFIGS / group).glob("*.yaml"))
+    """Usable presets of a group (``_*.yaml`` files are shared bases)."""
+    return sorted(p.stem for p in (CONFIGS / group).glob("[!_]*.yaml"))
 
 
 @pytest.mark.parametrize("name", names("eval"))
