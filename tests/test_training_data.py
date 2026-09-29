@@ -254,7 +254,8 @@ def test_verl_overrides_include_run_paths_and_optional_features(tmp_path):
     joined = "\n".join(overrides)
     assert "algorithm.adv_estimator=grpo" in joined
     assert "trainer.logger=[console]" in joined
-    assert f"actor_rollout_ref.model.path={tmp_path / 'b2'}" in joined
+    init = format_value(str(tmp_path / "b2"))  # Windows paths get quoted
+    assert f"actor_rollout_ref.model.path={init}" in joined
     assert "data.max_response_length=24576" in joined
     assert "+actor_rollout_ref.model.override_config.attn_implementation=sdpa" in joined
     assert "lora_rank" not in joined
