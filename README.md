@@ -426,7 +426,7 @@ The style gap (RQ3) and the reward-hacking watch-list (RQ4) are measured on thes
 
 ```text
 KnowWhenToHandOff/
-├── README.md · README.zh-CN.md · AGENTS.md · LICENSE (MIT)
+├── README.md · README.zh-CN.md · AGENTS.md · CLAUDE.md · LICENSE (MIT)
 ├── pyproject.toml · uv.lock  # laptop/CI environment (CPU, Python 3.12)
 ├── requirements/             # cluster GPU lock (vLLM, verl, PyTorch) and its inputs
 ├── configs/                  # Hydra: eval/, reward/, rl/, model/, persona/, handoff_tasks/, paths/

@@ -444,7 +444,7 @@ class Tau2AgentLoop(AgentLoopBase):  # verl
 
 ```text
 KnowWhenToHandOff/
-├── README.md · README.zh-CN.md · AGENTS.md · LICENSE（MIT）
+├── README.md · README.zh-CN.md · AGENTS.md · CLAUDE.md · LICENSE（MIT）
 ├── pyproject.toml · uv.lock  # 本机／CI 环境（CPU，Python 3.12）
 ├── requirements/             # 集群 GPU 环境的锁文件（vLLM、verl、PyTorch）及其输入
 ├── configs/                  # Hydra：eval/、reward/、rl/、model/、persona/、handoff_tasks/、paths/
