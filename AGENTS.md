@@ -16,9 +16,9 @@ We train a ~4B open model (Qwen3 family) with multi-turn reinforcement learning 
 - serve users with different communication styles equally well,
 - cite the policy behind refusals and hand-offs.
 
-**Pipeline:** baseline audit (B0, B1) → imitation warm start (B2) → GRPO or PPO with Responsible-AI rewards (R1, R2, R3, P1).
+**Pipeline:** baseline audit (B0, B1) → imitation warm start (B2) → GRPO with and without Responsible-AI rewards (R1, R2). It is a course project: keep code and experiments small (no sweeps or ablations).
 
-**Status:** foundation implementation started; experiments remain pending. Follow task-ID order for implementation. Owner clarification (27 Sep 2026): implement and CPU-test code before cluster access; GPU-dependent acceptance remains pending and does not block independent code work. Scientific definition changes still require approval.
+**Status (29 Sep 2026):** the pipeline is code-complete and CPU-verified; experiments remain pending and run on the cluster through `slurm/submit.sh` ([cluster runbook](docs/cluster-runbook.md)). Owner decisions: implement and CPU-test code before cluster access (27 Sep); complete the whole pipeline without downloading data or models on the laptop (29 Sep). ADR-001 is accepted; ADR-002 to ADR-005 are proposed for M1. Scientific definition changes still require approval.
 
 ---
 
@@ -29,8 +29,8 @@ These are non-negotiable. If a task seems to require breaking one, stop and ask.
 1. **The test split is sacred.**
     - Never train on, build SFT data from, tune hyper-parameters on, or select checkpoints with test tasks. This covers both the official test split and the hand-off test set.
     - Use the dev split (carved from train) for every selection decision.
-2. **Do not edit upstream τ²-bench.** Wrap it with adapters in `src/handoff/`. The τ²-bench version is pinned in `pyproject.toml`, and upgrading it needs an ADR.
-3. **Training rewards are deterministic code.** Rewards come from the τ²-bench evaluator, rule checks and labels. LLM judges may appear only in evaluation metrics, never in a training reward.
+2. **Do not edit upstream τ²-bench.** Wrap it with adapters in `src/handoff/`. The τ²-bench version is pinned (commit `fc0055d`, v1.0.1: `TAU2_COMMIT` in `slurm/cluster.env.example`, recorded in the split manifest and ADR-005), and upgrading it needs an ADR.
+3. **Training rewards are deterministic code.** Rewards come from the τ²-bench evaluator, rule checks and labels. No LLM judge is used, in training or in evaluation.
 4. **The evaluation protocol is frozen after milestone M1 (11 Oct 2026).** Changing a metric definition, split, trial count or simulator for reported numbers requires a new ADR in `docs/adr/`.
 5. **No secrets in the repo.**
     - API keys and tokens live in `.env`, which is gitignored.
@@ -52,21 +52,23 @@ The package name is `handoff` (src layout). Directories are created by the tasks
 | Path | Owns | Created by |
 | --- | --- | --- |
 | `pyproject.toml`, `.pre-commit-config.yaml`, `.github/workflows/` | Tooling, pinned deps, CI | T0.1 |
-| `configs/` | Hydra configs: `env/`, `model/`, `reward/`, `train/`, `eval/`, `slurm/` | T0.1+ |
+| `requirements/` | Cluster GPU lock (`cluster-gpu.txt`) and its inputs; regenerate with `scripts/lock_cluster_env.sh` | T0.3, ADR-001 |
+| `configs/` | Hydra configs: `eval/`, `reward/`, `rl/`, `model/`, `persona/`, `handoff_tasks/`, `paths/` + one entry config per script | T0.1+ |
 | `src/handoff/envs/` | Task registry, split manifests, persona injection, hand-off task generator, should-transfer labels | T1.1–T1.4 |
 | `src/handoff/ops/` | Run provenance and configuration integrity utilities | T0.3 supporting infrastructure |
 | `src/handoff/sim/` | User-simulator clients, serving helpers | T0.3, T0.5 |
 | `src/handoff/agents/` | Prompted baseline agent and policy client registered with the τ²-bench runner | T0.5, T1.6 |
 | `src/handoff/rollout/` | `Trajectory` schema, eval driver, verl `Tau2AgentLoop` | T1.5, T3.1 |
 | `src/handoff/rewards/` | Task reward adapter, violation rules, hand-off term, format term, `RewardComposer` | T3.2 |
-| `src/handoff/train/` | SFT data builder, RL launchers, fairness sampler | T2.1–T3.7 |
+| `src/handoff/train/` | SFT data builder and trainer, RL launcher, checkpoint export, monitors | T2.1–T3.5 |
 | `src/handoff/eval/` | Evaluation runner, metrics, bootstrap CIs, report tables | T1.5 |
 | `src/handoff/demo/` | Small chat UI showing hand-offs and policy citations | T4.3 |
 | `scripts/` | Thin CLI entry points only; no business logic | as needed |
-| `slurm/` | `sbatch` templates for the policy server, user-simulator server, training and evaluation | T0.3 |
+| `slurm/` | `submit.sh`, `cluster.env.example`, one job per step in `jobs/` | T0.3 |
 | `data/manifests/` | Frozen split and hand-off manifests with hashes | T1.1, T1.3 |
 | `docs/adr/` | Architecture decision records (`ADR-00N-title.md`) | T0.4+ |
-| `docs/metrics.md`, `docs/labels.md` | Frozen metric and label definitions | T1.2, T1.5 |
+| `docs/metrics.md`, `docs/labels.md`, `docs/handoff-tasks.md` | Frozen metric, label, rule and hand-off task definitions | T1.2, T1.3, T1.5 |
+| `docs/cluster-runbook.md` | The experiment sequence on the cluster, command by command | T0.3+ |
 | `docs/experiment-log.md` | One line per run: ID, purpose, result, decision | T1.6+ |
 | `tests/` | CPU-only unit, integration and parity tests | every task |
 | `reports/` | Generated tables and figures (final versions committed) | T4.1 |
@@ -75,52 +77,52 @@ The package name is `handoff` (src layout). Directories are created by the tasks
 
 ## 4. Commands
 
-> Setup, CPU quality and offline planning commands below work locally. Serving, evaluation and training remain planned unless explicitly marked implemented. Remote CI and GPU experiments require their own evidence.
+> Laptop commands run on CPU with no network in tests. Everything that needs GPUs, models or τ²-bench data runs on the cluster through `slurm/submit.sh`; the full sequence is in [docs/cluster-runbook.md](docs/cluster-runbook.md).
 
 ```bash
-# setup (Python 3.12, uv)
+# setup (Python 3.12, uv) — laptop / CI
 uv sync --locked
 cp .env.example .env                      # fill in keys locally; never commit
 
 # quality gates — run before every commit
 uv run ruff check . && uv run ruff format --check .
-uv run pytest -q                          # CPU only, sockets disabled
+uv run pytest -q                          # CPU only, sockets disabled; tau2/vLLM/verl tests skip
 uv build                                 # build sdist and wheel
+for f in slurm/*.sh slurm/lib/common.sh slurm/jobs/*.sbatch; do bash -n "$f" || exit 1; done
+shellcheck -x -P slurm slurm/*.sh slurm/lib/common.sh slurm/jobs/*.sbatch   # if installed
 
-# offline server planning                 (implemented; no job submission)
-uv run python scripts/plan_server.py --help
-# See slurm/README.md for required configuration and output bundles.
+# cluster: one-time
+cp slurm/cluster.env.example slurm/cluster.env
+bash slurm/submit.sh setup                # venv, pinned stack, tau2 v1.0.1, full test suite
+bash slurm/submit.sh download MODELS="qwen3_4b qwen3_30b_a3b"
+bash slurm/submit.sh tasks                # labels, splits, hand-off tasks (then commit data/)
+bash slurm/submit.sh check-tokens MODEL=qwen3_4b
 
-# persona injection invariance            (implemented; synthetic tasks only)
-uv run --locked pytest -q tests/test_personas.py
+# cluster: evaluation (the simulator server must be running)
+bash slurm/submit.sh serve                # ROLE=usersim MODEL=qwen3_30b_a3b
+bash slurm/submit.sh eval EVAL=smoke EXPERIMENT=SMOKE POLICY_MODEL=qwen3_4b
+bash slurm/submit.sh eval EVAL=dev EXPERIMENT=B0 POLICY_MODEL=qwen3_4b
+bash slurm/submit.sh eval EVAL=test_main EXPERIMENT=B0 POLICY_MODEL=qwen3_4b   # once per checkpoint
+bash slurm/submit.sh eval RESUME=<run id> POLICY_MODEL=qwen3_4b    # after exit 3 (lost episodes)
 
-# model-response parsing                  (implemented; no model requests)
-uv run --locked pytest -q tests/test_completions.py
+# cluster: training
+bash slurm/submit.sh teacher POLICY_ENDPOINT=$HANDOFF_SCRATCH/state/endpoints/usersim.json POLICY_LABEL=qwen3_30b_a3b
+bash slurm/submit.sh sft-data TEACHER_RUNS=<TEACH run id> DATASET=b2_v1
+bash slurm/submit.sh sft DATASET=b2_v1
+bash slurm/submit.sh rl REWARD=task_only EXPERIMENT=R1 INIT=<B2 checkpoint>
+bash slurm/submit.sh rl REWARD=r2 EXPERIMENT=R2 INIT=<B2 checkpoint>
+bash slurm/submit.sh rl RESUME=<RL run id>                             # time limit, simulator outage
+bash slurm/run.sh python scripts/monitor_rl.py --run <RL run id> --baseline <B2 dev run id>   # exit 3: stop the run
 
-# assistant-only SFT batch preparation     (implemented; no optimization)
-uv run --locked pytest -q tests/test_sft_batch.py tests/test_tokens.py
-
-# offline token batch export               (implemented; no dataset selection)
-uv run python scripts/prepare_sft.py --help
-# See docs/sft-export.md for input, scratch output and tokenizer-pad configuration.
-
-# serving on the cluster                  (planned, T0.3)
-sbatch slurm/serve_policy.sbatch   model=qwen3_4b
-sbatch slurm/serve_usersim.sbatch  model=qwen3_30b_a3b
-
-# evaluation                              (planned, T1.5–T1.6)
-uv run python scripts/run_eval.py eval=smoke model=qwen3_1p7b               # 5 tasks, 1 trial
-uv run python scripts/run_eval.py eval=test  model=b0 personas=all trials=4
-
-# training                                (planned, T2.2 / T3.3+)
-sbatch slurm/train.sbatch train=sft_b2
-sbatch slurm/train.sbatch train=grpo_r1
-sbatch slurm/train.sbatch train=grpo_r2 reward.lambda_fp=0.5 reward.lambda_fn=1.0
+# results (login node, inside the environment)
+bash slurm/run.sh python scripts/append_experiment_log.py <run id> --purpose "..." --decision "..."
+bash slurm/run.sh python scripts/make_report.py --name main --baseline B2 \
+  --runs B0=<test_main id>+<test_styles id>+<test_handoff id> B2=<...> R2=<...>
 ```
 
 PowerShell setup uses `Copy-Item .env.example .env`. Dependency installation may use the network; tests must not.
 
-Always run the **smoke** configuration before launching a full run.
+Always run the **smoke** configuration before launching a full run, and a real run only from a clean, committed checkout (provenance refuses dirty code, configs or data).
 
 ---
 
@@ -144,6 +146,8 @@ Always run the **smoke** configuration before launching a full run.
 
 Tests run on CPU with no GPU and no network. LLM calls are replaced by recorded fixtures or fakes.
 
+Three tiers, one suite: pure unit tests run everywhere; tests that need tau2 (`test_tau2_integration.py`, `test_cli_pipeline.py`) run a toy tau2 domain with scripted models; tests that need vLLM, verl or PyTorch (`test_gpu_stack.py`, `test_hf_cpu.py`) run on the cluster environment on CPU. Each tier skips itself when its packages are missing; the setup job runs all of them.
+
 **Required coverage:**
 
 | Area | What the test must pin down |
@@ -162,8 +166,8 @@ When you fix a bug in rewards or metrics, add the trajectory that exposed it as 
 
 ## 7. Experiments
 
-- **Run naming** follows the README experiment matrix: `B0`, `B1`, `B2`, `R1`, `R2-<λ tag>`, `R3`, `P1`, `A1`, `A2`, plus `-s<seed>` and a date, e.g. `R2-fp05-s1-20261024`.
-- **Run records.** Every run writes its resolved config, git SHA, τ²-bench commit, model revisions, seeds and hardware to `runs/<run_id>/` (gitignored) and to the tracker (W&B or SwanLab).
+- **Run naming** follows the README experiment matrix: `B0`, `B1`, `B2`, `R1`, `R2` (plus `SMOKE`, `TEACH`, `SPIKE`), optional tags, `-s<seed>` and a date, e.g. `R2-s1-20261024`.
+- **Run records.** Every run writes its resolved config, git SHA, τ²-bench commit, model revisions, seeds and hardware to `runs/<run_id>/` on cluster scratch (never in git).
 - **Experiment log.** After every run that produced numbers, append one line to `docs/experiment-log.md`: run ID, purpose, headline metrics with CIs, decision.
 - **Model selection** uses dev only. Evaluate test once per frozen checkpoint and record it as such.
 - **Reward-hacking watch-list.** Monitor these on every RL run and stop the run if one drifts more than 2× from B2:
@@ -179,7 +183,7 @@ When you fix a bug in rewards or metrics, add the trajectory that exposed it as 
 - Never run GPU work on a login node; use `sbatch` or `srun`.
 - Request only the GPUs and time you need, and set `--time`.
 - Checkpoints, caches and trajectories go to scratch. Point `HF_HOME` there.
-- Kill idle model servers when a sweep finishes.
+- Kill idle model servers when a campaign finishes.
 
 ---
 
@@ -226,8 +230,7 @@ A task is done when all of these hold:
 | Term | Meaning |
 | --- | --- |
 | B0 / B1 / B2 | Prompted 4B model / prompted larger model / SFT warm start |
-| R1 / R2 / R3 | GRPO with task reward / + Responsible-AI terms / + fairness sampler |
-| P1, A1, A2 | PPO comparison; ablation with naive per-turn shaping; ablation without the over-escalation (FP) term |
+| R1 / R2 | GRPO with task reward / + Responsible-AI terms (one fixed λ setting) |
 | Should-transfer label | Ground truth for whether `transfer_to_human_agents` is the correct action in an episode |
 | Hard negative | A difficult user (angry, impatient) whose issue *is* solvable; transferring is wrong |
 | Style card | Text injected into `user_scenario.persona` that sets a communication style, never task facts |

@@ -1,130 +1,69 @@
 # Implementation status
 
-Updated: 28 September 2026. This file separates code verification from research
-results. No benchmark score, trained checkpoint, or measured cluster throughput
-has been produced.
+Updated: 29 September 2026. This file separates code verification from research
+results. **No benchmark score, trained checkpoint or measured cluster throughput
+exists yet**; CPU fakes and toy domains must never be cited as model results.
 
 ## Owner decisions
 
-- Implement code and run CPU tests locally before cluster access is supplied.
-- One A100 and one H200 are available according to the owner. VRAM, scheduler
-  topology, account, partition and scratch path are not yet specified.
-- ADR-006 is deferred. Do not adopt its benchmark pin, split or reward changes.
-- ADR-007's HTTPX dependency is deferred; only the pure parser was authorized.
-- Independent infrastructure may advance while real GPU acceptance remains open.
+- 27 Sep: implement and CPU-test code before cluster access.
+- One A100 and one H200 are available; VRAM, scheduler topology, account,
+  partition and scratch path are configured in `slurm/cluster.env` on the cluster.
+- 29 Sep: complete the whole pipeline so it can be cloned on the cluster and run
+  with Slurm; download no datasets or models on the laptop. The deferred points
+  of ADR-006/ADR-007 were therefore decided in ADR-001 to ADR-005 (ADR-001
+  accepted for implementation; ADR-002 to ADR-005 proposed for M1).
+- 29 Sep: it is a course project; keep code simple and the experiments minimal.
+  The plan is five runs (B0, B1 optional, B2, R1, R2; one seed each); the λ
+  grid, fairness sampler (R3), PPO (P1), ablations (A1, A2) and the held-out
+  simulator were removed, together with the standalone tools written before the
+  pipeline (server planner, completion parser, offline SFT export).
 
-## Progress
+## Task status
 
-| Task | Code / local verification | Outstanding acceptance |
+"Code" means implemented and tested on CPU; "Run" is what the cluster or a
+person still has to do for the README definition of done.
+
+| Task | Code | Run / review still needed |
 | --- | --- | --- |
-| T0.1 | Installable package, Hydra root config, locked tooling, CPU tests, CI workflow, license and secret/artifact ignore rules | Actual remote CI run |
-| T0.2 | Not implemented; proposed upstream pin is deferred | Accepted pin, real five-task smoke and parser |
-| T0.3 | Offline server planner, Hydra templates, exclusive plan bundles, run provenance and CLI | Confirmed cluster configuration, server responses and measured throughput |
-| T0.5 prerequisite | Pure completion parser with tool allowlists and strict argument JSON | Async transport (ADR-007 deferred), tau2 registration and full local-model smoke |
-| T1.4 | Six configured style cards and serialized-task persona injector | Accepted upstream Task adapter and ten reviewed simulated dialogues per style |
-| T2.2 prerequisite | Assistant-only SFT token batching, streaming JSONL export CLI, right padding and declared train guard | Dataset membership/eligibility checks, actual loss/optimizer integration, launcher and B2 evaluation |
-| T3.1 prerequisite | Sampled-token accumulator and policy/context masks | Live verl adapter, generation log probabilities, reward parity and GPU validation |
-| Other T0.4–T4.5 work (except prerequisites listed above) | Not implemented | Their README definitions of done |
+| T0.1 | Done | A green remote CI run |
+| T0.2 | tau2 v1.0.1 pin, smoke protocol, result parsing | `eval=smoke` on the cluster |
+| T0.3 | Slurm jobs, serving, endpoints | Servers answering tool calls; throughput |
+| T0.4 | verl stack pinned and verified on CPU (ADR-001) | GPU spike: step time, go/no-go |
+| T0.5 | LiteLLM `openai/<served>` + `api_base` for agent and simulator | Full 5-task run on local models |
+| T1.1 | Registry, stratified dev carve-out, frozen manifests, disjointness tests | Build and commit the manifests |
+| T1.2 | Label rules and file, overrides with reasons ([labels](labels.md)) | Commit the label file |
+| T1.3 | Generator, tau2 validation, lineage ([hand-off tasks](handoff-tasks.md)) | Hand-check 30+ tasks |
+| T1.4 | Style cards and injection through tau2 | Review 10 dialogues per style |
+| T1.5 | All metrics with CIs ([metrics](metrics.md)) | Freeze with ADR-005 at M1 |
+| T1.6 | Evaluation driver, protocols, reports | B0 and B1 runs, audit write-up |
+| T2.1 | Teacher protocol and filter | Teacher rollouts, dataset statistics |
+| T2.2 | SFT trainer (full, LoRA, FSDP) | SFT run and B2 evaluation |
+| T2.3 | Comparison and failure packets | Annotate 10 failures |
+| T3.1 | `Tau2AgentLoop`, parity test with the evaluation driver | GPU validation |
+| T3.2 | Reward composer, per-term logging, the two reward presets | Reward statistics from a real run |
+| T3.3–T3.4 | RL launcher (GRPO), checkpoint export, resume | The R1 and R2 runs |
+| T3.5 | Reward-hacking monitor, review packet | Review 20 dialogues |
+| T3.6 | Test protocols, test ledger | Final evaluation |
+| T4.1 | Tables, figures and sources from run IDs | Real results |
+| T4.3 | HTML demo page and terminal demo | Slides, recorded demo |
+| T4.2, T4.4 | — (writing) | Report, release |
 
-## Foundation evidence
+## Verification evidence (29 Sep 2026)
 
-The initial contract tests produced three expected failures (missing package,
-missing distribution metadata and missing config) and one passing network guard.
-After implementation, all four tests passed. Ruff checks and sdist/wheel build
-also passed. These are local engineering checks, not model experiments.
+- Laptop / CI environment (`uv run --locked pytest -q`): all tests pass;
+  integration tests that need tau2, vLLM, verl or PyTorch are skipped.
+- With tau2 v1.0.1 installed: all tests pass, including the evaluation and
+  training drivers on a toy tau2 domain, their parity (same messages, rewards,
+  violations, format errors and token counts on seven scripted conversations)
+  and the command-line pipeline.
+- CPU replica of the cluster lock (vLLM 0.12.0, verl 0.8.0, torch 2.9.0):
+  all tests pass, including the stack-specific ones listed in
+  [code readiness](code-readiness.md).
+- Ruff lint and format pass; shell scripts pass `bash -n` and ShellCheck.
 
-Reproduce: `uv sync --locked && uv run pytest -q` (run as separate commands in
-Windows PowerShell 5). Full gates are listed in AGENTS.md.
+## Earlier slices (27–28 Sep)
 
-## Offline serving evidence
-
-The serving implementation passed 53 CPU tests, including script/argv rendering,
-invalid configuration, immutable revision validation, non-overwrite behavior,
-partial-write cleanup and real CLI calls from another working directory. Generated Bash passed syntax validation and refused execution outside a Slurm
-allocation. An independent review found CLI argument-value leakage; regression
-tests reproduced it, the handler was fixed, and the complete suite passed. No
-Slurm job was submitted; no model weights or GPU runtime were installed.
-
-Reproduce: `uv run pytest -q`. Usage: [offline server preparation](../slurm/README.md).
-
-## Runtime utility evidence
-
-The runtime utility slice brought the CPU suite to 103 passing tests. Its tests
-cover immutable run records, nested credential redaction, unresolved config
-rejection, config hashes,
-exclusive completion markers, input validation and exact token/mask preservation.
-Independent review exposed cleanup failures during file close/flush and URL
-validation bypasses with leading whitespace. Five regression tests reproduced
-these failures and passed after fixes. Ruff and wheel/sdist builds also passed.
-No benchmark/reward/evaluation definition was changed. API usage and limitations
-are in [runtime utilities](runtime-utilities.md).
-
-The G: checkout is on `codex/handoff-local`. Initial audit drafts were preserved
-in a Git stash before checking out the implemented code. The implementation
-worktree and earlier commits are retained. No remote push was performed.
-
-## Persona injection evidence
-
-The initial 44 persona tests failed because the module did not exist, then passed
-after implementation. They exercise the six styles on synthetic task dictionaries
-and prove that injection preserves every field except `user_scenario.persona`,
-does not mutate source tasks, and keeps nested variants independent. Neutral is
-a no-op control; populated personas cannot be overwritten with a style card.
-The library composes through Hydra and provides content hashes for run records.
-Independent review found no actionable issues. A subsequent boundary regression
-exposed shared scenario references changing unrelated fields; detaching the styled
-branch fixed it. That slice passed 148 CPU tests; Ruff, format and package
-build checks passed.
-See [persona usage and review requirements](personas.md). Live upstream Task
-integration and simulator behavior have not been validated.
-
-## Model response parsing evidence
-
-The first 43 parser tests failed because the module was absent, then passed after
-implementation. Independent review identified escaped lone Unicode surrogates
-that passed parsing but could not be encoded for a later request. Seven regression
-cases reproduced the failure; decoded string/key validation fixed it while two
-positive cases preserve normal Unicode and valid surrogate pairs. The full suite
-passed 200 CPU tests at the end of that slice. Ruff, formatting and wheel/sdist
-builds passed.
-
-Parsing preserves tool IDs and original argument text, rejects unknown tools and
-ambiguous JSON, and validates usage counts without replacing missing counts by
-zero. No network client, tool execution, benchmark adapter or experiment was
-introduced; dependency files remain unchanged.
-
-## SFT batch preparation evidence
-
-The initial 41 tests failed because the train module did not exist, then passed
-after implementing assistant-only token labels and position-based right padding.
-Tests use the actual TokenAccumulator for multistep synthetic rollouts. They
-preserve real EOS targets when the pad ID matches, verify causal target positions,
-reject declared dev/test rows in mixed batches, and reject malformed/oversize
-samples instead of truncating them. See [SFT batch usage](sft-batches.md).
-That slice passed 241 CPU tests; Ruff, format and wheel/sdist builds passed.
-Independent review reran all 60 batch/token tests with no actionable findings.
-This does not prove official dataset membership or teacher eligibility, and no
-real loss, optimizer, model or GPU execution has occurred.
-
-## Offline SFT export evidence
-
-The exporter initially failed 22 missing-module tests; the CLI initially failed
-nine command tests. Both then passed after implementation, with two additional
-read-bound/cleanup checks. The real CLI is tested from another working directory,
-including relative paths with spaces and scratch-only output. Tests verify exact
-source/output/config hashes, counts, final remainder batches, failure cleanup and
-safe CLI diagnostics. See [offline export usage](sft-export.md).
-The full suite passed 274 CPU tests; Ruff, format and wheel/sdist builds passed.
-Independent review reran all 33 export/CLI tests with no actionable findings.
-This remains a data transformation, not teacher selection or model training.
-
-## Operational boundaries
-
-The project is **not code-complete before GPU execution**. See the
-[end-to-end readiness audit](code-readiness.md) for the missing workflow pieces.
-The [model response parser](model-responses.md) is a pure prerequisite; it cannot
-connect a model server. The owner deferred the HTTPX dependency in ADR-007.
-
-The upstream scientific definitions in both READMEs remain unchanged. Planning
-files and CPU fake responses must never be cited as real model results. Do not
-tick a README task until its full definition of done is supported by evidence.
+The foundation (T0.1), run provenance, persona injection (T1.4) and SFT batch
+preparation were built first, each test-first with an independent review, and
+are part of the pipeline ([personas](personas.md)).

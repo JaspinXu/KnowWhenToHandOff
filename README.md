@@ -7,10 +7,10 @@
 **English** · [简体中文](README.zh-CN.md)
 
 <p>
-<img src="https://img.shields.io/badge/Status-Implementation%20started-2563EB" alt="Status: implementation started">
+<img src="https://img.shields.io/badge/Status-Code%20complete%20%C2%B7%20experiments%20pending-2563EB" alt="Status: code complete, experiments pending">
 <img src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white" alt="Python 3.12">
 <img src="https://img.shields.io/badge/Env-%CF%84%C2%B2--bench-4B32C3" alt="tau2-bench">
-<img src="https://img.shields.io/badge/RL-GRPO%20%7C%20PPO-EE4C2C" alt="GRPO and PPO">
+<img src="https://img.shields.io/badge/RL-GRPO-EE4C2C" alt="GRPO">
 <img src="https://img.shields.io/badge/Trainer-verl-0A66C2" alt="verl">
 <img src="https://img.shields.io/badge/Serving-vLLM-30A2FF" alt="vLLM">
 <img src="https://img.shields.io/badge/Policy-Qwen3--4B-615CED" alt="Qwen3-4B">
@@ -37,7 +37,7 @@
 LLM customer-service agents are widely deployed, yet they still break business policies, hand off to human staff at the wrong time, and serve users unevenly depending on how those users talk. **KnowWhenToHandOff** trains a small open model (about 4B parameters) with multi-turn reinforcement learning on [τ²-bench](https://github.com/sierra-research/tau2-bench) so that it completes airline and retail support tasks while meeting four Responsible-AI goals: **accountability** (no policy violations), **trust** (escalating when, and only when, needed), **fairness** (similar success across communication styles) and **transparency** (citing the policy behind every refusal or hand-off). We then measure what each goal costs in task success.
 
 > [!NOTE]
-> **Status (28 Sep 2026): partial implementation; the training/evaluation pipeline is not runnable yet.** GPU access alone is insufficient; see the [code-readiness audit](docs/code-readiness.md). This README is the top-level design and the execution plan; [AGENTS.md](AGENTS.md) tells coding agents how to work in this repo. Course context: NUS CS4246/5446 *Reinforcement Learning and Sequential Decision Making*, AY2026/27 Semester 1 — proposal 28 Sep, presentation in the week of 10 Nov, report due 15 Nov 2026.
+> **Status (29 Sep 2026): the pipeline is code-complete and verified on CPU; no experiment has run yet.** Every stage below runs on a Slurm cluster with one command each ([cluster runbook](docs/cluster-runbook.md)); what remains are the cluster runs, the human reviews and the M1 decisions ([implementation status](docs/implementation-status.md)). This README is the top-level design and the execution plan; [AGENTS.md](AGENTS.md) tells coding agents how to work in this repo. Course context: NUS CS4246/5446 *Reinforcement Learning and Sequential Decision Making*, AY2026/27 Semester 1 — proposal 28 Sep, presentation in the week of 10 Nov, report due 15 Nov 2026.
 
 <details>
 <summary><b>Contents</b></summary>
@@ -84,35 +84,29 @@ Optional local configuration: `cp .env.example .env` on POSIX, or
 model servers, and network access is disabled during tests. Dependency setup can
 use the network. To enable commit hooks: `uv run pre-commit install`.
 
-T0.1 is locally verified; remote CI is pending. No trained checkpoint or benchmark
-result is available. The original scientific definitions remain unchanged while
-[ADR-006](docs/adr/ADR-006-preimplementation-contracts.md) is deferred.
-See the [implementation status](docs/implementation-status.md) for exact boundaries.
+The laptop environment is CPU-only: it never installs τ²-bench, vLLM or verl and
+never downloads data or models. Tests that need them are skipped there; the
+cluster's setup job runs them all. Everything that touches GPUs, models or the
+benchmark data runs on the cluster:
 
-T0.3 [offline server planning](slurm/README.md) is also implemented: validate
-configuration and generate Slurm scripts locally. It does not install models,
-submit jobs or change research definitions. Real cluster acceptance is pending.
+```bash
+cp slurm/cluster.env.example slurm/cluster.env    # adapt to your cluster
+bash slurm/submit.sh setup                          # environment + full test suite
+bash slurm/submit.sh download MODELS="qwen3_4b qwen3_30b_a3b"
+bash slurm/submit.sh tasks                          # frozen task sets; commit them
+bash slurm/submit.sh serve                          # user simulator
+bash slurm/submit.sh eval EVAL=smoke EXPERIMENT=SMOKE POLICY_MODEL=qwen3_4b
+```
 
-Independent [run provenance and token accumulation](docs/runtime-utilities.md)
-are implemented and CPU-tested. They support later experiment recording and
-multi-turn training; complete evaluation, trainers and reward parity are pending.
+The [cluster runbook](docs/cluster-runbook.md) continues with the baselines, the
+SFT warm start, RL, the final evaluation and the report. Pinned stack: τ²-bench
+v1.0.1, verl 0.8.0, vLLM 0.12.0, PyTorch 2.9.0 with CUDA 12.8
+([ADR-001](docs/adr/ADR-001-trainer-and-gpu-stack.md)).
 
-T1.4 [six style cards and persona injection](docs/personas.md) are implemented for
-serialized task dictionaries. CPU tests verify that other task fields are
-unchanged; upstream Task integration and the live dialogue audit remain pending.
-
-The [completion parser](docs/model-responses.md) handles text and function-call
-responses without executing tools. The project is **not yet code-complete**:
-[workflow gaps](docs/code-readiness.md) include model transport, benchmark
-integration, evaluation, rewards, SFT and RL drivers, beyond pending GPU runs.
-
-[Assistant-only SFT batching](docs/sft-batches.md) now consumes preserved rollout
-IDs and builds padded inputs, attention masks and loss labels on CPU. Dataset
-eligibility checks and the actual SFT trainer remain pending.
-
-The [offline SFT export command](docs/sft-export.md) streams tokenized JSONL into
-batch files with configuration, hashes and counts. It does not construct or
-certify the teacher dataset, and never starts training.
+Definitions: [metrics](docs/metrics.md) · [labels, rules and format
+errors](docs/labels.md) · [hand-off tasks](docs/handoff-tasks.md) ·
+[decisions](docs/adr/) · [experiment log](docs/experiment-log.md) ·
+[code readiness](docs/code-readiness.md).
 
 ---
 
@@ -122,7 +116,7 @@ certify the teacher dataset, and never starts training.
 <tr>
 <td width="33%" valign="top"><b>RL for the hand-off itself</b><br>The agent learns when to call <code>transfer_to_human_agents</code>: only when the user asks for a human, or when the policy and tools leave no way to help. Transferring too often and too rarely are both penalised.</td>
 <td width="33%" valign="top"><b>Responsible AI as rewards</b><br>Policy violations, wrong hand-offs and missing policy citations are measured on every episode. Violations and wrong hand-offs are priced into the reward; citations are reported, not rewarded (see the reward-hacking rules).</td>
-<td width="33%" valign="top"><b>Fair across communication styles</b><br>The same tasks are replayed by terse, verbose, impatient, non-native and low-tech-literacy simulated users. The worst-served style is up-weighted during training.</td>
+<td width="33%" valign="top"><b>Checked across communication styles</b><br>The same test tasks are replayed by terse, verbose, impatient, non-native and low-tech-literacy simulated users, and the report shows the gap between the best- and worst-served style.</td>
 </tr>
 <tr>
 <td width="33%" valign="top"><b>Standard, verifiable benchmark</b><br>τ²-bench airline and retail domains, official train/test splits, rewards checked against the final database state, reliability measured with pass^k.</td>
@@ -148,7 +142,7 @@ The research gap this project targets:
 | τ-bench [1], τ²-bench [2] | Simulated tool-agent-user benchmarks with verifiable, database-state rewards | Evaluation only |
 | Multi-turn RL for tool agents [3, 4] | Trains agents on τ-bench-style tasks for task success; shows naive per-turn rewards can cut success by up to 14 points [3] | Hand-off calibration, compliance, fairness |
 | User-trait robustness [5, 6] | Shows agents degrade sharply with difficult users; training on diverse simulated users helps | Hand-offs and policy compliance |
-| **This project** | RL that jointly targets task success, compliance, hand-off calibration and fairness across user styles | — |
+| **This project** | RL that jointly targets task success, compliance and hand-off calibration, with success measured across user styles | — |
 
 ---
 
@@ -158,8 +152,8 @@ The research gap this project targets:
 | --- | --- | --- | --- |
 | **RQ1** | Does multi-turn RL improve a ~4B open model over prompting and supervised fine-tuning? | pass^1, pass^4 on the test split | RL beats SFT with a 95% CI that excludes zero |
 | **RQ2** | Can escalation-aware rewards produce calibrated hand-offs without hurting success? | Hand-off precision / recall, over-escalation rate | Higher hand-off F1 at ≤ 3 points of success cost |
-| **RQ3** | Does worst-group re-weighting shrink the success gap across communication styles? | Max − min success across styles; worst-style success | Smaller gap without lowering mean success |
-| **RQ4** | Which reward-hacking behaviours emerge, and which reward terms prevent them? | Transfer rate, episode length, audited failure cases | A documented taxonomy with at least one mitigation shown to work |
+| **RQ3** | How large is the success gap across communication styles, and does training change it? | Max − min success across styles; worst-style success | Gap reported for every model (measurement only) |
+| **RQ4** | Which reward-hacking behaviours show up during RL? | Transfer rate, episode length, reviewed dialogues | A short list of observed behaviours with examples |
 
 The **minimum viable result** is RQ1 at the imitation-learning stage plus the baseline audit of RQ2–RQ3. Everything beyond that is upside.
 
@@ -167,9 +161,9 @@ The **minimum viable result** is RQ1 at the imitation-learning stage plus the ba
 
 ## Scope
 
-**In scope:** τ²-bench airline and retail domains · one policy family (Qwen3, about 4B parameters; 1.7B for smoke tests) · simulated users only · offline and online RL · a small demo UI.
+**In scope:** τ²-bench airline and retail domains · one policy model (Qwen3-4B-Instruct-2507) · simulated users only · SFT and GRPO · a small demo UI.
 
-**Out of scope:** the telecom and banking domains · models above 8B parameters · real users or real customer data · voice · production deployment · building a new benchmark from scratch.
+**Out of scope:** the telecom and banking domains · training models above 8B parameters · real users or real customer data · voice · production deployment · hyper-parameter sweeps and ablation studies · a held-out second simulator.
 
 ---
 
@@ -184,7 +178,7 @@ Each conversation is one episode of a **partially observable Markov decision pro
 | Action | A reply to the user, a tool call (read or write), or `transfer_to_human_agents` (ends the episode) |
 | Transition | The simulated user's next message (LLM, stochastic) + deterministic tool execution on the database |
 | Reward | Terminal task reward from the τ²-bench evaluator, plus Responsible-AI terms |
-| Horizon | Up to *T* turns (start with 30), undiscounted |
+| Horizon | Up to 200 τ²-bench steps, as in the benchmark (training also caps an episode at 24,576 policy tokens), undiscounted |
 
 **Reward.** Only agent-generated tokens receive gradient; user and tool tokens are masked.
 
@@ -221,10 +215,11 @@ Both are built as valid τ²-bench task objects with their own evaluation criter
 1. **Evaluation first.** The evaluation harness and the baseline audit exist before any training code.
 2. **Reuse, don't rebuild.** τ²-bench owns the environment and the evaluator, vLLM owns serving, and verl owns the trainer. Our code is thin adapters, rewards, metrics and experiment glue.
 3. **One environment, two drivers.** The evaluation driver and the training driver share the task registry, persona injector and reward composer, and a parity test checks that they agree.
-4. **Deterministic rewards.** Training rewards come from code (the evaluator, rule checks, labels). LLM judges are used only for evaluation metrics, never as training reward.
-5. **The test split is sacred.** Model and λ selection use a dev split carved from train. Test is run once per frozen checkpoint.
-6. **Everything is reproducible.** Every run records its resolved config, git SHA, τ²-bench commit, model revisions and seeds.
-7. **Degrade gracefully.** Every stage has a fallback, and every milestone is a finishing point.
+4. **Deterministic rewards.** Rewards and metrics come from code (the evaluator, rule checks, labels). No LLM judge is used.
+5. **The test split is sacred.** Checkpoint selection uses a dev split carved from train. Test is run once per frozen checkpoint.
+6. **Keep it small.** Five runs answer the questions (B0, B1, B2, R1, R2); no sweeps or ablations.
+7. **Everything is reproducible.** Every run records its resolved config, git SHA, τ²-bench commit, model revisions and seeds.
+8. **Degrade gracefully.** Every stage has a fallback, and every milestone is a finishing point.
 
 ---
 
@@ -242,7 +237,7 @@ flowchart LR
     USR["User simulator<br/>vLLM, open model"]
   end
   subgraph POL["Policy serving"]
-    SRV["Policy server<br/>vLLM or SGLang"]
+    SRV["Policy server<br/>vLLM"]
   end
   subgraph ROLL["Rollout drivers"]
     EVD["Eval driver<br/>τ²-bench runner + custom agent"]
@@ -254,9 +249,9 @@ flowchart LR
   end
   subgraph TRN["Training"]
     SFT["Imitation learning<br/>SFT on filtered trajectories"]
-    RL["Online RL<br/>GRPO or PPO + fairness sampler"]
+    RL["Online RL<br/>GRPO"]
   end
-  OPS["Experiment ops<br/>Hydra configs, W&B, Slurm, run registry"]
+  OPS["Experiment ops<br/>Hydra configs, Slurm, run records"]
 
   REG --> EVD
   REG --> TRD
@@ -280,11 +275,11 @@ flowchart LR
 | --- | --- | --- |
 | Tasks and data | Frozen manifests for train/dev/test, hand-off task set, persona cards, should-transfer labels | τ²-bench task JSON, our generators |
 | Simulation | Tool execution, database, policy text, simulated user replies | τ²-bench environment + user simulator via LiteLLM → local vLLM |
-| Policy serving | OpenAI-compatible chat with tool calling for evaluation; token-in/token-out generation for training | vLLM (Qwen3 tool parser) or SGLang |
+| Policy serving | OpenAI-compatible chat with tool calling for evaluation; token-in/token-out generation for training | vLLM (hermes tool parser) |
 | Rollout drivers | Run episodes and emit trajectories; identical semantics in eval and train | τ²-bench agent registry; verl `AgentLoopBase` |
 | Rewards and metrics | Deterministic reward breakdown per episode; evaluation metrics with confidence intervals | Our code, unit-tested |
-| Training | SFT warm start; GRPO or PPO with persona-aware sampling | verl (fallback: ART or TRL) |
-| Experiment ops | Configs, launch scripts, tracking, run registry, artifacts | Hydra, W&B or SwanLab, Slurm |
+| Training | SFT warm start; GRPO | Hugging Face Trainer (SFT), verl (RL) |
+| Experiment ops | Configs, launch scripts, run records, experiment log | Hydra, Slurm |
 
 ---
 
@@ -365,18 +360,16 @@ Two rules for the training driver:
 
 | Stage | Input | Method | Output | Gate before moving on |
 | --- | --- | --- | --- | --- |
-| **B0 / B1** baselines | Test split × personas | Prompted small model (B0) and a larger open model (B1) | Baseline audit table | Tool-call format errors < 5% (else change the parser or base model) |
+| **B0 / B1** baselines | Test split × personas | Prompted 4B model (B0); the 30B simulator model as a prompted reference (B1, optional) | Baseline audit table | Tool-call format errors < 5% (else change the parser or base model) |
 | **B2** imitation | Successful, violation-free trajectories from a stronger model on train and the hand-off training set | SFT with loss on assistant tokens only | Warm-start checkpoint | B2 ≥ B0 on dev |
 | **R1** RL (outcome) | B2 + train split | GRPO, outcome reward only, group size 8 | RL checkpoint | Stable reward curve, no collapse, dev ≥ B2 |
-| **R2** RL + Responsible AI | R1 setup | Composite reward, λ grid of 3–4 points | Trade-off curves | Pick λ on dev |
-| **R3** fairness (stretch) | R2 setup | Persona-aware sampler: weights ∝ exp(η · failure rate) per style | Style-gap results | Gap shrinks on dev |
-| **P1** PPO (stretch) | R2 setup | Actor–critic PPO with GAE | GRPO vs PPO comparison | — |
+| **R2** RL + Responsible AI | R1 setup | Composite reward with one fixed λ setting (`configs/reward/r2.yaml`) | RL checkpoint | Dev compared with R1 |
 
-Starting hyper-parameters (to be tuned on dev):
+Hyper-parameters (`configs/rl/grpo.yaml`; fixed, changed only if a run diverges):
 
-- 30-turn cap, 512 tokens per turn
+- the benchmark's step limit and 2,048 tokens per turn, as in evaluation; at most 24,576 policy tokens per episode
 - rollout temperature 1.0
-- KL coefficient 0–0.01
+- no KL term to start (0–0.01 if the policy drifts)
 - LR 1e-6 for full fine-tuning, 1e-5 for LoRA
 
 ---
@@ -387,8 +380,8 @@ Starting hyper-parameters (to be tuned on dev):
 
 | Split | Airline | Retail | Use |
 | --- | --- | --- | --- |
-| Train | 30 upstream tasks | 73 upstream tasks | SFT data and RL, minus the dev tasks |
-| Dev | About 20% of train | About 20% of train | Model and λ selection |
+| Train | 30 upstream tasks | 74 upstream tasks | SFT data and RL, minus the dev tasks |
+| Dev | About 20% of train | About 20% of train | Checkpoint selection |
 | Test | 20 upstream tasks | 40 upstream tasks | Run once per frozen checkpoint |
 | Hand-off set | Same train/dev/test separation | Same train/dev/test separation | Hand-off calibration |
 
@@ -402,7 +395,7 @@ Starting hyper-parameters (to be tuned on dev):
 | Hand-off precision / recall / F1 | Transfer decisions against should-transfer labels |
 | Over-escalation rate | Transfers on should-not-transfer episodes |
 | Style gap | Max − min success across communication styles; also worst-style success |
-| Citation rate | Share of refusals and hand-offs that name the policy behind them (rule match + LLM judge, evaluation only) |
+| Citation rate | Share of refusals and hand-offs that name the policy behind them (rule match, evaluation only) |
 | Cost | Turns, tokens and tool calls per episode |
 
 **Statistics and robustness.**
@@ -410,8 +403,7 @@ Starting hyper-parameters (to be tuned on dev):
 - **Trials:** 4 trials per task in the main table (neutral persona); 2 trials per style for the style breakdown.
 - **Confidence intervals:** 95% bootstrap intervals over tasks, 1,000 resamples.
 - **Paired comparisons:** every model is compared on the same tasks, personas and seeds.
-- **Held-out simulator:** final checkpoints are re-tested with a user simulator from a different model family.
-- **Human audit:** a rubric-based review of 50 sampled dialogues per final checkpoint.
+- **Manual review:** 20 sampled dialogues per final checkpoint, read against a short rubric.
 - **Frozen protocol:** the evaluation protocol is frozen at milestone M1 (11 Oct); any later change needs an ADR.
 
 ---
@@ -424,42 +416,36 @@ Starting hyper-parameters (to be tuned on dev):
 | B1 | Larger open model (prompted) | — | — | Reference ceiling |
 | B2 | B0 | SFT | — | What does imitation buy? (RQ1) |
 | R1 | B2 | GRPO | Task only | What does RL buy? (RQ1) |
-| R2-λ | B2 | GRPO | Task + violation + hand-off + format | Compliance and hand-off vs success (RQ2) |
-| R3 | B2 | GRPO + fairness sampler | As R2 | Style gap (RQ3) |
-| P1 | B2 | PPO (critic) | As R2 | Critic-free vs actor–critic |
-| A1 | B2 | GRPO | R2 + naive per-turn shaping | Does dense shaping hurt? (RQ4) |
-| A2 | B2 | GRPO | R2 without the FP term | Does blanket transfer emerge? (RQ4) |
+| R2 | B2 | GRPO | Task + violation + hand-off + format | Compliance and hand-off vs success (RQ2) |
 
-Key runs use 3 seeds when compute allows; otherwise 1 seed with the limitation stated.
+The style gap (RQ3) and the reward-hacking watch-list (RQ4) are measured on these same runs; they need no extra training. Each run uses one seed, and the report states that limitation. B1 is optional and is the first thing to drop if time runs short.
 
 ---
 
 ## Repository layout
 
-Planned; directories appear as the tasks that create them are done.
-
 ```text
 KnowWhenToHandOff/
-├── README.md · README.zh-CN.md · AGENTS.md · LICENSE (MIT, T0.1)
-├── pyproject.toml            # uv, Python 3.12; tau2-bench pinned to a commit
-├── configs/                  # Hydra: env/, model/, reward/, train/, eval/, slurm/
+├── README.md · README.zh-CN.md · AGENTS.md · LICENSE (MIT)
+├── pyproject.toml · uv.lock  # laptop/CI environment (CPU, Python 3.12)
+├── requirements/             # cluster GPU lock (vLLM, verl, PyTorch) and its inputs
+├── configs/                  # Hydra: eval/, reward/, rl/, model/, persona/, handoff_tasks/, paths/
 ├── src/handoff/
-│   ├── envs/                 # task registry, splits, personas, hand-off task generator, labels
-│   ├── sim/                  # user-simulator clients and serving helpers
-│   ├── agents/               # prompted baseline agent, policy client for the τ²-bench runner
-│   ├── rollout/              # trajectory schema, eval driver, verl agent loop
-│   ├── rewards/              # task, violation rules, hand-off, format, composer
-│   ├── train/                # SFT data builder, RL launchers, fairness sampler
-│   ├── eval/                 # runner, metrics, bootstrap, report tables
-│   └── demo/                 # small chat UI showing hand-offs and policy citations
-├── scripts/                  # CLI entry points (serve, run_eval, build_sft_data, ...)
-├── slurm/                    # sbatch templates: policy server, user-sim server, train, eval
-├── data/manifests/           # frozen split and hand-off manifests (small, versioned)
-├── docs/
-│   ├── adr/                  # architecture decision records
-│   ├── metrics.md            # metric definitions (frozen at M1)
-│   └── experiment-log.md     # one entry per run
-├── tests/                    # unit tests: labels, rewards, metrics, parity
+│   ├── envs/                 # tau2 adapter, labels, splits and registry, hand-off tasks, personas
+│   ├── sim/                  # vLLM serving, endpoint files, LiteLLM settings
+│   ├── agents/               # agent prompt and the tau2 agent used for evaluation
+│   ├── rollout/              # Trajectory schema, tau2 conversion, token-in/token-out episodes, verl agent loop
+│   ├── rewards/              # policy rules, format checks, reward composer
+│   ├── train/                # SFT data and trainer, RL data and launch, checkpoint export, monitors
+│   ├── eval/                 # evaluation runner, metrics with bootstrap CIs, reports, review packets
+│   ├── ops/                  # run records, provenance, test ledger, experiment log
+│   └── demo/                 # offline HTML dialogue viewer
+├── scripts/                  # CLI entry points (run_eval, train_sft, train_rl, make_report, ...)
+├── slurm/                    # submit.sh, run.sh (login node), cluster.env.example, one sbatch file per job
+├── data/manifests/           # frozen labels, splits and hand-off manifests (with hashes)
+├── data/handoff_tasks/       # generated hand-off tasks (committed)
+├── docs/                     # runbook, metrics, labels, hand-off tasks, ADRs, experiment log
+├── tests/                    # CPU tests: unit, tau2 integration, parity, cluster-stack checks
 └── reports/                  # generated tables and figures (final versions committed)
 ```
 
@@ -469,25 +455,24 @@ KnowWhenToHandOff/
 
 | Concern | Choice | Why | Fallback |
 | --- | --- | --- | --- |
-| Environment | τ²-bench (airline, retail), pinned commit | Standard, verifiable rewards, official splits, Gym interface | — |
-| Policy model | Qwen3-4B-Instruct-2507 (Qwen3-1.7B for smoke tests) | Strong tool calling at 4B; known τ² SFT recipes exist | Qwen3.5-4B |
+| Environment | τ²-bench (airline, retail), v1.0.1 (commit `fc0055d`) | Standard, verifiable rewards, official splits, Gym interface | — |
+| Policy model | Qwen3-4B-Instruct-2507 | Strong tool calling at 4B; known τ² SFT recipes exist | Qwen3.5-4B |
 | User simulator | Open model served with vLLM (e.g., Qwen3-30B-A3B-Instruct-2507) | No API cost; fast MoE | Paid API |
-| Held-out simulator | A different model family, evaluation only | Detect simulator overfitting | Smaller open model |
-| Serving | vLLM with the Qwen3 tool-call parser | OpenAI-compatible and fast; LiteLLM can target it | SGLang |
-| Trainer | verl (agent loop; GRPO and PPO with critic) | Multi-turn token masks, both algorithms, FSDP | ART (LoRA GRPO) or TRL; offline RFT/DPO |
-| Config and tracking | Hydra + W&B (or SwanLab) | Reproducible runs, sweeps | CSV logs |
+| Serving | vLLM 0.12 with the hermes tool-call parser | OpenAI-compatible and fast; LiteLLM can target it | SGLang |
+| Trainer | verl 0.8 (agent loop, GRPO) | Multi-turn token masks, FSDP | LoRA GRPO; offline rejection-sampling fine-tuning |
+| Config and tracking | Hydra, console logs, run records | Reproducible runs | — |
 | Packaging and CI | uv, ruff, pytest, GitHub Actions (CPU tests) | Matches τ²-bench tooling | — |
-| Compute | Slurm cluster with H100/H200-class GPUs | Needed for multi-turn RL | 1.7B + LoRA on 1–2 GPUs |
+| Compute | Slurm cluster, one A100 + one H200 | Needed for multi-turn RL | LoRA, shorter episodes |
 
 **Architecture decision records** (`docs/adr/`):
 
-| ADR | Decision | Decide by |
-| --- | --- | --- |
-| ADR-001 | Trainer: verl vs ART vs slime vs TRL, based on a one-day spike | 4 Oct |
-| ADR-002 | Base policy: Qwen3-4B-Instruct-2507 vs Qwen3.5-4B, based on B0 | 11 Oct |
-| ADR-003 | User simulator and held-out simulator | 11 Oct |
-| ADR-004 | Reward composition and λ grid | 18 Oct |
-| ADR-005 | Evaluation protocol (frozen) | 11 Oct |
+| ADR | Decision | Decide by | Status (29 Sep) |
+| --- | --- | --- | --- |
+| [ADR-001](docs/adr/ADR-001-trainer-and-gpu-stack.md) | Trainer and GPU stack: verl 0.8 + vLLM 0.12 + PyTorch 2.9 | 4 Oct | Accepted; spike measurements pending |
+| [ADR-002](docs/adr/ADR-002-base-policy.md) | Base policy: Qwen3-4B-Instruct-2507 vs Qwen3.5-4B, based on B0 | 11 Oct | Proposed |
+| [ADR-003](docs/adr/ADR-003-user-simulators.md) | User simulator, teacher and B1 reference | 11 Oct | Proposed |
+| [ADR-004](docs/adr/ADR-004-reward-composition.md) | Reward composition (one fixed λ setting) | 18 Oct | Proposed |
+| [ADR-005](docs/adr/ADR-005-evaluation-protocol.md) | Evaluation protocol (frozen) | 11 Oct | Proposed |
 
 ---
 
@@ -495,13 +480,13 @@ KnowWhenToHandOff/
 
 | Job | GPUs (80 GB+ class) | Notes |
 | --- | --- | --- |
-| Smoke tests | 1 | Qwen3-1.7B policy + small simulator |
+| Smoke tests | 1 | Qwen3-4B policy (+ the simulator server) |
 | User-simulator server | 1 | 30B-A3B MoE in bf16 fits on one H200 |
-| SFT (4B, full) | 2–4 | Short runs; also possible with LoRA on 1 GPU |
-| GRPO / PPO (4B, full) | 4 | FSDP training with the rollout engine co-located; + 1 GPU for the simulator |
-| Evaluation sweep | 1–2 | Policy server + simulator; parallel episodes |
+| SFT (4B, full) | 1 | Short run on the H200; LoRA if memory is short |
+| GRPO (4B, full) | 1 | FSDP training with the rollout engine co-located; + 1 GPU for the simulator |
+| Evaluation | 1 | Policy server + simulator; parallel episodes |
 
-These are estimates. T0.3 measures real throughput (episodes per hour) and the plan is re-sized from that. Checkpoints and trajectories live on cluster scratch; only small manifests, configs and final reports go into git.
+These are estimates. Available now: one A100 and one H200; the runbook keeps the user simulator on the A100 for a whole campaign and runs evaluation, SFT and RL on the H200 one job at a time. T0.3 measures real throughput (episodes per hour) and the plan is re-sized from that. Checkpoints and trajectories live on cluster scratch; only small manifests, configs and final reports go into git.
 
 ---
 
@@ -530,6 +515,8 @@ gantt
 
 Each task has a definition of done (DoD). Tick the box when the DoD is met and the commit references the task ID.
 
+**Status (29 Sep 2026):** the code for every task below is implemented and tested on CPU. A box is ticked only when the whole DoD is met; most DoDs also need cluster runs or human reviews, listed per task in the [implementation status](docs/implementation-status.md).
+
 ### Phase 0 — Foundations (28 Sep – 4 Oct)
 
 - [ ] **T0.1 Scaffold the repo.**
@@ -540,7 +527,7 @@ Each task has a definition of done (DoD). Tick the box when the DoD is met and t
     - *DoD:* results in `data/simulations/` and a script that parses them.
 - [ ] **T0.3 Bring up the cluster.**
     - *Work:* Slurm templates for the policy server, the user-simulator server and training; HF cache on scratch.
-    - *DoD:* both servers answer OpenAI-style tool-calling requests from a compute node; throughput measured. Offline server planning is implemented; cluster acceptance and training templates remain pending.
+    - *DoD:* both servers answer OpenAI-style tool-calling requests from a compute node; throughput measured. The Slurm jobs for servers, evaluation and training are implemented; cluster acceptance is pending.
 - [ ] **T0.4 Trainer spike (ADR-001).**
     - *Work:* run verl's multi-turn agent-loop example end to end on 1–2 GPUs.
     - *DoD:* ADR-001 written with measured step time and the go/no-go decision.
@@ -583,23 +570,21 @@ Each task has a definition of done (DoD). Tick the box when the DoD is met and t
 
 ### Phase 3 — Online RL, milestone M3 (19 Oct – 1 Nov) · *main result*
 
-- [ ] **T3.1 `Tau2AgentLoop` for verl.**
+- [x] **T3.1 `Tau2AgentLoop` for verl.**
     - *Work:* token-in/token-out generation.
-    - *DoD:* a parity test on replayed trajectories matches the eval driver's reward.
+    - *DoD:* a parity test on replayed trajectories matches the eval driver's reward. Met on scripted tau2 conversations (`tests/test_tau2_integration.py`); GPU validation follows in T0.4.
 - [ ] **T3.2 Reward composer.**
     - *Work:* implement the reward with per-term logging and λs set in config.
     - *DoD:* unit tests and a reward-statistics panel.
 - [ ] **T3.3 R1: GRPO with outcome reward.**
     - *DoD:* learning curves; dev ≥ B2.
-- [ ] **T3.4 R2: composite reward and λ sweep.**
-    - *DoD:* trade-off curves; λ chosen on dev.
-- [ ] **T3.5 Reward-hacking audit.**
-    - *Work:* track transfer rate, episode length and simulator exploitation; review 50 dialogues.
-    - *DoD:* taxonomy table (RQ4).
-- [ ] **T3.6 (stretch) R3: fairness sampler.**
-- [ ] **T3.7 (stretch) P1: PPO with critic; ablations A1 and A2.**
-- [ ] **T3.8 Final evaluation.**
-    - *Work:* test split + held-out simulator for the frozen checkpoints.
+- [ ] **T3.4 R2: composite reward.**
+    - *DoD:* learning curves; R2 compared with R1 on dev.
+- [ ] **T3.5 Reward-hacking check.**
+    - *Work:* track transfer rate and episode length during training; review 20 dialogues.
+    - *DoD:* list of observed behaviours (RQ4).
+- [ ] **T3.6 Final evaluation.**
+    - *Work:* test protocols for the frozen checkpoints (B0, B1, B2, R1, R2).
     - *DoD:* final tables; **experiment freeze on 1 Nov**.
 
 ### Phase 4 — Write-up and release (2 – 15 Nov)
@@ -614,8 +599,6 @@ Each task has a definition of done (DoD). Tick the box when the DoD is met and t
     - *When:* presentation in the week of 10 Nov.
 - [ ] **T4.4 Release.**
     - *Work:* results section in this README, a model card on Hugging Face marked "not for deployment", a sample of trajectories, reproduction commands.
-- [ ] **T4.5 (post-course) Paper extension plan.**
-    - *Work:* more domains and models, a stronger method section; target a 2027 workshop or the January 2027 ARR cycle.
 
 **Solo cadence.** The plan assumes one person does the building, so the rhythm is weekly:
 
@@ -623,7 +606,7 @@ Each task has a definition of done (DoD). Tick the box when the DoD is met and t
 - **Wednesday:** run a smoke test of whatever changed.
 - **Sunday:** update `docs/experiment-log.md` and tick the boxes.
 
-If a phase slips by more than three days, cut the stretch tasks (T3.6, T3.7) first, never the evaluation.
+If a phase slips by more than three days, drop B1 first, then shorten RL (fewer steps), never the evaluation.
 
 ---
 
@@ -631,15 +614,15 @@ If a phase slips by more than three days, cut the stretch tasks (T3.6, T3.7) fir
 
 | Risk | Likelihood | Impact | Mitigation | Trigger |
 | --- | --- | --- | --- | --- |
-| Multi-turn RL plumbing takes too long | High | High | ADR-001 spike in week 1; fall back to ART (LoRA GRPO) or offline RFT/DPO | Agent loop not running end to end by 18 Oct |
-| GPU quota too small | Medium | High | 1.7B + LoRA, shorter horizons, API user simulator | Queue wait > 24 h or < 4 GPUs available |
-| Too few training tasks (30 + 73) | High | Medium | Persona × seed replay, hand-off set, early stopping on dev | Dev reward plateaus while train reward rises |
+| Multi-turn RL plumbing takes too long | High | High | ADR-001 spike in week 1; fall back to LoRA GRPO or offline rejection-sampling fine-tuning | Agent loop not running end to end by 18 Oct |
+| GPU time too short | Medium | High | LoRA, fewer RL steps, drop B1 | Queue wait > 24 h |
+| Too few training tasks (30 + 74) | High | Medium | Persona × seed replay, hand-off set, early stopping on dev | Dev reward plateaus while train reward rises |
 | Ambiguous hand-off labels | Medium | High | Labels from the policy text, hand-checked sample, conservative rules | Disagreement on re-labelling > 10% |
 | Noisy results on small test sets | High | Medium | pass^k, bootstrap CIs, paired comparisons, no over-claiming | CIs overlap between key runs |
 | Reward hacking (blanket transfer, early stops, persuading the simulator) | Medium | High | FP term, length and transfer-rate monitors, dialogue audits | Transfer rate or episode length drifts > 2× from B2 |
-| User-simulator bias or drift | Medium | Medium | Held-out simulator, fixed evaluation temperature, manual review | Success changes > 10 points between simulators |
+| User-simulator bias or drift | Medium | Medium | Fixed evaluation temperature, manual review, stated as a limitation | Reviewed dialogues show the simulator breaking its role |
 | Upstream τ²-bench changes | Low | Medium | Pin the commit; upgrade only via an ADR | — |
-| Solo workload and schedule slip | High | High | Milestones as finishing points; freeze on 1 Nov; cut stretch first | Any phase > 3 days late |
+| Solo workload and schedule slip | High | High | Milestones as finishing points; freeze on 1 Nov; drop B1 first | Any phase > 3 days late |
 
 ---
 
@@ -647,7 +630,7 @@ If a phase slips by more than three days, cut the stretch tasks (T3.6, T3.7) fir
 
 - **Simulated users only.** No real customers or personal data are used. All tasks are synthetic τ²-bench tasks or our derived variants.
 - **Styles, not demographics.** The six communication styles describe *how* someone talks, not *who* they are. The style cards avoid stereotypes, and results are not claims about any demographic group.
-- **Simulator ≠ people.** Results may not transfer to real users. We report a held-out simulator and a human dialogue audit to bound this.
+- **Simulator ≠ people.** Results may not transfer to real users, and only one simulator is used. A manual dialogue review checks the worst cases.
 - **Not for deployment.** Released checkpoints are research artefacts and carry a model card that says so.
 - **Upstream licences.** τ²-bench data and code, and every model licence, are respected. Redistributed data is limited to what the upstream licences allow.
 
@@ -662,7 +645,6 @@ If a phase slips by more than three days, cut the stretch tasks (T3.6, T3.7) fir
 | Course | Report (≤ 10 pages, Vancouver) | 15 Nov 2026 |
 | Portfolio | This repository with results, figures and reproduction commands | 15 Nov 2026 |
 | Portfolio | Model card and checkpoint on Hugging Face, sample trajectories | After the report |
-| Research (optional) | Workshop or conference submission | 2027 |
 
 ---
 
@@ -675,8 +657,6 @@ If a phase slips by more than three days, cut the stretch tasks (T3.6, T3.7) fir
 5. He M, Kumar A, Mackey T, Rajeev M, Zou J, Rajani N. Impatient users confuse AI agents: high-fidelity simulations of human traits for testing agents. arXiv:2510.04491. 2025.
 6. Chopra H, Ghate K, Caliskan A, Kohno T, Shah C, Jaques N. Beyond cooperative simulators: generating realistic user personas for robust evaluation of LLM agents. arXiv:2605.12894. 2026.
 7. Shao Z, Wang P, Zhu Q, Xu R, Song J, Bi X, et al. DeepSeekMath: pushing the limits of mathematical reasoning in open language models (GRPO). arXiv:2402.03300. 2024.
-8. Schulman J, Wolski F, Dhariwal P, Radford A, Klimov O. Proximal policy optimization algorithms. arXiv:1707.06347. 2017.
-9. Sagawa S, Koh PW, Hashimoto TB, Liang P. Distributionally robust neural networks for group shifts. arXiv:1911.08731. 2019.
-10. verl — Agent Loop documentation: <https://verl.readthedocs.io/en/latest/advance/agent_loop.html>
+8. verl — Agent Loop documentation: <https://verl.readthedocs.io/en/latest/advance/agent_loop.html>
 
-<p align="center"><sub>Built by <a href="https://github.com/JaspinXu">@JaspinXu</a> for NUS CS4246/5446 (AY2026/27). Design phase — results will appear here as milestones land.</sub></p>
+<p align="center"><sub>Built by <a href="https://github.com/JaspinXu">@JaspinXu</a> for NUS CS4246/5446 (AY2026/27). Code complete — results will appear here as milestones land.</sub></p>

@@ -1,43 +1,39 @@
 # Code readiness before GPU experiments
 
-Audited on 28 September 2026. **The project is not code-complete.** GPU access
-alone will not make the current checkout run the proposed study. Passing unit
-tests cover the implemented components; they do not measure project completion.
+Re-audited on 29 September 2026. **The pipeline is code-complete**: every stage of
+the study has an executable path from the cluster's login node
+([cluster runbook](cluster-runbook.md)). What remains are cluster runs, human
+reviews and owner decisions, none of which code can replace.
 
-| Workflow | Existing executable code | Missing code / decisions |
+## How the code was verified without GPUs
+
+| Tier | Environment | What runs |
 | --- | --- | --- |
-| Local setup and quality | Locked Python package, tests, lint, build, CI workflow | Remote CI evidence |
-| Start model services | Validated offline Slurm plan generation | Actual configured jobs, model response checks, training launcher |
-| Model interaction | Pure text/function-call response parser | Async transport (dependency deferred), service smoke and tau2 registration |
-| Benchmark and tasks | Persona injection on serialized dictionaries | Accepted benchmark pin, task loading, frozen manifests and label/generator implementation |
-| Baseline/evaluation | No evaluation runner | Task environment adapter, trajectory recording, metrics, task bootstrap, result export |
-| Reward | No reward implementation | Deterministic task adapter, violation/format checks, composer and parity tests |
-| SFT | Assistant-only token batching and streaming offline export CLI with declared train guard | Teacher rollouts, registry-backed membership/eligibility filtering, task/tokenizer provenance, actual loss/optimizer integration and checkpoint handling |
-| Multi-turn RL | Token IDs and response masks can be accumulated | Live token-based generation, tool/user environment steps, verl adapter, algorithm configs and launchers |
-| Reproducibility | Config/model/source/seed/hardware records | Driver integration, tracker export, experiment-log generation |
-| Presentation | Design documents | Real result figures/tables, report, slides and working demo |
+| Laptop / CI | `uv sync --locked` (no tau2, vLLM or verl) | Unit tests of every pure module; integration tests are skipped |
+| tau2 integration | + tau2 v1.0.1 | Evaluation driver end to end through tau2's batch runner, training driver through tau2's orchestrator, **parity** between them on seven scripted conversations, and the command-line pipeline (task sets → evaluation → report, review packet, demo) on an in-memory toy domain |
+| Cluster replica | + the full `requirements/cluster-gpu.txt` on CPU | verl Hydra composition of the RL preset (full and LoRA), vLLM's CLI accepting every server command, Hermes parser parity with vLLM, a `Tau2AgentLoop` episode through verl's `AgentLoopBase`, a tiny-model SFT run (full and LoRA), the tokenization check, the RL launch dry run, and the teacher → SFT-data → SFT pipeline |
 
-## Work that can proceed without changing scientific definitions
+The setup job runs the whole suite on the cluster, so the third tier is repeated
+on the real environment before any GPU job. Only model servers, model weights
+and benchmark data are replaced by test doubles; the drivers, rewards, metrics
+and scripts are the real ones.
 
-- Implement a model client and strict tool-call response handling; installing a
-  new HTTP dependency still requires the separate dependency decision.
-- Add model-service smoke checks that explicitly report infrastructure behavior.
-- Improve serialization, cancellation, error handling and run lifecycle wiring.
-- Preserve the implemented token, provenance and persona invariants while
-  connecting these components to their eventual callers.
+## Workflow status
 
-## Decisions that remain open
+| Workflow | Code | Outstanding (not code) |
+| --- | --- | --- |
+| Environment and quality | uv lock, ruff, pytest, CI (Ubuntu + Windows), cluster lock and setup job | Green remote CI run; first `setup` job on the cluster |
+| Models and servers | Download with revision lock, vLLM serving with endpoint files and shared key, waiting and stale-endpoint detection | Server responses and throughput on the cluster (T0.3) |
+| Benchmark and tasks | tau2 adapter, labels, splits, hand-off generator, persona injection, frozen-manifest builder | Running `tasks`, hand-checking 30+ tasks, committing the manifests |
+| Evaluation | tau2 runner with the project agent, stop sentinel, metrics with CIs, test ledger, reports | B0/B1 runs, the style-card review, freezing ADR-005 at M1 |
+| Reward | Rules, format checks, composer, the R1 and R2 presets, parity with evaluation | R2 vs R1 on dev (T3.4) |
+| SFT | Teacher filtering by registry split, assistant-only records, HF Trainer (full / LoRA / FSDP) | Teacher rollouts, SFT run, B2 evaluation |
+| Multi-turn RL | verl agent loop (token-in/token-out), GRPO preset, reward-hacking monitor, resume, checkpoint export | T0.4 spike (step time), R1 and R2 runs |
+| Reproducibility | Run records (config, git SHA, tau2 commit, model revisions, seeds, hardware), experiment log, report provenance | Filling the experiment log |
+| Presentation | Report tables and figures from run IDs, review packets, HTML and terminal demos | Report, slides, model card |
 
-ADR-007's HTTPX dependency was also deferred: only the pure parser was authorized
-for this implementation slice. Network-client work remains pending.
+## Decisions still open
 
-ADR-006 is still deferred: do not silently adopt its tau2 pin, source-task split
-handling, or compliance interpretation. Shared trajectory/reward details and a
-trainer dependency also need concrete proposals under AGENTS. Deferring these
-does not imply that all other code is already finished.
-
-Once these decisions permit integration, an offline fixture-driven run should
-exercise the same actual drivers as a real run, with only network/model/benchmark
-boundaries replaced. A separate toy simulation is not evidence that the scientific
-pipeline is ready. Real experiments, throughput and dialogue audits remain
-separate acceptance steps even after all code exists.
+ADR-001 is accepted for implementation; its T0.4 measurements are pending.
+ADR-002 to ADR-005 are proposed and should be accepted (or amended) at M1,
+after the B0 dev runs. See [implementation status](implementation-status.md).
