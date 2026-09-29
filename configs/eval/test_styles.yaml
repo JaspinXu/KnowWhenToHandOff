@@ -1,0 +1,27 @@
+# Style breakdown: 2 trials per non-neutral style on the official test tasks.
+# The neutral reference comes from test_main (not double counted, ADR-005).
+name: test_styles
+domains: [airline, retail]
+splits: [test]
+kinds: [upstream]
+personas: [terse, verbose, impatient, non-native, low-tech-literacy]
+num_trials: 2
+seed: 300
+max_tasks_per_domain: null
+task_ids: null
+max_steps: 200
+max_errors: 10
+max_concurrency: 32
+prompt_variant: handoff_v1
+agent_temperature: 0.0
+agent_max_tokens: 2048
+agent_extra_body: null
+user_temperature: 0.7
+user_max_tokens: 1024
+user_extra_body: null
+simulation_timeout_s: 1800
+max_retries: 3
+allow_test: true
+bootstrap_resamples: 1000
+max_infra_failure_share: 0.0  # more lost episodes: the run is incomplete
+pass_k: 2

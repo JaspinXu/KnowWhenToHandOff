@@ -1,0 +1,28 @@
+# scripts/run_eval.py: evaluate a served policy with the tau2 runner.
+defaults:
+  - paths: default
+  - eval: smoke
+  - reward: r2
+  - persona: styles_v1
+  - _self_
+
+experiment: SMOKE  # B0, B1, B2, R1, R2, SMOKE or TEACH
+tags: []  # extra run-id tags, e.g. [test] or [dev, step40]
+seed: 0
+execution_kind: real
+
+policy:
+  label: ???  # model config name (qwen3_4b) or a checkpoint label (b2, r1-step60)
+  endpoint_file: ${paths.endpoints_dir}/policy-${oc.env:SLURM_JOB_ID,local}.json
+
+user_sim:
+  label: qwen3_30b_a3b
+  endpoint_file: ${paths.endpoints_dir}/usersim.json
+
+force_test_rerun: false
+test_rerun_reason: null
+# Continue an unfinished run (same directory and settings; missing episodes only).
+resume_run_id: null
+# Accept this share of lost episodes instead of eval.max_infra_failure_share
+# (recorded in the run's attempts.jsonl), e.g. for a task that always crashes.
+accept_infra_failure_share: null
