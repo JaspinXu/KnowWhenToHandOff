@@ -28,7 +28,7 @@ and scripts are the real ones.
 | Evaluation | tau2 runner with the project agent, stop sentinel, metrics with CIs, test ledger, reports | B0/B1 runs, the style-card review, freezing ADR-005 at M1 |
 | Reward | Rules, format checks, composer, the R1 and R2 presets, parity with evaluation | R2 vs R1 on dev (T3.4) |
 | SFT | Teacher filtering by registry split, assistant-only records, HF Trainer (full / LoRA / FSDP) | Teacher rollouts, SFT run, B2 evaluation |
-| Multi-turn RL | verl agent loop (token-in/token-out), GRPO preset, reward-hacking monitor, resume, checkpoint export | T0.4 spike (step time), R1 and R2 runs |
+| Multi-turn RL | verl agent loop (token-in/token-out), GRPO preset, reward-hacking monitor, learning curves, resume, checkpoint export | T0.4 spike (step time), R1 and R2 runs |
 | Reproducibility | Run records (config, git SHA, tau2 commit, model revisions, seeds, hardware), experiment log, report provenance | Filling the experiment log |
 | Presentation | Report tables and figures from run IDs, review packets, HTML and terminal demos | Report, slides, model card |
 

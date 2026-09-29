@@ -1,6 +1,6 @@
 # Implementation status
 
-Updated: 29 September 2026. This file separates code verification from research
+Updated: 30 September 2026. This file separates code verification from research
 results. **No benchmark score, trained checkpoint or measured cluster throughput
 exists yet**; CPU fakes and toy domains must never be cited as model results.
 
@@ -41,8 +41,8 @@ person still has to do for the README definition of done.
 | T2.2 | SFT trainer (full, LoRA, FSDP) | SFT run and B2 evaluation |
 | T2.3 | Comparison and failure packets | Annotate 10 failures |
 | T3.1 | `Tau2AgentLoop`, parity test with the evaluation driver | GPU validation |
-| T3.2 | Reward composer, per-term logging, the two reward presets | Reward statistics from a real run |
-| T3.3–T3.4 | RL launcher (GRPO), checkpoint export, resume | The R1 and R2 runs |
+| T3.2 | Reward composer, per-term logging, the two reward presets, per-step reward-term statistics (`rl_curves.py`) | Reward statistics from a real run |
+| T3.3–T3.4 | RL launcher (GRPO), checkpoint export, resume, learning curves from verl's step dumps | The R1 and R2 runs |
 | T3.5 | Reward-hacking monitor, review packet | Review 20 dialogues |
 | T3.6 | Test protocols, test ledger | Final evaluation |
 | T4.1 | Tables, figures and sources from run IDs | Real results |

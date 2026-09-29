@@ -73,16 +73,22 @@ abstractions unless the owner asks. Prefer deleting over adding.
 > Update this section at the end of every session (§16). Newest first; keep it
 > short and factual. Code verification is not a research result.
 
-**As of 29 Sep 2026** (`main` at `426e0aa` + the AGENTS/CLAUDE update):
+**As of 30 Sep 2026** (`main` after the completeness audit, see §17):
 
-- **Code:** the whole pipeline is implemented and CPU-verified. Test tiers:
-  laptop/CI 278 passed (25 skipped), with tau2 286 passed, cluster-stack replica
-  315 passed. CI (Ubuntu + Windows) green. Ruff, `bash -n`, ShellCheck, `uv build`
-  pass.
+- **Code:** the whole pipeline is implemented and CPU-verified. 30 Sep audit
+  against the README DoDs added the one missing piece, RL learning curves and
+  per-step reward-term statistics (`scripts/rl_curves.py`, T3.2–T3.4), fixed
+  `export_checkpoint.py --step latest` (it sorted step names as text), and
+  removed duplicated helpers. Laptop tier: 277 passed, 28 skipped; ruff,
+  `bash -n` and `uv build` pass. Tiers 2–3 were last run on 29 Sep (286 and 315
+  passed); the 30 Sep changes touch `run_eval.py`/`train_rl.py` task loading
+  (now `tau2_adapter.load_frozen_tasks`) and `episode.py`, so the next cluster
+  `setup` job re-runs them. ShellCheck runs in CI.
 - **Experiments:** none yet. No benchmark score, checkpoint or throughput
   measurement exists. Toy/fake results must never be cited.
-- **Next steps (in order):** on the cluster, `setup` → `download` → `tasks`
-  (hand-check ≥ 30 hand-off tasks, commit `data/`) → `serve` → `check-tokens`
+- **Next steps (in order):** push and check CI; on the cluster, `setup` →
+  `download` → `tasks` (hand-check ≥ 30 hand-off tasks, commit `data/`) →
+  `serve` → `check-tokens`
   → smoke eval → B0 (dev + three test presets) → optional B1 → teacher →
   `sft-data` → `sft` (B2) → B2 eval → RL spike (record in ADR-001) → R1 → R2 →
   final evaluations → report. Runbook §9 has the order with GPUs.
@@ -190,10 +196,10 @@ The package is `handoff` (src layout). Each file's docstring says what it owns.
 | `src/handoff/rewards/rules.py`, `format.py`, `composer.py` | Violation rules, format errors, `RewardComposer` (T3.2) |
 | `src/handoff/eval/runner.py`, `metrics.py`, `citations.py`, `report.py`, `analysis.py` | Evaluation driver, metrics with bootstrap CIs, citation rule, report tables/figures, review packets |
 | `src/handoff/train/sft_data.py`, `sft_batch.py`, `sft_trainer.py` | Teacher filter, assistant-only SFT records/labels, HF Trainer (T2.1–T2.2) |
-| `src/handoff/train/rl_data.py`, `rl_launch.py`, `verl_main.py`, `export.py`, `monitors.py` | RL dataset rows, verl command, entry point with checkpoint export, reward-hacking monitor (T3.3–T3.5) |
+| `src/handoff/train/rl_data.py`, `rl_launch.py`, `verl_main.py`, `export.py`, `monitors.py` | RL dataset rows, verl command, entry point with checkpoint export, reward-hacking monitor and learning curves (T3.2–T3.5) |
 | `src/handoff/ops/runs.py`, `provenance.py`, `slurm.py` | Run IDs, model identity, test ledger; immutable run records; Slurm queries |
 | `src/handoff/demo/viewer.py` | Offline HTML dialogue viewer (T4.3) |
-| `scripts/` | Thin CLI entry points only (no business logic): `build_task_sets`, `download_models`, `model_server`, `check_tokenization`, `run_eval`, `build_sft_data`, `train_sft`, `train_rl`, `monitor_rl`, `export_checkpoint`, `make_report`, `sample_review`, `append_experiment_log`, `render_demo`, `demo_chat`, `lock_cluster_env.sh` |
+| `scripts/` | Thin CLI entry points only (no business logic): `build_task_sets`, `download_models`, `model_server`, `check_tokenization`, `run_eval`, `build_sft_data`, `train_sft`, `train_rl`, `monitor_rl`, `rl_curves`, `export_checkpoint`, `make_report`, `sample_review`, `append_experiment_log`, `render_demo`, `demo_chat`, `lock_cluster_env.sh` |
 | `slurm/submit.sh`, `run.sh`, `lib/common.sh`, `jobs/*.sbatch`, `cluster.env.example` | Cluster wrapper, login-node helper, shared shell functions, one job per step |
 | `tests/` | CPU tests (§12); `fakes.py`, `toy_tau2.py`, `tiny_hf.py` are shared doubles |
 | `docs/` | Runbook, metrics, labels, hand-off tasks, personas, ADRs, experiment log, status |
@@ -213,8 +219,9 @@ The package is `handoff` (src layout). Each file's docstring says what it owns.
 | Evaluation | `eval` / `teacher` → `run_eval.py` | manifests, endpoints | `runs/<id>/` (§7); exit 3 = incomplete |
 | SFT data | `sft-data` → `build_sft_data.py` | teacher runs (train split only) | `datasets/<name>/` + `manifest.json` |
 | SFT | `sft` → `train_sft.py` | dataset, base model | `runs/B2-.../final` (HF checkpoint, LoRA merged) |
-| RL | `rl` → `train_rl.py` → `python -m handoff.train.verl_main` | B2 checkpoint, manifests, simulator | `runs/R*-.../checkpoints` (latest only), `export/global_step_N`, `rollouts/*.jsonl` |
+| RL | `rl` → `train_rl.py` → `python -m handoff.train.verl_main` | B2 checkpoint, manifests, simulator | `runs/R*-.../checkpoints` (latest only), `export/global_step_N`, `rollouts/*.jsonl`, `rollout_dumps/`, `validation_dumps/` (verl per-step dumps) |
 | Monitor | `slurm/run.sh python scripts/monitor_rl.py` | rollouts, B2 dev metrics | exit 3 = hacking drift, 4 = infra losses |
+| Curves | `slurm/run.sh python scripts/rl_curves.py` | verl step dumps | `reports/<name>/learning_curves.*`, `dev_curves.*`, `sources.json` |
 | Report | `make_report.py`, `sample_review.py`, `render_demo.py`, `append_experiment_log.py` | completed runs | `reports/<name>/`, `reports/review/`, `docs/experiment-log.md` |
 
 **Two drivers, one semantics.** Evaluation uses tau2's own runner with the
@@ -363,6 +370,7 @@ bash slurm/submit.sh rl REWARD=r2 EXPERIMENT=R2 INIT=<B2 dir>
 bash slurm/submit.sh rl ... EXTRA="dry_run=true"          # build data + validate the verl command only
 bash slurm/submit.sh rl RESUME=<RL run id>                # time limit, crash, simulator outage
 bash slurm/run.sh python scripts/monitor_rl.py --run <RL run id> --baseline <B2 dev run id>
+bash slurm/run.sh python scripts/rl_curves.py --name rl --runs R1=<R1 run id> R2=<R2 run id>
 bash slurm/run.sh python scripts/export_checkpoint.py <RL run id> --step latest
 
 # results (login node, inside the environment)
@@ -396,7 +404,8 @@ after changing the evaluation path, and a dry run before a long RL run.
   ablations (A1/A2), held-out simulator, a second smoke model, an LLM citation
   judge. Do not reintroduce them without the owner.
 - **Selection:** dev only. The RL checkpoint is the final step unless the dev
-  validation curve shows a clearly better earlier export.
+  validation curve (`rl_curves.py` → `dev_curves.md`) shows a clearly better
+  earlier export.
 - **Final evaluation per checkpoint:** `dev`, then `test_main`, `test_styles`,
   `test_handoff` once each. 95 % bootstrap CIs over tasks (1,000 resamples),
   paired comparisons on shared tasks.
@@ -593,6 +602,7 @@ the ADRs; this is the short history agents need.
 
 | Date | Decision |
 | --- | --- |
+| 30 Sep 2026 | Owner asked to audit what the project does, complete any missing code, then optimize the code. Result: only the RL learning curves were missing (added `rl_curves.py`); the optimization pass removed duplication and fixed one bug, without changing contracts, metrics or experiments. |
 | 29 Sep 2026 | Owner switches between Claude and Codex; AGENTS.md must be kept comprehensive and updated every session (§16). `CLAUDE.md` imports this file. |
 | 29 Sep 2026 | Course-sized scope: runs B0, B1 (optional), B2, R1, R2 with one seed; removed λ grid, R3 fairness sampler, P1 PPO, A1/A2 ablations, held-out simulator, the 1.7B/1.5B smoke models, the LLM citation judge, reward shaping, and the pre-pipeline tools (server planner, completion parser, offline SFT export). Human audit 50 → 20 dialogues. |
 | 29 Sep 2026 | Complete the whole pipeline so it can be cloned and run on the cluster with Slurm; never download datasets or models on the laptop. ADR-001 accepted; ADR-002 to ADR-005 proposed for M1. The deferred ADR-006/007 points were settled by ADR-001 to ADR-005. |
