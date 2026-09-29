@@ -1,0 +1,84 @@
+# GRPO on one GPU (R1 and R2).
+# `verl` holds verl 0.8.0 Hydra overrides; scripts/train_rl.py flattens them and
+# adds data paths, lengths and the agent loop. Tune on dev only.
+name: grpo
+entrypoint: handoff.train.verl_main
+use_lora: false
+# sdpa needs no flash-attn build; set flash_attention_2 if flash-attn is installed.
+attn_implementation: sdpa
+lora:
+  rank: 64
+  alpha: 128
+  target_modules: all-linear
+  lr: 1.0e-5
+verl:
+  algorithm:
+    adv_estimator: grpo
+    use_kl_in_reward: false
+    norm_adv_by_std_in_grpo: true
+  data:
+    train_batch_size: 8
+    return_raw_chat: true
+    filter_overlong_prompts: false
+    shuffle: true
+    dataloader_num_workers: 0
+    truncation: error
+  actor_rollout_ref:
+    model:
+      use_remove_padding: false
+      enable_gradient_checkpointing: true
+    actor:
+      optim:
+        lr: 1.0e-6
+      ppo_mini_batch_size: 8
+      ppo_micro_batch_size_per_gpu: 1
+      use_dynamic_bsz: true
+      ppo_max_token_len_per_gpu: 32768
+      use_kl_loss: false
+      entropy_coeff: 0
+      loss_agg_mode: token-mean
+      fsdp_config:
+        param_offload: true
+        optimizer_offload: true
+      checkpoint:
+        # Resumable state only; every saved step is exported to a bf16
+        # Hugging Face directory right away (handoff.train.export).
+        save_contents: [model, optimizer, extra]
+    rollout:
+      name: vllm
+      mode: async
+      n: 8
+      temperature: 1.0
+      top_p: 1.0
+      tensor_model_parallel_size: 1
+      gpu_memory_utilization: 0.45
+      max_num_batched_tokens: 32768
+      multi_turn:
+        enable: true
+        format: hermes
+      agent:
+        num_workers: 2
+        default_agent_loop: tau2_agent
+      val_kwargs:
+        temperature: 0
+        top_p: 1.0
+        do_sample: false
+        n: 1
+    ref:
+      fsdp_config:
+        param_offload: true
+  trainer:
+    critic_warmup: 0
+    logger: [console]
+    project_name: KnowWhenToHandOff
+    n_gpus_per_node: 1
+    nnodes: 1
+    total_epochs: 100
+    total_training_steps: 60
+    save_freq: 10
+    # Keep only the latest resumable checkpoint (~50 GB for a 4B actor);
+    # the exports of all saved steps stay for dev selection.
+    max_actor_ckpt_to_keep: 1
+    test_freq: 10
+    val_before_train: true
+    resume_mode: auto

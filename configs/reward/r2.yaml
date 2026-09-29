@@ -1,0 +1,11 @@
+# R2: the one composite-reward setting (ADR-004). Fixed; no lambda sweep.
+lambda_violation: 0.25
+lambda_fp: 0.5
+lambda_fn: 1.0
+lambda_format: 0.1
+violation_weights:
+  write_without_confirmation: 1.0
+  write_before_authentication: 1.0
+  multiple_actions_in_turn: 1.0
+  action_after_transfer: 1.0
+  off_reference_write: 1.0

@@ -1,0 +1,6 @@
+# R1: outcome reward only (every lambda zero, total == tau2 task reward).
+lambda_violation: 0.0
+lambda_fp: 0.0
+lambda_fn: 0.0
+lambda_format: 0.0
+violation_weights: {}

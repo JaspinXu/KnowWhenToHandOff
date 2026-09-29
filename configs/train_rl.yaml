@@ -1,0 +1,51 @@
+# scripts/train_rl.py: build RL data, write the agent-loop settings, launch verl.
+defaults:
+  - paths: default
+  - rl: grpo
+  - reward: task_only
+  - persona: styles_v1
+  - _self_
+
+experiment: R1  # R1 (reward=task_only) or R2 (reward=r2)
+tags: []  # extra run-id tags
+seed: 1
+execution_kind: real
+
+policy:
+  init_path: ???  # B2 checkpoint (Hugging Face format), e.g. <scratch>/runs/B2-.../final
+  label: b2
+
+user_sim:
+  name: qwen3_30b_a3b
+  endpoint_file: ${paths.endpoints_dir}/usersim.json
+  temperature: 0.7
+  max_tokens: 1024
+  # An episode that fails while the simulator is down waits this long for it
+  # to come back (restarted serve job); then the training job stops for RESUME.
+  outage_timeout_s: 1800
+
+data:
+  domains: [airline, retail]
+  train_kinds: [upstream, explicit_request, out_of_scope, hard_negative]
+  val_kinds: [upstream, explicit_request, out_of_scope, hard_negative]
+  train_personas: [neutral]
+  val_personas: [neutral]
+
+episode:
+  prompt_variant: handoff_v1
+  max_steps: 200
+  max_errors: 10
+  max_prompt_tokens: 8192     # verl data.max_prompt_length
+  max_response_tokens: 24576  # verl data.max_response_length
+  # Evaluation parity: the evaluation agent's max_tokens and the evaluation
+  # server's max_model_len (configs/model/<policy>.yaml). A turn always gets
+  # max_tokens_per_turn; the episode ends (context_window_exceeded, no format
+  # error) once one more turn would not fit.
+  max_tokens_per_turn: 2048
+  max_context_tokens: 32768
+  chat_template_kwargs: {}
+  simulation_timeout_s: 1800
+
+max_concurrent_episodes: 64
+dry_run: false  # true: build data and print the verl command without running it
+resume_run_id: null  # re-run a run's saved verl command; verl resumes its checkpoints
