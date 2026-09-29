@@ -28,6 +28,7 @@ from handoff.envs.tau2_adapter import (
     task_from_dict,
 )
 from handoff.eval.metrics import (
+    format_interval,
     hacking_indicators,
     style_breakdown,
     summarize,
@@ -382,26 +383,12 @@ def compute_run_metrics(
         }
     if reward_config is not None and trajectories:
         composer = RewardComposer(reward_config)
-        breakdowns = [composer(t) for t in trajectories]
-        terms = breakdowns[0].as_metrics(prefix="")
+        terms = [composer(t).as_metrics(prefix="") for t in trajectories]
         result["reward"] = {
             "config": reward_config.to_dict(),
-            "mean": {
-                key: sum(b.as_metrics(prefix="")[key] for b in breakdowns)
-                / len(breakdowns)
-                for key in terms
-            },
+            "mean": {key: sum(t[key] for t in terms) / len(terms) for key in terms[0]},
         }
     return result
-
-
-def _fmt(interval: Mapping[str, Any] | None) -> str:
-    if not interval or interval.get("point") is None:
-        return "n/a"
-    point = interval["point"]
-    if interval.get("low") is None:
-        return f"{point:.3f}"
-    return f"{point:.3f} [{interval['low']:.3f}, {interval['high']:.3f}]"
 
 
 def render_summary(metrics: Mapping[str, Any]) -> str:
@@ -415,11 +402,11 @@ def render_summary(metrics: Mapping[str, Any]) -> str:
         "| --- | --- |",
     ]
     for name in sorted(overall):
-        lines.append(f"| {name} | {_fmt(overall[name])} |")
+        lines.append(f"| {name} | {format_interval(overall[name])} |")
     if metrics.get("styles"):
         lines += ["", "| Style metric | Value [95% CI] |", "| --- | --- |"]
         for name, interval in sorted(metrics["styles"].items()):
-            lines.append(f"| {name} | {_fmt(interval)} |")
+            lines.append(f"| {name} | {format_interval(interval)} |")
     return "\n".join(lines) + "\n"
 
 

@@ -40,7 +40,7 @@ from handoff.cli import (
 )
 from handoff.envs.personas import personas_from_config
 from handoff.envs.registry import TaskRegistry
-from handoff.envs.tau2_adapter import TaskStore, tau2_commit
+from handoff.envs.tau2_adapter import load_frozen_tasks
 from handoff.eval.runner import (
     EvalSettings,
     run_evaluation,
@@ -74,30 +74,6 @@ from handoff.sim.endpoints import (
 ROOT = repo_root(__file__)
 INCOMPLETE_EXIT = 3
 logger = logging.getLogger("run_eval")
-
-
-def _registry_and_store(config: Any, domains: list[str]) -> tuple[TaskRegistry, Any]:
-    """Frozen manifests plus tau2 tasks checked against the manifests' hashes."""
-    paths = config.paths
-    handoff_path = Path(paths.handoff_manifest)
-    registry = TaskRegistry.from_files(
-        Path(paths.splits_manifest),
-        Path(paths.labels_file),
-        handoff_path if handoff_path.exists() else None,
-    )
-    store = TaskStore.from_tau2(
-        domains,
-        Path(paths.handoff_tasks_dir) if registry.handoff_manifest else None,
-        registry.handoff_manifest,
-        split_manifest=registry.split_manifest,
-    )
-    commit = tau2_commit()
-    if registry.split_manifest["tau2_commit"] != commit:
-        raise CliError(
-            f"installed tau2 {commit} differs from the manifest's "
-            f"{registry.split_manifest['tau2_commit']}"
-        )
-    return registry, store
 
 
 def _manifest_hashes(registry: TaskRegistry) -> dict[str, str | None]:
@@ -178,7 +154,7 @@ def _new_run(config: Any) -> tuple[str, Path, EvalSettings, Any, Any]:
     )
     policy = read_endpoint(Path(config.policy.endpoint_file))
     user = read_endpoint(Path(config.user_sim.endpoint_file))
-    registry, store = _registry_and_store(config, list(settings.domains))
+    registry, store = load_frozen_tasks(config.paths, settings.domains)
     personas = personas_from_config(container(config.persona))
     scope = (
         _ledger_scope(registry, settings, policy, user) if settings.allow_test else None
@@ -247,7 +223,7 @@ def _resumed_run(config: Any) -> tuple[str, Path, EvalSettings, Any, Any]:
     settings = EvalSettings.from_mapping(run_id, saved["eval"])
     policy = read_endpoint(Path(config.policy.endpoint_file))
     user = read_endpoint(Path(config.user_sim.endpoint_file))
-    registry, store = _registry_and_store(config, list(settings.domains))
+    registry, store = load_frozen_tasks(config.paths, settings.domains)
     personas = personas_from_config(container(config.persona))
     problems = []
     if registry.split_manifest["tau2_commit"] != record["tau2_sha"]:

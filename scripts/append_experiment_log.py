@@ -16,7 +16,7 @@ import json
 from pathlib import Path
 
 from handoff.cli import CliError, compose_config, fail, repo_root, require_scratch
-from handoff.eval.report import format_interval
+from handoff.eval.metrics import format_interval
 from handoff.ops.runs import append_experiment_log
 
 ROOT = repo_root(__file__)

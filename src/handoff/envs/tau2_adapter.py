@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Any
 
 from handoff.envs.personas import Persona, PersonaInjector
-from handoff.envs.registry import TaskRef
+from handoff.envs.registry import TaskRef, TaskRegistry
 
 PERSONA_SEPARATOR = "::"
 
@@ -239,6 +239,37 @@ class TaskStore:
             return self._tasks[ref.key]
         except KeyError:
             raise KeyError(f"task {ref.domain}/{ref.task_id} not found") from None
+
+
+def load_frozen_tasks(
+    paths: Mapping[str, Any], domains: Sequence[str]
+) -> tuple[TaskRegistry, TaskStore]:
+    """The frozen registry and its tau2 tasks, checked against the manifests.
+
+    ``paths`` is the resolved ``paths`` config group. The hand-off manifest is
+    optional (before the task sets exist, only upstream tasks are available).
+    Raises ``ValueError`` when the installed tau2 commit or data differ from the
+    ones the manifests were built from.
+    """
+    handoff_path = Path(paths["handoff_manifest"])
+    registry = TaskRegistry.from_files(
+        Path(paths["splits_manifest"]),
+        Path(paths["labels_file"]),
+        handoff_path if handoff_path.exists() else None,
+    )
+    store = TaskStore.from_tau2(
+        domains,
+        Path(paths["handoff_tasks_dir"]) if registry.handoff_manifest else None,
+        registry.handoff_manifest,
+        split_manifest=registry.split_manifest,
+    )
+    commit = tau2_commit()
+    if registry.split_manifest["tau2_commit"] != commit:
+        raise ValueError(
+            f"installed tau2 {commit} differs from the manifest's "
+            f"{registry.split_manifest['tau2_commit']}"
+        )
+    return registry, store
 
 
 def episode_task_id(task_id: str, persona: str) -> str:

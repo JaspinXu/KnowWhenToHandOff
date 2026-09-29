@@ -33,8 +33,7 @@ from handoff.cli import (
     setup_logging,
 )
 from handoff.envs.personas import personas_from_config
-from handoff.envs.registry import TaskRegistry
-from handoff.envs.tau2_adapter import TaskStore, tau2_commit
+from handoff.envs.tau2_adapter import load_frozen_tasks
 from handoff.ops.provenance import (
     append_attempt,
     check_resume_code,
@@ -134,23 +133,10 @@ def main() -> int:
             str(config.experiment), seed=int(config.seed), tags=tags, runs_dir=runs_dir
         )
         user = read_endpoint(Path(config.user_sim.endpoint_file))
-        registry = TaskRegistry.from_files(
-            Path(paths.splits_manifest),
-            Path(paths.labels_file),
-            Path(paths.handoff_manifest),
-        )
-        store = TaskStore.from_tau2(
-            list(config.data.domains),
-            Path(paths.handoff_tasks_dir),
-            registry.handoff_manifest,
-            split_manifest=registry.split_manifest,
-        )
-        commit = tau2_commit()
-        if registry.split_manifest["tau2_commit"] != commit:
-            raise CliError(
-                f"installed tau2 {commit} differs from the manifest's "
-                f"{registry.split_manifest['tau2_commit']}"
-            )
+        registry, store = load_frozen_tasks(paths, list(config.data.domains))
+        if registry.handoff_manifest is None:
+            raise CliError("no hand-off manifest; build the task sets first (tasks)")
+        commit = registry.split_manifest["tau2_commit"]
         personas = personas_from_config(resolved["persona"])
 
         def refs(split: str, kinds: list[str]):

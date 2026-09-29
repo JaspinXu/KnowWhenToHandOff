@@ -13,7 +13,6 @@ Example:
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 from datetime import UTC, datetime
 from functools import cache
@@ -30,6 +29,7 @@ from handoff.cli import (
     setup_logging,
 )
 from handoff.envs.registry import TaskRegistry
+from handoff.envs.tau2_adapter import file_sha256
 from handoff.ops.runs import git_state, read_models_lock
 from handoff.rollout.chat_delta import ChatDeltaTokenizer
 from handoff.rollout.schema import iter_trajectories
@@ -41,14 +41,6 @@ from handoff.train.sft_data import (
 )
 
 ROOT = repo_root(__file__)
-
-
-def _sha256(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as stream:
-        for block in iter(lambda: stream.read(1 << 20), b""):
-            digest.update(block)
-    return digest.hexdigest()
 
 
 def main() -> int:
@@ -83,7 +75,7 @@ def main() -> int:
             path = Path(paths.runs_dir) / str(run_id) / "trajectories.jsonl"
             if not path.exists():
                 raise CliError(f"no trajectories for teacher run {run_id}")
-            run_files.append({"run_id": str(run_id), "sha256": _sha256(path)})
+            run_files.append({"run_id": str(run_id), "sha256": file_sha256(path)})
             trajectories.extend(iter_trajectories(path))
         kept, rejected = select_teacher_episodes(
             trajectories, registry, TeacherFilter(**container(config.filter))
@@ -138,7 +130,7 @@ def main() -> int:
             "teacher_runs": run_files,
             "tokenizer_path": str(tokenizer_path),
             "prompt_variant": str(config.prompt_variant),
-            "records_sha256": _sha256(records),
+            "records_sha256": file_sha256(records),
             "splits_manifest_sha256": registry.split_manifest["manifest_sha256"],
             "statistics": stats,
         }

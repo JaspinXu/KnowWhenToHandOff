@@ -26,7 +26,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Collection, Mapping, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any
 
 from handoff.rollout.schema import (
@@ -170,13 +170,7 @@ def rules_for_domain(
         return DomainRules(domain, frozenset(write_tools))
     if write_tools is None:
         return base
-    return DomainRules(
-        domain=base.domain,
-        write_tools=frozenset(write_tools),
-        auth_tools=base.auth_tools,
-        require_auth_before_write=base.require_auth_before_write,
-        require_confirmation_before_write=base.require_confirmation_before_write,
-    )
+    return replace(base, write_tools=frozenset(write_tools))
 
 
 def _negated(text: str, start: int, end: int) -> bool:

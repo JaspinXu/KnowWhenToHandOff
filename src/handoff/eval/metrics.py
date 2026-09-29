@@ -13,9 +13,10 @@ from __future__ import annotations
 
 import random
 from collections import defaultdict
-from collections.abc import Callable, Hashable, Iterable, Sequence
+from collections.abc import Callable, Hashable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from math import comb
+from typing import Any
 
 from handoff.eval.citations import citation_events
 from handoff.rewards.rules import RULE_IDS
@@ -48,6 +49,16 @@ class Interval:
             "n_units": self.n_units,
             "n_resamples": self.n_resamples,
         }
+
+
+def format_interval(interval: Mapping[str, Any] | None, digits: int = 3) -> str:
+    """``0.512 [0.44, 0.58]`` or ``n/a``."""
+    if not interval or interval.get("point") is None:
+        return "n/a"
+    point = f"{interval['point']:.{digits}f}"
+    if interval.get("low") is None:
+        return point
+    return f"{point} [{interval['low']:.{digits}f}, {interval['high']:.{digits}f}]"
 
 
 def _flatten(units: Units) -> list[Trajectory]:
@@ -252,15 +263,15 @@ def _percentile(sorted_values: Sequence[float], q: float) -> float:
     return sorted_values[lower] * (1 - weight) + sorted_values[upper] * weight
 
 
-def bootstrap(
-    units: Units,
-    statistic: Statistic,
+def bootstrap[U](
+    units: Sequence[U],
+    statistic: Callable[[Sequence[U]], float | None],
     *,
     n_resamples: int = 1000,
     confidence: float = 0.95,
     seed: int = 0,
 ) -> Interval:
-    """Percentile bootstrap over units (tasks) with a fixed seed."""
+    """Percentile bootstrap over units (tasks, or pairs of tasks) with a fixed seed."""
     if n_resamples < 1:
         raise ValueError("n_resamples must be positive")
     if not 0 < confidence < 1:
@@ -365,35 +376,26 @@ def style_breakdown(
 ) -> dict[str, Interval]:
     """Per-style success plus the style gap and worst-style success, with CIs."""
     units = task_units(trajectories)
+
+    def interval(selected: Units, statistic: Statistic) -> Interval:
+        return bootstrap(
+            selected,
+            statistic,
+            n_resamples=n_resamples,
+            confidence=confidence,
+            seed=seed,
+        )
+
     result: dict[str, Interval] = {}
-    styles = sorted({t.persona for t in trajectories})
-    for style in styles:
+    for style in sorted({t.persona for t in trajectories}):
         style_units = [
             [t for t in unit if t.persona == style]
             for unit in units
             if any(t.persona == style for t in unit)
         ]
-        result[f"success/{style}"] = bootstrap(
-            style_units,
-            success_statistic,
-            n_resamples=n_resamples,
-            confidence=confidence,
-            seed=seed,
-        )
-    result["style_gap"] = bootstrap(
-        units,
-        style_gap_statistic,
-        n_resamples=n_resamples,
-        confidence=confidence,
-        seed=seed,
-    )
-    result["worst_style_success"] = bootstrap(
-        units,
-        worst_style_statistic,
-        n_resamples=n_resamples,
-        confidence=confidence,
-        seed=seed,
-    )
+        result[f"success/{style}"] = interval(style_units, success_statistic)
+    result["style_gap"] = interval(units, style_gap_statistic)
+    result["worst_style_success"] = interval(units, worst_style_statistic)
     return result
 
 
@@ -421,24 +423,12 @@ def paired_difference(
         right = statistic([p[1] for p in selected])
         return None if left is None or right is None else left - right
 
-    point = difference(pairs)
-    if not pairs or point is None:
-        return Interval(point, None, None, len(pairs), 0)
-    rng = random.Random(seed)
-    samples = []
-    for _ in range(n_resamples):
-        resampled = [pairs[rng.randrange(len(pairs))] for _ in pairs]
-        value = difference(resampled)
-        if value is not None:
-            samples.append(value)
-    samples.sort()
-    alpha = (1 - confidence) / 2
-    return Interval(
-        point,
-        _percentile(samples, alpha) if samples else None,
-        _percentile(samples, 1 - alpha) if samples else None,
-        len(pairs),
-        len(samples),
+    return bootstrap(
+        pairs,
+        difference,
+        n_resamples=n_resamples,
+        confidence=confidence,
+        seed=seed,
     )
 
 

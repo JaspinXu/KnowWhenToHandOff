@@ -20,6 +20,7 @@ for identical conversations (see ``tests/test_tau2_integration.py``).
 from __future__ import annotations
 
 import asyncio
+import dataclasses
 import json
 import time
 from collections.abc import Mapping, Sequence
@@ -444,6 +445,7 @@ class Tau2EpisodeRunner:
             assert_deterministic_reward_basis,
             domain_tool_sets,
             finalize_simulation,
+            gold_actions_from_task,
             trajectory_from_simulation,
         )
 
@@ -495,13 +497,11 @@ class Tau2EpisodeRunner:
         )
         simulation = await loop.run_in_executor(self.executor, orchestrator.run)
         format_errors = finalize_simulation(simulation, tau2_task, ctx.domain)
-        full_ctx = EpisodeContext(
-            **{
-                **ctx.__dict__,
-                "write_tools": write_tools,
-                "known_tools": known_tools,
-                "gold_actions": ctx.gold_actions or _gold(tau2_task),
-            }
+        full_ctx = dataclasses.replace(
+            ctx,
+            write_tools=write_tools,
+            known_tools=known_tools,
+            gold_actions=ctx.gold_actions or gold_actions_from_task(tau2_task),
         )
         trajectory = trajectory_from_simulation(
             full_ctx,
@@ -522,9 +522,3 @@ class Tau2EpisodeRunner:
                 "environment": max(total - session.generation_seconds, 0.0),
             },
         )
-
-
-def _gold(task: Any) -> tuple[Any, ...]:
-    from handoff.rollout.tau2_convert import gold_actions_from_task
-
-    return gold_actions_from_task(task)
