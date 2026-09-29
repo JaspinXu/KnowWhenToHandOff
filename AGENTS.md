@@ -73,22 +73,17 @@ abstractions unless the owner asks. Prefer deleting over adding.
 > Update this section at the end of every session (§16). Newest first; keep it
 > short and factual. Code verification is not a research result.
 
-**As of 30 Sep 2026** (`main` after the completeness audit, see §17):
+**As of 30 Sep 2026** (`main`; audits in §17):
 
-- **Code:** the whole pipeline is implemented and CPU-verified. 30 Sep audit
-  against the README DoDs added the one missing piece, RL learning curves and
-  per-step reward-term statistics (`scripts/rl_curves.py`, T3.2–T3.4), fixed
-  `export_checkpoint.py --step latest` (it sorted step names as text), and
-  removed duplicated helpers. Laptop tier: 277 passed, 28 skipped; ruff,
-  `bash -n` and `uv build` pass. Tiers 2–3 were last run on 29 Sep (286 and 315
-  passed); the 30 Sep changes touch `run_eval.py`/`train_rl.py` task loading
-  (now `tau2_adapter.load_frozen_tasks`) and `episode.py`, so the next cluster
-  `setup` job re-runs them. ShellCheck runs in CI.
+- **Code:** the whole pipeline is implemented and CPU-verified, including RL
+  learning curves (`scripts/rl_curves.py`). Tier results are in
+  [docs/implementation-status.md](docs/implementation-status.md); tiers 2–3
+  must be re-run by the next cluster `setup` job (30 Sep changes touched
+  `run_eval.py`, `train_rl.py` and `episode.py`).
 - **Experiments:** none yet. No benchmark score, checkpoint or throughput
   measurement exists. Toy/fake results must never be cited.
-- **Next steps (in order):** push and check CI; on the cluster, `setup` →
-  `download` → `tasks` (hand-check ≥ 30 hand-off tasks, commit `data/`) →
-  `serve` → `check-tokens`
+- **Next steps (in order):** on the cluster, `setup` → `download` → `tasks`
+  (hand-check ≥ 30 hand-off tasks, commit `data/`) → `serve` → `check-tokens`
   → smoke eval → B0 (dev + three test presets) → optional B1 → teacher →
   `sft-data` → `sft` (B2) → B2 eval → RL spike (record in ADR-001) → R1 → R2 →
   final evaluations → report. Runbook §9 has the order with GPUs.
@@ -97,9 +92,6 @@ abstractions unless the owner asks. Prefer deleting over adding.
   storage). The cluster's NVIDIA driver must be ≥ 525.
 - **Owner decisions pending:** accept ADR-002 to ADR-005 at M1; confirm the
   course group number and team contribution statement for the report.
-
-Per-task detail: [docs/implementation-status.md](docs/implementation-status.md)
-and [docs/code-readiness.md](docs/code-readiness.md).
 
 ---
 
@@ -304,7 +296,7 @@ hard-coded paths, hosts, ports, model names or λ values in library code.
 
 | Group | Presets |
 | --- | --- |
-| `eval/` | `smoke` (5 airline train tasks), `dev` (4 trials), `test_main` (neutral, 4 trials), `test_styles` (5 styles, 2 trials), `test_handoff` (hand-off kinds, 2 trials), `teacher_train` (train, 6 styles, 2 trials, T 0.6) |
+| `eval/` | all extend `_common.yaml` (shared defaults; change a shared value there, a preset-specific one in the preset): `smoke` (5 airline train tasks), `dev` (4 trials), `test_main` (neutral, 4 trials), `test_styles` (5 styles, 2 trials), `test_handoff` (hand-off kinds, 2 trials), `teacher_train` (train, 6 styles, 2 trials, T 0.6) |
 | `reward/` | `task_only` (R1), `r2` (R2) |
 | `rl/` | `grpo` (verl overrides under `verl:`: group 8, batch 8, 60 steps, save/validate every 10, LR 1e-6, temperature 1.0, no KL, keep 1 checkpoint) |
 | `model/` | `qwen3_4b` (policy), `qwen3_30b_a3b` (simulator, teacher, B1), `custom` |
@@ -602,7 +594,7 @@ the ADRs; this is the short history agents need.
 
 | Date | Decision |
 | --- | --- |
-| 30 Sep 2026 | Owner asked to audit what the project does, complete any missing code, then optimize the code. Result: only the RL learning curves were missing (added `rl_curves.py`); the optimization pass removed duplication and fixed one bug, without changing contracts, metrics or experiments. |
+| 30 Sep 2026 | Owner asked to audit and complete the code, then tidy code and every text file (delete redundancy, fill gaps, mind token use). Added `rl_curves.py` (the only missing DoD code) and `docs/model-card.md`; eval presets extend `configs/eval/_common.yaml`; `code-readiness.md` merged into `implementation-status.md`. Keep this file under ~40k characters (Claude loads it every session): link instead of repeating. |
 | 29 Sep 2026 | Owner switches between Claude and Codex; AGENTS.md must be kept comprehensive and updated every session (§16). `CLAUDE.md` imports this file. |
 | 29 Sep 2026 | Course-sized scope: runs B0, B1 (optional), B2, R1, R2 with one seed; removed λ grid, R3 fairness sampler, P1 PPO, A1/A2 ablations, held-out simulator, the 1.7B/1.5B smoke models, the LLM citation judge, reward shaping, and the pre-pipeline tools (server planner, completion parser, offline SFT export). Human audit 50 → 20 dialogues. |
 | 29 Sep 2026 | Complete the whole pipeline so it can be cloned and run on the cluster with Slurm; never download datasets or models on the laptop. ADR-001 accepted; ADR-002 to ADR-005 proposed for M1. The deferred ADR-006/007 points were settled by ADR-001 to ADR-005. |

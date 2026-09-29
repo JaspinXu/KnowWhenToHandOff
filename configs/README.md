@@ -23,7 +23,7 @@ environment.
 | Group | Presets | Notes |
 | --- | --- | --- |
 | `paths/` | `default` | Scratch from `HANDOFF_SCRATCH`; manifests and hand-off tasks in the repo |
-| `eval/` | `smoke`, `dev`, `test_main`, `test_styles`, `test_handoff`, `teacher_train` | Protocols of [ADR-005](../docs/adr/ADR-005-evaluation-protocol.md); `test_*` set `allow_test`; `max_infra_failure_share` decides when a run is complete |
+| `eval/` | `smoke`, `dev`, `test_main`, `test_styles`, `test_handoff`, `teacher_train` | Protocols of [ADR-005](../docs/adr/ADR-005-evaluation-protocol.md); each preset extends `_common.yaml` (shared keys, not a preset) and sets only what differs; `test_*` set `allow_test`; `max_infra_failure_share` decides when a run is complete |
 | `reward/` | `task_only` (R1), `r2` (R2) | The two reward settings of [ADR-004](../docs/adr/ADR-004-reward-composition.md) |
 | `rl/` | `grpo` | verl 0.8 overrides under `verl:`, flattened by `scripts/train_rl.py`; resumable checkpoints only, the latest one kept (every saved step is exported) |
 | `model/` | `qwen3_4b` (policy), `qwen3_30b_a3b` (simulator, teacher, B1), `custom` | Repository, served name, tool-call parser, vLLM arguments, chat-template arguments (sent with every request); revisions come from the models lock |

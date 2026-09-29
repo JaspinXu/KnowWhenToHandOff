@@ -109,7 +109,8 @@ bash slurm/submit.sh eval EVAL=smoke EXPERIMENT=SMOKE POLICY_MODEL=qwen3_4b
 
 定义文档：[指标](docs/metrics.md) · [标签、规则与格式错误](docs/labels.md) ·
 [转人工任务集](docs/handoff-tasks.md) · [架构决策](docs/adr/) ·
-[实验日志](docs/experiment-log.md) · [代码就绪](docs/code-readiness.md)。
+[实验日志](docs/experiment-log.md) · [实施状态](docs/implementation-status.md) ·
+[模型卡](docs/model-card.md)。
 
 ---
 
@@ -348,15 +349,16 @@ class PersonaInjector:
 
 # handoff/rollout/schema.py
 @dataclass
-class Trajectory:
-    run_id: str; task_id: str; domain: str; split: str; persona: str; seed: int
-    policy_ckpt: str; user_sim: str
+class Trajectory:  # 节选；完整字段见 AGENTS.md §7
+    run_id: str; task_id: str; domain: str; split: str; kind: str; persona: str
+    trial: int; seed: int | None; policy_ckpt: str; user_sim: str
     messages: list[dict]            # 完整对话，含工具调用和结果
+    termination_reason: str
+    task_reward: float              # 来自 τ²-bench 评估器
     transferred: bool; transfer_turn: int | None
     should_transfer: bool           # 标签
-    task_reward: float              # 来自 τ²-bench 评估器
-    violations: list[Violation]
-    n_turns: int; n_tokens: int
+    violations: list[Violation]; format_errors: list[FormatError]
+    n_turns: int; n_tool_calls: int; n_tokens: int | None
 
 # handoff/rewards/composer.py
 class RewardComposer:
@@ -537,15 +539,15 @@ gantt
 
 ### 阶段 0：基础搭建（9 月 28 日 – 10 月 4 日）
 
-- [ ] **T0.1 搭仓库骨架。**
+- [x] **T0.1 搭仓库骨架。**
     - *工作：* `pyproject.toml`（uv，Python 3.12）、`src/handoff`、ruff、pytest、pre-commit、跑 CPU 测试的 GitHub Actions、MIT LICENSE、`.gitignore`、`.env.example`。
-    - *完成标准：* `uv run pytest` 通过，CI 为绿。本机检查已通过，远程 CI 待验证。
+    - *完成标准：* `uv run pytest` 通过，CI 为绿。
 - [ ] **T0.2 固定 τ²-bench 版本。**
     - *工作：* 锁定到某个 commit；用任意可用模型在 5 个航空任务上跑 `tau2 run`。
     - *完成标准：* `data/simulations/` 下有结果，并有一个解析结果的脚本。
 - [ ] **T0.3 集群环境。**
     - *工作：* 策略服务、模拟用户服务和训练的 Slurm 模板；HF 缓存放 scratch。
-    - *完成标准：* 两个服务都能在计算节点上响应 OpenAI 格式的工具调用请求，并实测吞吐。服务、评测和训练的 Slurm 作业已实现；真实集群验收待完成。
+    - *完成标准：* 两个服务都能在计算节点上响应 OpenAI 格式的工具调用请求，并实测吞吐。
 - [ ] **T0.4 训练框架技术验证（ADR-001）。**
     - *工作：* 在 1–2 张卡上把 verl 的多轮 agent loop 示例端到端跑通。
     - *完成标准：* 写好 ADR-001，附实测单步耗时和是否采用的结论。
@@ -616,7 +618,7 @@ gantt
     - *工作：* 演示一次带政策引用的转人工。
     - *时间：* 11 月 10 日当周展示。
 - [ ] **T4.4 发布。**
-    - *工作：* 在本 README 补结果部分；Hugging Face 模型卡注明"不可用于部署"；放出部分轨迹和复现命令。
+    - *工作：* 在本 README 补结果部分；Hugging Face 模型卡注明"不可用于部署"（模板：[docs/model-card.md](docs/model-card.md)）；放出部分轨迹和复现命令。
 
 **单人节奏。** 这个计划默认只有一个人在做，所以按周推进：
 

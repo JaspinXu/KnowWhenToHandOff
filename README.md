@@ -106,7 +106,7 @@ v1.0.1, verl 0.8.0, vLLM 0.12.0, PyTorch 2.9.0 with CUDA 12.8
 Definitions: [metrics](docs/metrics.md) · [labels, rules and format
 errors](docs/labels.md) · [hand-off tasks](docs/handoff-tasks.md) ·
 [decisions](docs/adr/) · [experiment log](docs/experiment-log.md) ·
-[code readiness](docs/code-readiness.md).
+[implementation status](docs/implementation-status.md) · [model card](docs/model-card.md).
 
 ---
 
@@ -330,15 +330,16 @@ class PersonaInjector:
 
 # handoff/rollout/schema.py
 @dataclass
-class Trajectory:
-    run_id: str; task_id: str; domain: str; split: str; persona: str; seed: int
-    policy_ckpt: str; user_sim: str
+class Trajectory:  # abridged; full field list in AGENTS.md §7
+    run_id: str; task_id: str; domain: str; split: str; kind: str; persona: str
+    trial: int; seed: int | None; policy_ckpt: str; user_sim: str
     messages: list[dict]            # full dialogue incl. tool calls and results
+    termination_reason: str
+    task_reward: float              # from the τ²-bench evaluator
     transferred: bool; transfer_turn: int | None
     should_transfer: bool           # label
-    task_reward: float              # from the τ²-bench evaluator
-    violations: list[Violation]
-    n_turns: int; n_tokens: int
+    violations: list[Violation]; format_errors: list[FormatError]
+    n_turns: int; n_tool_calls: int; n_tokens: int | None
 
 # handoff/rewards/composer.py
 class RewardComposer:
@@ -519,15 +520,15 @@ Each task has a definition of done (DoD). Tick the box when the DoD is met and t
 
 ### Phase 0 — Foundations (28 Sep – 4 Oct)
 
-- [ ] **T0.1 Scaffold the repo.**
+- [x] **T0.1 Scaffold the repo.**
     - *Work:* `pyproject.toml` (uv, Python 3.12), `src/handoff`, ruff, pytest, pre-commit, GitHub Actions for CPU tests, MIT LICENSE, `.gitignore`, `.env.example`.
-    - *DoD:* `uv run pytest` passes and CI is green. Local checks pass; remote CI pending.
+    - *DoD:* `uv run pytest` passes and CI is green.
 - [ ] **T0.2 Pin τ²-bench.**
     - *Work:* pin to a commit; run `tau2 run` on 5 airline tasks with any available model.
     - *DoD:* results in `data/simulations/` and a script that parses them.
 - [ ] **T0.3 Bring up the cluster.**
     - *Work:* Slurm templates for the policy server, the user-simulator server and training; HF cache on scratch.
-    - *DoD:* both servers answer OpenAI-style tool-calling requests from a compute node; throughput measured. The Slurm jobs for servers, evaluation and training are implemented; cluster acceptance is pending.
+    - *DoD:* both servers answer OpenAI-style tool-calling requests from a compute node; throughput measured.
 - [ ] **T0.4 Trainer spike (ADR-001).**
     - *Work:* run verl's multi-turn agent-loop example end to end on 1–2 GPUs.
     - *DoD:* ADR-001 written with measured step time and the go/no-go decision.
@@ -598,7 +599,7 @@ Each task has a definition of done (DoD). Tick the box when the DoD is met and t
     - *Work:* the demo shows a hand-off with the policy citation.
     - *When:* presentation in the week of 10 Nov.
 - [ ] **T4.4 Release.**
-    - *Work:* results section in this README, a model card on Hugging Face marked "not for deployment", a sample of trajectories, reproduction commands.
+    - *Work:* results section in this README, a model card on Hugging Face marked "not for deployment" (template: [docs/model-card.md](docs/model-card.md)), a sample of trajectories, reproduction commands.
 
 **Solo cadence.** The plan assumes one person does the building, so the rhythm is weekly:
 
