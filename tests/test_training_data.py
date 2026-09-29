@@ -1,7 +1,10 @@
 """SFT teacher filtering/tokenization, RL rows, launcher overrides and monitors."""
 
+import importlib.util
 import json
 import random
+import sys
+from pathlib import Path
 
 import pytest
 from fakes import (
@@ -19,7 +22,11 @@ from handoff.envs.personas import Persona
 from handoff.envs.registry import TaskRegistry
 from handoff.rollout.chat_delta import ChatDeltaTokenizer
 from handoff.rollout.schema import FormatError, Violation
-from handoff.train.monitors import read_rollout_records, rollout_indicators
+from handoff.train.monitors import (
+    read_rollout_records,
+    rollout_indicators,
+    step_curve,
+)
 from handoff.train.rl_data import rl_rows, rows_summary, stable_seed
 from handoff.train.rl_launch import (
     agent_loop_yaml,
@@ -351,3 +358,61 @@ def test_rollout_indicators():
     assert indicators["mean_messages"] == 20.0
     assert 0.0 <= indicators["transfer_rate_on_negatives"] <= 1.0
     assert indicators["infra_failure_rate"] == pytest.approx(2 / 12)
+
+
+def _dump(directory, step, records):
+    """Write one verl generation dump (``<step>.jsonl``) with text columns."""
+    directory.mkdir(parents=True, exist_ok=True)
+    lines = [
+        json.dumps({"input": "...", "output": "...", "step": step, **record})
+        for record in records
+    ]
+    (directory / f"{step}.jsonl").write_text("\n".join(lines) + "\n")
+
+
+def test_step_curve_averages_reward_terms_per_step(tmp_path):
+    dumps = tmp_path / "rollout_dumps"
+    _dump(dumps, 10, [{"total": 1.0, "task": 1.0, "fp_penalty": 0.0}] * 3)
+    _dump(dumps, 2, [{"total": 0.5, "task": 1.0}, {"total": -0.5, "task": 0.0}])
+    (dumps / "notes.jsonl").write_text("{}\n")  # not a step file
+    rows = step_curve(dumps)
+    assert [row["step"] for row in rows] == [2, 10]  # numeric, not lexical
+    assert rows[0] == {"step": 2, "n_episodes": 2, "total": 0.0, "task": 0.5}
+    assert rows[1]["fp_penalty"] == 0.0  # zero means are kept
+    assert step_curve(tmp_path / "missing") == []
+
+
+def test_rl_curves_script_writes_tables(tmp_path, monkeypatch, capsys):
+    run_dir = tmp_path / "runs" / "R2-s1-20261024"
+    _dump(run_dir / "rollout_dumps", 1, [{"total": 0.25, "success": 1.0}])
+    _dump(run_dir / "validation_dumps", 0, [{"total": 0.0, "success": 0.0}])
+    _dump(run_dir / "validation_dumps", 10, [{"total": 1.0, "success": 1.0}])
+    (run_dir / "config.json").write_text("{}")
+    (run_dir / "provenance.json").write_text('{"git_sha": "abc"}')
+    monkeypatch.setenv("HANDOFF_SCRATCH", str(tmp_path))
+    root = Path(__file__).resolve().parents[1]
+    spec = importlib.util.spec_from_file_location(
+        "script_rl_curves", root / "scripts" / "rl_curves.py"
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    out = tmp_path / "reports"
+    argv = ["rl_curves", "--name", "rl", "--runs", "R2=R2-s1-20261024"]
+    monkeypatch.setattr(sys, "argv", [*argv, "--out-dir", str(out)])
+    assert module.main() == 0
+    csv_rows = (out / "learning_curves.csv").read_text().splitlines()
+    assert csv_rows[0].startswith("Run,Phase,Step,Episodes,total,task")
+    assert [row.split(",")[1:3] for row in csv_rows[1:]] == [
+        ["train", "1"],
+        ["dev", "0"],
+        ["dev", "10"],
+    ]
+    dev = (out / "dev_curves.md").read_text()
+    assert "| R2 | dev | 10 | 1 | 1.000 |" in dev and "train" not in dev
+    assert "curves:" in capsys.readouterr().out
+    sources = json.loads((out / "sources.json").read_text())
+    assert sources[0]["run_id"] == "R2-s1-20261024"
+    assert sources[0]["git_sha"] == "abc"
+    monkeypatch.setattr(sys, "argv", ["rl_curves", "--name", "rl", "--runs", "R2=x"])
+    with pytest.raises(SystemExit):
+        module.main()

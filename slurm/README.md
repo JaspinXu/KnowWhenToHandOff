@@ -16,7 +16,8 @@ The full experiment sequence is in the [cluster runbook](../docs/cluster-runbook
 
 Light commands that only read run records run on the login node inside the
 environment: `bash slurm/run.sh python scripts/monitor_rl.py ...` (also
-`make_report.py`, `append_experiment_log.py`, `model_server.py show`).
+`rl_curves.py`, `make_report.py`, `append_experiment_log.py`,
+`model_server.py show`).
 
 | Job | Resources | Runs | Main variables |
 | --- | --- | --- | --- |

@@ -33,12 +33,14 @@ from typing import Any
 from handoff.eval.metrics import (
     Interval,
     bootstrap,
+    format_interval,
     metric_statistics,
     paired_difference,
     style_breakdown,
     task_units,
 )
 from handoff.rollout.schema import Trajectory, iter_trajectories
+from handoff.train.monitors import CURVE_KEYS
 
 REFERENCE_STYLE = "neutral"
 TASK_METRICS = ("success", "pass^{k}", "violation_rate", "mean_turns")
@@ -164,16 +166,6 @@ def label_metrics(
                 units, statistics[key], n_resamples=n_resamples, seed=seed
             )
     return result
-
-
-def format_interval(interval: Mapping[str, Any] | None, digits: int = 3) -> str:
-    """``0.512 [0.44, 0.58]`` or ``n/a``."""
-    if not interval or interval.get("point") is None:
-        return "n/a"
-    point = f"{interval['point']:.{digits}f}"
-    if interval.get("low") is None:
-        return point
-    return f"{point} [{interval['low']:.{digits}f}, {interval['high']:.{digits}f}]"
 
 
 def main_table_rows(
@@ -376,6 +368,70 @@ def plot_tradeoff(metrics: Mapping[str, Mapping[str, Interval]], path: Path) -> 
     axis.set_xlabel("Over-escalation rate")
     axis.set_ylabel("Success (pass^1)")
     axis.set_title("Hand-off calibration vs task success")
+    figure.tight_layout()
+    figure.savefig(path, dpi=200)
+    plt.close(figure)
+
+
+def curve_rows(
+    curves: Mapping[str, Mapping[str, Sequence[Mapping[str, float]]]],
+    phases: Sequence[str] = ("train", "dev"),
+) -> list[list[str]]:
+    """RL learning curves as rows: one per (label, phase, step), terms as columns.
+
+    ``curves`` maps a label to ``{"train": rows, "dev": rows}`` as returned by
+    :func:`handoff.train.monitors.step_curve`.
+    """
+    rows = [["Run", "Phase", "Step", "Episodes", *CURVE_KEYS]]
+    for label, by_phase in curves.items():
+        for phase in phases:
+            for row in by_phase.get(phase, []):
+                rows.append(
+                    [
+                        label,
+                        phase,
+                        str(int(row["step"])),
+                        str(int(row["n_episodes"])),
+                        *[
+                            "" if key not in row else f"{row[key]:.3f}"
+                            for key in CURVE_KEYS
+                        ],
+                    ]
+                )
+    return rows
+
+
+def plot_learning_curves(
+    curves: Mapping[str, Mapping[str, Sequence[Mapping[str, float]]]], path: Path
+) -> None:
+    """Train reward, dev success and train penalties per step (needs matplotlib)."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    panels = (
+        ("train", ("total", "task"), "Train reward (mean per step)"),
+        ("dev", ("success", "total"), "Dev validation"),
+        (
+            "train",
+            ("violation_penalty", "fp_penalty", "fn_penalty", "format_penalty"),
+            "Train penalties",
+        ),
+    )
+    figure, axes = plt.subplots(1, len(panels), figsize=(13, 3.6))
+    for axis, (phase, keys, title) in zip(axes, panels, strict=True):
+        for label, by_phase in curves.items():
+            rows = by_phase.get(phase, [])
+            for key in keys:
+                points = [(row["step"], row[key]) for row in rows if key in row]
+                if points:
+                    steps, values = zip(*points, strict=True)
+                    axis.plot(steps, values, marker=".", label=f"{label} {key}")
+        axis.set_title(title)
+        axis.set_xlabel("Training step")
+        if axis.get_legend_handles_labels()[0]:
+            axis.legend(fontsize=7)
     figure.tight_layout()
     figure.savefig(path, dpi=200)
     plt.close(figure)

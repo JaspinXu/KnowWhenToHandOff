@@ -237,12 +237,18 @@ bash slurm/submit.sh rl REWARD=r2        EXPERIMENT=R2 INIT="$b2"
 Before a long run, try `EXTRA="dry_run=true"` (builds the data and validates
 the verl command without training; it gets its own `dry` run ID).
 
-While it runs (every reward term per step is in the job log; per-episode
-records, with timestamps, in `runs/<id>/rollouts/`):
+While it runs (per-episode records, with timestamps, are in
+`runs/<id>/rollouts/`; verl's per-step dumps with every reward term are in
+`runs/<id>/rollout_dumps/` and `validation_dumps/`):
 
 ```bash
 bash slurm/run.sh python scripts/monitor_rl.py --run R2-s1-<date> --baseline B2-dev-s0-<date>
+bash slurm/run.sh python scripts/rl_curves.py --name rl --runs R1=R1-s1-<date> R2=R2-s1-<date>
 ```
+
+`rl_curves.py` writes the learning curves (mean reward terms per training step
+and per dev validation) to `reports/rl/` as tables and a figure; commit the
+final version with the report (T3.2–T3.4).
 
 Exit status 3 means a reward-hacking indicator drifted more than 2× from B2
 (AGENTS §7: stop the run with `scancel`); 4 means more than 5 % of recent
@@ -255,7 +261,8 @@ you moved on): `bash slurm/submit.sh rl RESUME=R2-s1-<date>` (no `EXTRA`).
 Every saved step (every 10 steps) is exported right away to a bf16 Hugging Face
 directory, `runs/<id>/export/global_step_<N>`, and verl keeps only the latest
 resumable checkpoint. By default the final step is the checkpoint; the dev
-validation curve in the job log shows whether an earlier step is clearly better.
+validation curve (`reports/rl/dev_curves.md`) shows whether an earlier step is
+clearly better.
 Evaluate it on dev, then run the final test protocol (T3.6):
 
 ```bash
@@ -287,7 +294,7 @@ bash slurm/run.sh python scripts/make_report.py --name main --baseline B2 --runs
   R2=R2-final-$t-<date>+R2-final-$s-<date>+R2-final-$h-<date>
 bash slurm/submit.sh cpu CMD="python scripts/sample_review.py audit --run <final test run> --n 20"
 bash slurm/submit.sh cpu CMD="python scripts/render_demo.py --run <test_handoff run>"
-git add reports/main reports/demo docs/experiment-log.md && git commit -m "T4.1: report tables"
+git add reports/main reports/rl reports/demo docs/experiment-log.md && git commit -m "T4.1: report tables"
 ```
 
 `reports/<name>/` gets Markdown, CSV and LaTeX tables, PNG figures and

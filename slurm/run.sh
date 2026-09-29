@@ -3,6 +3,7 @@
 #
 #   bash slurm/run.sh python scripts/monitor_rl.py --run <RL run id> --baseline <id>
 #   bash slurm/run.sh python scripts/make_report.py --name main --runs ...
+#   bash slurm/run.sh python scripts/rl_curves.py --name rl --runs R1=<id> R2=<id>
 #
 # Only for commands that read run records and write small files (monitoring,
 # reports, the experiment log). Anything heavier goes through slurm/submit.sh
@@ -12,7 +13,7 @@ here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HANDOFF_REPO="$(cd "${here}/.." && pwd)"
 export HANDOFF_REPO
 if [[ $# -eq 0 ]]; then
-  sed -n '2,9p' "$0"
+  sed -n '2,10p' "$0"
   exit 2
 fi
 # shellcheck source=slurm/lib/common.sh

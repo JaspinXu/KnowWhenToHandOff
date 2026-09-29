@@ -6,6 +6,13 @@ Generated from run IDs only (T4.1), never edited by hand:
 python scripts/make_report.py --name main --baseline B2 --runs B0=<run id> B2=<run id> R2=<run id>
 ```
 
+RL learning curves (train and dev reward terms per step) come from the RL run
+directories:
+
+```bash
+python scripts/rl_curves.py --name rl --runs R1=<RL run id> R2=<RL run id>
+```
+
 `reports/<name>/` holds the tables (`.md`, `.csv`, `.tex`), figures (`.png`) and
 `sources.json`, which lists the run ID, git SHA, tau2 commit, model revisions and
 seeds behind every number. Final versions are committed.

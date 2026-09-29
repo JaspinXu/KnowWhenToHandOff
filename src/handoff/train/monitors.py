@@ -1,9 +1,14 @@
-"""Reward-hacking watch-list over training rollouts (task T3.5, AGENTS §7).
+"""Training monitors: reward-hacking watch-list and learning curves (T3.2–T3.5).
 
 The agent loop writes one record per training episode. These functions compute
 the watch-list from the most recent records and compare it with the B2
 evaluation (see :func:`handoff.eval.metrics.hacking_indicators`), flagging any
 indicator that drifts more than twice its baseline value.
+
+Learning curves come from verl's own per-step dumps (``trainer.rollout_data_dir``
+and ``trainer.validation_data_dir``, one ``<step>.jsonl`` per step), which carry
+every reward term the agent loop reports. verl rewrites a step's file when a
+resumed run repeats that step, so each step is counted once.
 """
 
 from __future__ import annotations
@@ -12,6 +17,21 @@ import json
 from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
 from typing import Any
+
+# Per-step means shown in the learning curves (keys of the agent loop's
+# ``reward_extra_info``; ``total`` is the reward the trainer optimizes).
+CURVE_KEYS = (
+    "total",
+    "task",
+    "violation_penalty",
+    "fp_penalty",
+    "fn_penalty",
+    "format_penalty",
+    "success",
+    "transferred",
+    "n_turns",
+    "infra_failure",
+)
 
 
 def read_rollout_records(directory: Path) -> list[dict[str, Any]]:
@@ -70,3 +90,32 @@ def rollout_indicators(
         ),
         "n_episodes": float(len(train)),
     }
+
+
+def step_curve(directory: Path) -> list[dict[str, float]]:
+    """Per-step means of :data:`CURVE_KEYS` from a verl dump directory.
+
+    Each ``<step>.jsonl`` file becomes one row with ``step``, ``n_episodes`` and
+    the mean of every key present in it; rows are in step order and a missing
+    directory gives no rows.
+    """
+    rows: list[dict[str, float]] = []
+    if not directory.is_dir():
+        return rows
+    files = [path for path in directory.glob("*.jsonl") if path.stem.isdigit()]
+    for path in sorted(files, key=lambda p: int(p.stem)):
+        values: dict[str, list[float]] = {key: [] for key in CURVE_KEYS}
+        n_episodes = 0
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            record = json.loads(line)
+            n_episodes += 1
+            for key in CURVE_KEYS:
+                value = record.get(key)
+                if isinstance(value, int | float) and not isinstance(value, bool):
+                    values[key].append(float(value))
+        row = {"step": int(path.stem), "n_episodes": n_episodes}
+        row.update({key: sum(v) / len(v) for key, v in values.items() if v})
+        rows.append(row)
+    return rows
