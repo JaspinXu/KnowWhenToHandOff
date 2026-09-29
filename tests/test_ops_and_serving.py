@@ -580,6 +580,14 @@ def test_export_merges_saved_steps_once_and_keeps_metadata(
     monkeypatch.setattr(sys, "argv", ["export", "R1-s1-20261020", "--step", "30"])
     with pytest.raises(SystemExit):
         module.main()
+    # with only exports left, "latest" is the highest step (100 after 20)
+    shutil.rmtree(run / "checkpoints")
+    (run / "export" / "global_step_100").mkdir()
+    (run / "export" / "global_step_100" / "handoff_export.json").write_text("{}")
+    monkeypatch.setattr(sys, "argv", ["export", "R1-s1-20261020", "--step", "latest"])
+    capsys.readouterr()
+    assert module.main() == 0
+    assert capsys.readouterr().out.strip().endswith("global_step_100")
 
 
 @pytest.mark.skipif(os.name != "posix", reason="tau2 runs on the Linux cluster")

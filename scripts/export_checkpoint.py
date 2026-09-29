@@ -24,16 +24,20 @@ ROOT = repo_root(__file__)
 def _select(run_dir: Path, step: str) -> list[Path]:
     """Step directories named by ``step``: ``latest``, ``all`` or a number."""
     steps = step_dirs(run_dir / "checkpoints")
-    exported = sorted((run_dir / "export").glob("global_step_*"))
     if step == "all":
         return [path for _, path in steps]
     if step == "latest":
-        candidates = [path for _, path in steps]
-        if not candidates and exported:
-            return [run_dir / "checkpoints" / exported[-1].name]
-        if not candidates:
+        if steps:
+            return [steps[-1][1]]
+        exported = [
+            path
+            for path in (run_dir / "export").glob("global_step_*")
+            if is_exported(path)
+        ]
+        if not exported:
             raise CliError(f"no checkpoints in {run_dir / 'checkpoints'}")
-        return candidates[-1:]
+        latest = max(exported, key=lambda path: int(path.name.rpartition("_")[2]))
+        return [run_dir / "checkpoints" / latest.name]
     wanted = f"global_step_{int(step)}"
     matches = [path for _, path in steps if path.name == wanted]
     if not matches and (run_dir / "export" / wanted).exists():
