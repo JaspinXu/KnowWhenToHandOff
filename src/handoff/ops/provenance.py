@@ -94,11 +94,26 @@ def _sha(value: object, field: str) -> str:
     return value
 
 
-def _validate(run_id: str, provenance: Mapping[str, object]) -> None:
-    match = re.fullmatch(
-        r"(?:B[012]|R1|R2-[A-Za-z0-9-]+|R3|P1|A[12])-s(?P<seed>[0-9]+)-(?P<date>[0-9]{8})",
-        run_id,
+def _revision(value: object, field: str) -> str:
+    """Accept a Hugging Face commit SHA or a local checkpoint fingerprint."""
+    if isinstance(value, str) and (
+        re.fullmatch(r"[a-f0-9]{40}", value)
+        or re.fullmatch(r"sha256:[a-f0-9]{64}", value)
+    ):
+        return value
+    raise ValueError(
+        f"{field} must be a full commit SHA or a sha256: checkpoint fingerprint"
     )
+
+
+RUN_ID_PATTERN = re.compile(
+    r"(?P<experiment>B[012]|R[12]|SMOKE|TEACH|SPIKE)"
+    r"(?:-[A-Za-z0-9_]+)*-s(?P<seed>[0-9]+)-(?P<date>[0-9]{8})"
+)
+
+
+def _validate(run_id: str, provenance: Mapping[str, object]) -> None:
+    match = RUN_ID_PATTERN.fullmatch(run_id)
     if match is None:
         raise ValueError("run_id must follow the README experiment naming convention")
     try:
@@ -122,7 +137,7 @@ def _validate(run_id: str, provenance: Mapping[str, object]) -> None:
     if not isinstance(models, Mapping) or not {"policy", "user_sim"} <= models.keys():
         raise ValueError("model_revisions must include policy and user_sim")
     for revision in models.values():
-        _sha(revision, "model_revisions")
+        _revision(revision, "model_revisions")
     seeds = provenance["seeds"]
     if (
         not isinstance(seeds, Mapping)
@@ -218,6 +233,51 @@ def verify_run_directory(run_dir: Path) -> dict[str, JSONValue]:
     except (KeyError, TypeError, json.JSONDecodeError):
         raise ValueError("invalid run provenance") from None
     return record
+
+
+def reopen_run(run_dir: Path) -> dict[str, JSONValue]:
+    """Prepare an unfinished, failed or interrupted run to be resumed.
+
+    Verifies the immutable records and refuses a completed run. An earlier
+    terminal marker is kept as ``completion.attempt<N>.json`` so that the
+    resumed attempt can write its own. Returns the provenance record.
+    """
+    record = verify_run_directory(run_dir)
+    completion = run_dir / "completion.json"
+    if completion.exists():
+        status = json.loads(completion.read_text(encoding="utf-8")).get("status")
+        if status == "completed":
+            raise ValueError(f"{run_dir.name} already completed; start a new run")
+        attempt = 1
+        while (run_dir / f"completion.attempt{attempt}.json").exists():
+            attempt += 1
+        completion.replace(run_dir / f"completion.attempt{attempt}.json")
+    return record
+
+
+def check_resume_code(
+    record: Mapping[str, object], *, git_sha: str, git_dirty: bool
+) -> None:
+    """A resumed run must run the code (commit) it started with."""
+    if git_sha != record["git_sha"]:
+        raise ValueError(
+            f"{record['run_id']} started at commit {record['git_sha']} but the "
+            f"checkout is at {git_sha}; check out that commit to resume it"
+        )
+    if record["execution_kind"] == "real" and git_dirty:
+        raise ValueError("git_dirty must be false for a reproducible real run")
+
+
+def append_attempt(run_dir: Path, entry: Mapping[str, object]) -> None:
+    """Append one attempt (job, endpoints, code version) to ``attempts.jsonl``.
+
+    Facts that change when a run is resumed, such as server addresses, live here
+    rather than in the immutable config. Credential keys are redacted.
+    """
+    clean = _sanitize({**entry, "time": datetime.now(UTC).isoformat()})
+    path = run_dir / "attempts.jsonl"
+    with path.open("a", encoding="utf-8", newline="\n") as stream:
+        stream.write(json.dumps(clean, sort_keys=True, allow_nan=False) + "\n")
 
 
 def finish_run(run_dir: Path, *, status: str, error_code: str | None = None) -> None:

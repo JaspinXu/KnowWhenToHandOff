@@ -35,7 +35,7 @@ def test_config_composes_outside_checkout(
 ) -> None:
     monkeypatch.chdir(tmp_path)
     with initialize_config_dir(version_base="1.3", config_dir=str(ROOT / "configs")):
-        config = compose(config_name="config")
+        config = compose(config_name="run_eval")
     assert config.seed == 0
     assert isinstance(config.seed, int)
 

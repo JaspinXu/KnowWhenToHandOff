@@ -1,6 +1,8 @@
 # ADR-007: Async model transport for baseline and simulator clients
 
-- Status: Deferred by owner — dependency not accepted
+- Status: **Superseded** (29 Sep 2026) by ADR-001 — no HTTPX client is added:
+  evaluation uses tau2's own LiteLLM client against local vLLM servers, and
+  training generates tokens through verl. Originally deferred by the owner.
 - Date: 2026-09-28
 - Related tasks: T0.3, T0.5; no change to ADR-006
 

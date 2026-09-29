@@ -1,0 +1,4 @@
+# Paths only; used by utility scripts (downloads, serving, reports).
+defaults:
+  - paths: default
+  - _self_

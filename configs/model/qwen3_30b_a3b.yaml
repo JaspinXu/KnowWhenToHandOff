@@ -1,0 +1,10 @@
+# User simulator (ADR-003), optional reference policy B1 and SFT teacher (T2.1).
+repository: Qwen/Qwen3-30B-A3B-Instruct-2507
+served_name: qwen3-30b-a3b
+tool_call_parser: hermes
+name: qwen3_30b_a3b
+download_revision: main
+local_path: null
+max_model_len: 32768
+chat_template_kwargs: {}
+serve_args: []

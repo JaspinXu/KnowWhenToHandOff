@@ -1,0 +1,17 @@
+# Filesystem layout. HANDOFF_SCRATCH must point to a private scratch directory
+# (see slurm/cluster.env.example); the repository path is injected by scripts.
+repo: ???
+scratch: ${oc.env:HANDOFF_SCRATCH,???}
+state_dir: ${.scratch}/state
+runs_dir: ${.scratch}/runs
+endpoints_dir: ${.state_dir}/endpoints
+api_key_file: ${.state_dir}/secrets/vllm_api_key
+models_lock: ${.state_dir}/models.lock.json
+test_ledger: ${.state_dir}/test_ledger.jsonl
+manifests_dir: ${.repo}/data/manifests
+handoff_tasks_dir: ${.repo}/data/handoff_tasks/v1
+splits_manifest: ${.manifests_dir}/splits_v1.json
+labels_file: ${.manifests_dir}/labels_v1.json
+label_overrides: ${.manifests_dir}/label_overrides_v1.json
+handoff_manifest: ${.manifests_dir}/handoff_tasks_v1.json
+experiment_log: ${.repo}/docs/experiment-log.md

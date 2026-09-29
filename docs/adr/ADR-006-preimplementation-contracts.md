@@ -1,15 +1,35 @@
 # ADR-006: Pre-implementation benchmark and reward clarifications
 
-- Status: **Deferred by owner — not accepted**
+- Status: **Superseded** (29 Sep 2026) by ADR-001 to ADR-005 — originally
+  deferred by the owner on 27 Sep 2026
 - Date: 2026-09-27
 - Related tasks: T0.2, T1.1, T1.2, T1.5, T3.2
 - Reserved ADR-001 through ADR-005 retain their README purposes.
 
 Owner response on 27 September: do not adopt these definition changes yet; implement independent infrastructure first. No part of this draft changes the active benchmark, splits, rewards, or evaluation protocol.
 
+## Resolution (29 Sep 2026)
+
+When the owner asked for the complete pipeline, the open points were decided in
+the README's own ADR slots, keeping the README's scientific definitions:
+
+- D1 → [ADR-005](ADR-005-evaluation-protocol.md): τ²-bench is pinned to the
+  v1.0.1 release commit `fc0055d`, whose task data equals the audited `b7ea907`.
+- D2 → [ADR-004](ADR-004-reward-composition.md): the official task reward is kept
+  as is; off-reference writes stay in `N_viol` as the README defines, as a
+  separately weighted rule whose weight can be set to 0 by configuration; the
+  NL-assertion guard is implemented.
+- D3 → ADR-005: dev is carved from train only, hand-off variants inherit their
+  source task's split, and the smoke test uses five train tasks.
+- D4 → ADR-003 / ADR-005: the <= 8B limit applies to the trained policy; neutral
+  results are not double-counted in the style breakdown.
+- D5 → the `Trajectory`, `RewardBreakdown` and `TaskRegistry` contracts are
+  implemented in `src/handoff/rollout/schema.py`, `rewards/composer.py` and
+  `envs/registry.py`, with every consumer.
+
 ## Context
 
-The [initial audit](../repository-audit-2026-09-27.md) found differences between
+The initial audit (27 Sep; the audit file was later removed) found differences between
 the design, upstream behavior, and the available execution environment. AGENTS
 requires asking before changes to evaluation, splits, dependencies, or shared
 schemas. This document proposes resolutions; it changes no operational contract.

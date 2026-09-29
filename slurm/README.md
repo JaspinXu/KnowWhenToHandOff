@@ -1,71 +1,51 @@
-# Offline server preparation (T0.3 code only)
+# Slurm jobs
 
-The implemented command generates a plan and never calls `sbatch`, downloads
-weights, installs vLLM or runs a model. Real server responses, tool calling and
-throughput still require cluster acceptance. Training launchers await the trainer
-decision in T0.4; no placeholder trainer is provided.
-
-The owner has one A100 and one H200. Their memory sizes, placement and scheduler
-settings are unconfirmed. Plan each server as a separate single-GPU job; do not
-assume the GPUs form a homogeneous two-GPU training allocation.
-
-## Inspect settings locally
+All cluster work goes through one wrapper that reads `slurm/cluster.env`
+(copy `cluster.env.example`; the file is gitignored):
 
 ```bash
-uv run python scripts/plan_server.py --help
-uv run python scripts/plan_server.py
+bash slurm/submit.sh <job> [KEY=VALUE ...] [-- extra sbatch flags]
 ```
 
-The second command intentionally exits with the missing fields. Fill
-`model.revision` with the exact Hugging Face commit, and
-`server.vllm_version` with the version of an approved cluster environment.
-Provide absolute POSIX scratch, repository and Python executable paths. These
-values are not guessed by the planner. Paths currently must not contain spaces.
+`KEY=VALUE` pairs are exported to the job; `EXTRA` is split like a shell
+command line, so a quoted value stays one Hydra override
+(`EXTRA="tags=[final] test_rerun_reason='a b'"`). Config names (`EVAL`, `RL`,
+`REWARD`) and `INIT` are checked before anything is queued. Logs go to
+`logs/handoff-<job>-<jobid>.out` in this checkout (`HANDOFF_LOGS` overrides it).
+The full experiment sequence is in the [cluster runbook](../docs/cluster-runbook.md).
 
-One-line template (replace every angle-bracket placeholder before use):
+Light commands that only read run records run on the login node inside the
+environment: `bash slurm/run.sh python scripts/monitor_rl.py ...` (also
+`make_report.py`, `append_experiment_log.py`, `model_server.py show`).
+
+| Job | Resources | Runs | Main variables |
+| --- | --- | --- | --- |
+| `setup` | 1 GPU (any) | `jobs/setup_env.sbatch`: venv, pinned stack, tau2 checkout, CPU test suite | — |
+| `download` | CPU | `scripts/download_models.py` → models lock | `MODELS` |
+| `tasks` | CPU | `scripts/build_task_sets.py` + hand-off review packet | `EXTRA`, `REVIEW_N` |
+| `check-tokens` | CPU | `scripts/check_tokenization.py` | `MODEL`, `TOKENIZER`, `TRAJECTORIES`, `MAX_PROMPT_TOKENS` |
+| `serve` | `GPU_TYPE_SIM` × `NGPUS` | `scripts/model_server.py serve` (long-running) | `ROLE`, `MODEL`, `ENDPOINT_NAME`, `LOCAL_PATH`+`SERVED_NAME`, `MAX_MODEL_LEN` |
+| `eval` | 1 × `GPU_TYPE_BIG` (CPU if `POLICY_ENDPOINT` is set) | policy server + `scripts/run_eval.py`; exit 3 = incomplete, resume it | `EVAL`, `EXPERIMENT`, `POLICY_MODEL`, `POLICY_PATH`, `POLICY_LABEL`, `POLICY_ENDPOINT`, `USERSIM_ENDPOINT`, `RESUME`, `ALLOW_SHORT_SIM`, `EXTRA` |
+| `teacher` | as `eval` | `eval` with `EVAL=teacher_train EXPERIMENT=TEACH` | as `eval` |
+| `sft-data` | CPU | `scripts/build_sft_data.py` | `TEACHER_RUNS`, `DATASET`, `EXTRA` |
+| `sft` | `GPU_TYPE_BIG` × `NGPUS` | `scripts/train_sft.py` (torchrun + FSDP if `NGPUS>1`) | `DATASET`, `EXTRA` |
+| `rl` | `GPU_TYPE_BIG` × `NGPUS` | `scripts/train_rl.py` → verl | `RL`, `REWARD`, `EXPERIMENT`, `INIT`, `RESUME`, `EXTRA` |
+| `cpu` | CPU | any command in the environment | `CMD` |
+
+Model servers publish `$HANDOFF_SCRATCH/state/endpoints/<name>.json` (address,
+served name, model revision, context length, chat-template arguments, server
+flags, Slurm job ID; never the key). The shared API key is in
+`state/secrets/vllm_api_key` (mode 600) and reaches vLLM and LiteLLM only
+through environment variables (it replaces any `OPENAI_API_KEY` of your shell);
+every server route except `/health` requires it.
+Clients wait for the endpoint; files left by ended jobs are ignored, and an
+evaluation refuses a simulator whose job ends before its own. Cancel idle
+servers with `scancel` when a campaign ends.
+
+Checks before every change to these scripts (`bash -n` checks one file per
+call):
 
 ```bash
-uv run python scripts/plan_server.py model=qwen3_4b model.revision=<40-character-SHA> server.vllm_version=<version> cluster.scratch=<scratch-path> cluster.workdir=<repo-path> cluster.python=<venv-python-path> output_dir=scratch/plans/policy
+for f in slurm/*.sh slurm/lib/common.sh slurm/jobs/*.sbatch; do bash -n "$f" || exit 1; done
+shellcheck -x -P slurm slurm/*.sh slurm/lib/common.sh slurm/jobs/*.sbatch
 ```
-
-For a user simulator, select `model=custom`, set `model.repository`,
-`model.served_name` and `model.revision`, and choose a distinct
-`cluster.job_name` and `server.port`. This supplies no new simulator choice or
-evaluation protocol. `server.host=127.0.0.1` is the conservative default; a
-cross-node client requires an approved reachable binding and cluster networking.
-
-Optional scheduler settings are `cluster.partition`, `cluster.account`, and
-`cluster.constraint`. Tensor parallel size must match GPU count; defaults are
-one. The default resource limits are planning estimates, not measured requirements.
-
-The new output directory contains:
-
-- `serve.sbatch`: LF-terminated Slurm script, with explicit GPU and time limits.
-- `resolved_config.json`: canonical deployment settings without secrets.
-- `plan.json`: hashes, source Git SHA, dirty state, and `status: not_executed`.
-
-Existing output directories are never overwritten. Do not put tokens into Hydra
-overrides; credentials remain in the cluster environment.
-
-## Later cluster acceptance
-
-1. Verify the chosen vLLM/CUDA/Python/model combination on the compute environment.
-   The generated script checks vLLM's exact installed version; it does not install it.
-2. Ensure scratch and repository directories exist before submission: Slurm opens
-   the output log before the script can create directories. Copy the complete
-   planning bundle to scratch and inspect the resolved config and job script.
-3. From the cluster, submit `sbatch /path/to/plan/serve.sbatch`. No local planner
-   command submits a job. Running the script directly outside a Slurm GPU
-   allocation fails immediately.
-4. The job stores its submitted script, resolved config, actual Git SHA/dirty
-   status, runtime versions and GPU inventory under
-   `<scratch>/handoff-jobs/<SLURM_JOB_ID>/`. HF cache and Slurm output stay on scratch.
-5. Check the OpenAI-compatible endpoint and real tool-call response from a compute
-   node, then measure throughput with approved tasks. A successful script render,
-   shell parse, or health endpoint is not proof of tool-call correctness.
-6. Stop idle servers using the corresponding job IDs when their work finishes.
-
-References verified during implementation:
-[vLLM server CLI](https://docs.vllm.ai/en/latest/cli/serve/),
-[vLLM tool calling](https://docs.vllm.ai/en/latest/features/tool_calling/),
-[Slurm sbatch](https://slurm.schedmd.com/sbatch.html).

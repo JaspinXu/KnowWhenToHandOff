@@ -35,3 +35,8 @@ jobs:
         run: uv run --locked pytest -q
       - name: Build distributions
         run: uv build
+      - name: Check Slurm scripts
+        if: runner.os == 'Linux'
+        run: |
+          for f in slurm/*.sh slurm/lib/common.sh slurm/jobs/*.sbatch; do bash -n "$f"; done
+          shellcheck -x -P slurm slurm/*.sh slurm/lib/common.sh slurm/jobs/*.sbatch

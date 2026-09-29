@@ -1,4 +1,10 @@
+# A trained checkpoint (B2, R1, ...): set local_path and served_name.
 repository: ???
-revision: ???
 served_name: ???
 tool_call_parser: null
+name: custom
+download_revision: main
+local_path: null
+max_model_len: 32768
+chat_template_kwargs: {}
+serve_args: []

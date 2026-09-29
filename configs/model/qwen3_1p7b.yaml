@@ -1,4 +1,0 @@
-repository: Qwen/Qwen3-1.7B
-revision: ???
-served_name: qwen3-1p7b
-tool_call_parser: hermes

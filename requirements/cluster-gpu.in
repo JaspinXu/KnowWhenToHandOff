@@ -1,0 +1,22 @@
+# Top-level requirements of the cluster GPU environment (ADR-001).
+# Regenerate the lock with scripts/lock_cluster_env.sh. It resolves against PyPI
+# as it was the day after verl 0.8.0 was published (--exclude-newer), and the
+# upper bounds below keep packages at the major versions that vLLM 0.12 and
+# verl 0.8 were released with. tau2 and handoff are installed editable
+# (--no-deps) by slurm/jobs/setup_env.sbatch.
+torch==2.9.0
+vllm==0.12.0
+verl[vllm]==0.8.0
+transformers>=4.56,<5
+# datasets 2.x (which uv otherwise backtracks to) fails to import with pyarrow>=21.
+datasets>=4,<5
+pandas>=2.2.3,<3
+openai<3
+protobuf<7
+starlette<1
+accelerate
+peft
+pyarrow
+matplotlib
+wandb
+huggingface_hub

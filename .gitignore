@@ -21,6 +21,12 @@ dist/
 .superpowers/
 .worktrees/
 
+# Cluster-specific settings (copy slurm/cluster.env.example).
+slurm/cluster.env
+
+# Human-review packets contain full dialogues; share them deliberately.
+reports/review/
+
 # Experiment artifacts belong on scratch.
 runs/
 wandb/
@@ -43,3 +49,6 @@ hf_cache/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Slurm job logs (slurm/submit.sh)
+logs/
