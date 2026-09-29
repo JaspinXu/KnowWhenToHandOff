@@ -1,0 +1,18 @@
+# scripts/build_sft_data.py: filter teacher rollouts and tokenize them (T2.1).
+defaults:
+  - paths: default
+  - _self_
+
+teacher_runs: ???  # run IDs of TEACH runs, e.g. [TEACH-teacher_train-s0-20261012]
+student_model: qwen3_4b  # models-lock entry whose tokenizer renders the data
+tokenizer_path: null  # overrides the models lock when set
+dataset_name: ???  # output: <scratch>/datasets/<dataset_name>/
+prompt_variant: handoff_v1
+chat_template_kwargs: {}
+max_length: 32768
+filter:
+  require_success: true
+  require_no_violations: true
+  require_no_format_errors: true
+  require_correct_transfer: true
+  max_per_task_persona: 2

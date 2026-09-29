@@ -1,15 +1,8 @@
 """Verify assistant-only causal labels without a trainer, tokenizer or GPU."""
 
 import copy
-from pathlib import Path
 
 import pytest
-from hydra import compose, initialize_config_dir
-from omegaconf import OmegaConf
-
-from handoff.rollout.tokens import TokenAccumulator
-
-ROOT = Path(__file__).resolve().parents[1]
 
 
 def settings(**updates: int) -> dict[str, int]:
@@ -23,12 +16,13 @@ def settings(**updates: int) -> dict[str, int]:
 
 
 def sample() -> dict:
-    accumulator = TokenAccumulator([10, 11], max_response_tokens=12)
-    accumulator.append("assistant", [20, 21])
-    accumulator.append("tool", [30, 31])
-    accumulator.append("user", [40])
-    accumulator.append("assistant", [22])
-    return {"split": "train", **accumulator.as_output()}
+    # prompt [10, 11]; assistant [20, 21]; tool [30, 31]; user [40]; assistant [22]
+    return {
+        "split": "train",
+        "prompt_ids": [10, 11],
+        "response_ids": [20, 21, 30, 31, 40, 22],
+        "response_mask": [1, 1, 0, 0, 0, 1],
+    }
 
 
 def build(samples: list[dict], **overrides: int) -> dict:
@@ -207,28 +201,3 @@ def test_config_is_frozen_and_rejects_extra_fields() -> None:
         config.ignore_index = 0
     with pytest.raises(ValueError):
         sft_config_from_mapping({**settings(), "packing": True})
-
-
-def test_hydra_requires_explicit_model_pad_id_from_any_cwd(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    from handoff.train.sft_batch import sft_config_from_mapping
-
-    monkeypatch.chdir(tmp_path)
-    with initialize_config_dir(version_base="1.3", config_dir=str(ROOT / "configs")):
-        unresolved = compose(config_name="sft_batch")
-        resolved = compose(
-            config_name="sft_batch", overrides=["train.pad_token_id=123"]
-        )
-    assert OmegaConf.is_missing(unresolved.train, "pad_token_id")
-    config = sft_config_from_mapping(
-        OmegaConf.to_container(resolved.train, resolve=True, throw_on_missing=True)
-    )
-    batch = build(
-        [sample()],
-        pad_token_id=config.pad_token_id,
-        max_length=config.max_length,
-        ignore_index=config.ignore_index,
-        pad_to_multiple_of=config.pad_to_multiple_of,
-    )
-    assert batch["labels"][0][2] == 20

@@ -1,8 +1,0 @@
-defaults:
-  - train: sft_batch
-  - _self_
-
-input_path: ???
-output_dir: ???    # New directory on scratch, outside this repository checkout.
-batch_size: 8
-max_record_bytes: 1048576  # Includes line endings; reject, never truncate.
