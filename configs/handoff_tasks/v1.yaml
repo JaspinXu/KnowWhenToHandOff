@@ -1,0 +1,12 @@
+# T1.3 hand-off task set: variants per source task, by split and kind.
+# Targets (README): at least 30 of each class per domain in test, more in train.
+seed: 20261011
+counts:
+  airline:
+    train: {explicit_request: 1, out_of_scope: 2, hard_negative: 2}
+    dev: {explicit_request: 1, out_of_scope: 1, hard_negative: 1}
+    test: {explicit_request: 1, out_of_scope: 1, hard_negative: 2}
+  retail:
+    train: {explicit_request: 1, out_of_scope: 1, hard_negative: 1}
+    dev: {explicit_request: 1, out_of_scope: 1, hard_negative: 1}
+    test: {explicit_request: 1, out_of_scope: 1, hard_negative: 1}

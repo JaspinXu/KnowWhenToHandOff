@@ -1,0 +1,12 @@
+# scripts/build_task_sets.py: labels (T1.2), frozen splits (T1.1) and the
+# hand-off task set (T1.3) from the pinned tau2 data. Outputs are committed.
+defaults:
+  - paths: default
+  - handoff_tasks: v1
+  - persona: styles_v1  # every task is checked with every style before writing
+  - _self_
+
+domains: [airline, retail]
+dev_fraction: 0.2
+split_seed: 20261011
+overwrite: false  # frozen after M1: regenerating needs an ADR (AGENTS rule 4)

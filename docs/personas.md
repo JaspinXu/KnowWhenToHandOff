@@ -1,9 +1,13 @@
 # Communication-style library
 
-T1.4 now has configurable draft cards and a pure, CPU-tested injector for
-serialized task dictionaries. No upstream benchmark version or task split is
-selected. The live Task adapter and ten-dialogue-per-style review remain pending.
-There is no evidence yet that a simulator consistently follows these prompts.
+T1.4 has configurable draft cards and a pure, CPU-tested injector for serialized
+task dictionaries. The τ²-bench adapter (`handoff.envs.tau2_adapter.styled_task`)
+applies a card and suffixes the task ID with `::<style>`; the task-set build
+checks every task with every style against tau2's `Task` schema, and the
+integration tests run styled tasks through tau2. Still pending (T1.4 DoD): the
+review of ten simulated dialogues per style
+(`python scripts/sample_review.py styles --run <B0 test_styles run>`). There is no
+evidence yet that the simulator consistently follows these prompts.
 
 ## Six styles
 
@@ -50,9 +54,8 @@ style_record = {"id": card.id, "text": card.text, "sha256": card.sha256}
 ```
 
 `original_task_dict` is the serialized task representation, not an upstream
-Pydantic Task instance. The future benchmark adapter must serialize and validate
-its Task with the accepted version's API. This module does not validate the whole
-benchmark schema or claim compatibility with a currently unaccepted pin.
+Pydantic Task instance. The drivers call `styled_task` and then validate the
+result with tau2's own schema (`task_from_dict`); this module alone does not.
 
 `apply` deep-copies every nested value. The only field it writes is
 `user_scenario.persona`. Neutral leaves the content exactly unchanged, including

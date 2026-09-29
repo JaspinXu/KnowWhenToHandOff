@@ -218,7 +218,7 @@ def test_hydra_library_loads_outside_checkout(
 
     monkeypatch.chdir(tmp_path)
     with initialize_config_dir(version_base="1.3", config_dir=str(ROOT / "configs")):
-        cfg = compose(config_name="personas")
+        cfg = compose(config_name="run_eval")
     raw = OmegaConf.to_container(cfg.persona, resolve=True, throw_on_missing=True)
     cards = personas_from_config(raw)
     assert set(cards) == set(STYLES)
