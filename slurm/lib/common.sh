@@ -14,6 +14,12 @@ export TOKENIZERS_PARALLELISM=false
 # nodes may have no internet access.
 export LITELLM_LOCAL_MODEL_COST_MAP=True
 export HANDOFF_SCRATCH HF_HOME TAU2_DATA_DIR TAU2_COMMIT
+# Inside a job, keep temporary files (and Ray's sockets, via RAY_TMPDIR) on the
+# node-local disk; a TMPDIR inherited from ~/.bashrc may point at NFS.
+if [[ -n "${SLURM_JOB_ID:-}" ]]; then
+  export TMPDIR="/tmp/${USER}-handoff-${SLURM_JOB_ID}"
+  mkdir -p "${TMPDIR}"
+fi
 cd "${HANDOFF_REPO}"
 
 log() { echo "[$(date -Is)] $*"; }

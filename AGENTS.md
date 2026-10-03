@@ -73,7 +73,7 @@ abstractions unless the owner asks. Prefer deleting over adding.
 > Update this section at the end of every session (§16). Newest first; keep it
 > short and factual. Code verification is not a research result.
 
-**As of 30 Sep 2026** (`main`; audits in §17):
+**As of 3 Oct 2026** (`main` + uncommitted cluster fixes; audits in §17):
 
 - **Code:** the whole pipeline is implemented and CPU-verified, including RL
   learning curves (`scripts/rl_curves.py`). Tier results are in
@@ -87,10 +87,22 @@ abstractions unless the owner asks. Prefer deleting over adding.
   → smoke eval → B0 (dev + three test presets) → optional B1 → teacher →
   `sft-data` → `sft` (B2) → B2 eval → RL spike (record in ADR-001) → R1 → R2 →
   final evaluations → report. Runbook §9 has the order with GPUs.
-- **Open risks:** whether `/temp` on the SoC cluster is shared across nodes is
-  unconfirmed (`df -T /temp` on two nodes; the setup job refuses node-local
-  storage). The cluster's NVIDIA driver must be ≥ 525.
-- **Owner decisions pending:** accept ADR-002 to ADR-005 at M1; confirm the
+- **Cluster facts (3 Oct, SoC DocHub + a read-only check of the owner's
+  account):** no `/temp`; the cluster home and `/mnt/scratch/<letter>/<user>`
+  are NFS and shared, `/tmp` is node-local, so scratch defaults to
+  `$HOME/handoff`. Login and compute nodes reach PyPI, Hugging Face and GitHub
+  over HTTPS; SSH to github.com:22 is blocked (clone with HTTPS + a token).
+  **The H200 node is only in the 3-hour `gpu` partition**; `gpu-long`
+  (3 days) has 2 × `a100-80` nodes and 5 nodes with 2 × `h100-96`, so
+  `cluster.env.example` now uses `GPU_TYPE_BIG=h100-96`. Jobs get a node-local
+  `TMPDIR` (the owner's `~/.bashrc` points `TMPDIR` at NFS for an older
+  project). The owner's fair-share is low after September's LatentMAS runs.
+- **Open risks:** RL memory on one H100 96 GB is unmeasured (the SPIKE run
+  decides; fall back to `NGPUS=2` or `rl.use_lora=true`). A serve job that sits
+  idle for > 30 min may be cancelled under SoC policy (§15).
+- **Owner decisions pending:** confirm H100 96 GB instead of H200 for
+  evaluation, SFT and RL (then update README compute plan + zh-CN, runbook §0);
+  accept ADR-002 to ADR-005 at M1; confirm the
   course group number and team contribution statement for the report.
 
 ---
@@ -557,6 +569,15 @@ Lessons already paid for; check here before debugging.
 - **SFT:** LoRA with FSDP is refused (use one GPU for LoRA).
 - **Scratch:** must be shared across nodes (the simulator publishes its address
   there); the setup job refuses node-local filesystems.
+- **NUS SoC cluster policy:** login node `xlogin.comp.nus.edu.sg` (SoC
+  account; enable the cluster at My SoC Services). Partitions `gpu`/`normal`
+  allow 3 h, `gpu-long`/`long` 3 days. GPU gres names include `a100-80`,
+  `h100-96`, `h200-141`; the single 4 × H200 node is in `gpu` (3 h) only, not in
+  `gpu-long`. GitHub over SSH (port 22) is blocked; use HTTPS. Login-node `/tmp` is
+  limited to 50 MB per user (set `TMPDIR` under home) and processes older than
+  12 h may be killed. Jobs doing no useful work for over 30 min (an idle
+  simulator server) may be cancelled: start `serve` only when evaluation or
+  training jobs are queued, and `scancel` it between campaigns.
 - **Tool fetching restrictions** (agents): if a web page cannot be fetched, do
   not work around it; ask the owner.
 
