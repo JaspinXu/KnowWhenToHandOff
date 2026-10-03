@@ -21,7 +21,7 @@ environment: `bash slurm/run.sh python scripts/monitor_rl.py ...` (also
 
 | Job | Resources | Runs | Main variables |
 | --- | --- | --- | --- |
-| `setup` | 1 GPU (any) | `jobs/setup_env.sbatch`: venv, pinned stack, tau2 checkout, CPU test suite | — |
+| `setup` | CPU (`PARTITION_CPU`) | `jobs/setup_env.sbatch`: venv, pinned stack, tau2 checkout, CPU test suite | — |
 | `download` | CPU | `scripts/download_models.py` → models lock | `MODELS` |
 | `tasks` | CPU | `scripts/build_task_sets.py` + hand-off review packet | `EXTRA`, `REVIEW_N` |
 | `check-tokens` | CPU | `scripts/check_tokenization.py` | `MODEL`, `TOKENIZER`, `TRAJECTORIES`, `MAX_PROMPT_TOKENS` |

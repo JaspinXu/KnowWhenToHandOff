@@ -68,7 +68,7 @@ gpu_job=(--partition="${PARTITION_GPU}" --cpus-per-task="${CPUS_GPU_JOB}" --mem=
 cpu_job=(--partition="${PARTITION_CPU}" --cpus-per-task=8 --mem=32G --time="${TIME_CPU}")
 
 case "${job}" in
-  setup)        flags=(--partition="${PARTITION_GPU}" "$(gpu "${GPU_TYPE_ANY}" 1)" --cpus-per-task=8 --mem=64G --time="${TIME_SETUP}"); script=setup_env.sbatch ;;
+  setup)        flags=(--partition="${PARTITION_CPU}" --cpus-per-task=8 --mem=32G --time="${TIME_SETUP}"); script=setup_env.sbatch ;;
   download)     flags=("${cpu_job[@]}"); script=download_models.sbatch ;;
   tasks)        flags=("${cpu_job[@]}"); script=build_task_sets.sbatch ;;
   check-tokens) flags=("${cpu_job[@]}"); script=check_tokenization.sbatch ;;

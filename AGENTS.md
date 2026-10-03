@@ -104,6 +104,10 @@ abstractions unless the owner asks. Prefer deleting over adding.
   h100-96 is impossible, and the simulator must stay on a100-80 (only 2 such
   nodes in `gpu-long`; queueing for it is the main schedule risk). A serve job that sits
   idle for > 30 min may be cancelled under SoC policy (§15).
+- **First `setup` (job 904807, 3 Oct) failed:** it landed on a Titan RTX node
+  whose `nvidia-smi` saw no GPU, and the driver check crashed on the text. Setup
+  now runs on a CPU node (`PARTITION_CPU`, `GPU_TYPE_ANY` removed) and the
+  driver check skips when no numeric driver version is reported.
 - **T1.3 (3 Oct):** retail out-of-scope templates are now 4 (price-drop refund
   dropped, see `docs/handoff-tasks.md`). Laptop gates: ruff + 275 passed,
   28 skipped; the tau2 tiers run in the next `setup` job.
@@ -332,7 +336,7 @@ Hydra.
 **Environment variables** (set in `slurm/cluster.env`, sourced by every job):
 `HANDOFF_SCRATCH`, `HANDOFF_VENV`, `HF_HOME`, `UV_CACHE_DIR`, `TAU2_REPO_DIR`,
 `TAU2_DATA_DIR`, `TAU2_COMMIT`, `HANDOFF_PYTHON`, `HANDOFF_LOGS` (optional),
-`SLURM_ACCOUNT`, `PARTITION_GPU`, `PARTITION_CPU`, `GPU_TYPE_ANY`,
+`SLURM_ACCOUNT`, `PARTITION_GPU`, `PARTITION_CPU`,
 `GPU_TYPE_SIM`, `GPU_TYPE_BIG`, `TIME_*`, `CPUS_GPU_JOB`, `MEM_GPU_JOB`;
 optional `HF_TOKEN`, `WANDB_API_KEY`. `HANDOFF_ALLOW_LOCAL_SCRATCH=1` overrides
 the shared-scratch check (only if the storage really is shared).

@@ -25,16 +25,17 @@ if ! printf '%s\n' 2.31 "${glibc}" | sort -V -C; then
   exit 3
 fi
 
-if command -v nvidia-smi >/dev/null 2>&1; then
-  driver="$(nvidia-smi --query-gpu=driver_version --format=csv,noheader | head -n1 || true)"
-  major="${driver%%.*}"
-  if [[ -z "${major}" || "${major}" -lt 525 ]]; then
+# Setup runs on a CPU node; check the driver only if a GPU happens to be visible.
+driver="$(nvidia-smi --query-gpu=driver_version --format=csv,noheader 2>/dev/null | head -n1 || true)"
+major="${driver%%.*}"
+if [[ "${major}" =~ ^[0-9]+$ ]]; then
+  if (( major < 525 )); then
     echo "NVIDIA driver '${driver}' is too old for the CUDA 12.8 wheels (need >= 525)." >&2
     exit 3
   fi
   log "driver ${driver} is compatible with the cu128 stack"
 else
-  log "no GPU visible: installing only (GPU checks run in the first GPU job)"
+  log "no GPU visible: installing only (every GPU job prints its GPU and driver)"
 fi
 
 if ! command -v uv >/dev/null 2>&1; then

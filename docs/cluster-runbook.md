@@ -55,8 +55,9 @@ is used) and the time limits allowed by each partition. Source it in your shell
 (`source slurm/cluster.env`) so `$HANDOFF_SCRATCH` works in the commands below.
 
 The setup job needs internet access (PyPI, GitHub). It checks that scratch is
-shared, glibc (>= 2.31, for the vLLM wheels) and the NVIDIA driver (>= 525 for
-the CUDA 12.8 wheels), installs exactly `requirements/cluster-gpu.txt`, installs
+shared, glibc (>= 2.31, for the vLLM wheels) and, if a GPU is visible, the
+NVIDIA driver (>= 525 for the CUDA 12.8 wheels; setup itself runs on a CPU
+node), installs exactly `requirements/cluster-gpu.txt`, installs
 tau2 (commit `fc0055d`, v1.0.1) and this package, then runs the whole CPU test
 suite, including the tests that need tau2, vLLM and verl. **All tests must
 pass** (`N passed`); a failure here means the pinned stack does not match what
