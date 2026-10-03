@@ -110,6 +110,15 @@ abstractions unless the owner asks. Prefer deleting over adding.
   driver check skips when no numeric driver version is reported. The second
   try (904848) stopped at `pip install --user uv` (PEP 668 on Ubuntu 24.04);
   setup now passes `--break-system-packages` (writes only to `~/.local`).
+- **`tasks` job (3 Oct) failed:** at tau2 v1.0.1, 112 of 114 retail tasks list
+  `NL_ASSERTION` in the reward basis but only 40 list assertions (the others
+  score 1.0 without a judge). The guard now refuses only tasks that would call
+  the judge (`needs_llm_judge`), and the build leaves those 40 out of the splits
+  (`excluded` in the split manifest; ADR-005). Usable retail: train+dev 45,
+  test 29. Retail test hard negatives raised to 2 per source. The fixed build
+  and the review packet were run in Claude's sandbox against real tau2 data
+  (same counts expected on the cluster); 40/40 sampled tasks accepted
+  (`docs/handoff-tasks.md`).
 - **T1.3 (3 Oct):** retail out-of-scope templates are now 4 (price-drop refund
   dropped, see `docs/handoff-tasks.md`). Laptop gates: ruff + 275 passed,
   28 skipped; the tau2 tiers run in the next `setup` job.
@@ -632,6 +641,7 @@ the ADRs; this is the short history agents need.
 | 29 Sep 2026 | Owner switches between Claude and Codex; AGENTS.md must be kept comprehensive and updated every session (§16). `CLAUDE.md` imports this file. |
 | 29 Sep 2026 | Course-sized scope: runs B0, B1 (optional), B2, R1, R2 with one seed; removed λ grid, R3 fairness sampler, P1 PPO, A1/A2 ablations, held-out simulator, the 1.7B/1.5B smoke models, the LLM citation judge, reward shaping, and the pre-pipeline tools (server planner, completion parser, offline SFT export). Human audit 50 → 20 dialogues. |
 | 29 Sep 2026 | Complete the whole pipeline so it can be cloned and run on the cluster with Slurm; never download datasets or models on the laptop. ADR-001 accepted; ADR-002 to ADR-005 proposed for M1. The deferred ADR-006/007 points were settled by ADR-001 to ADR-005. |
+| 3 Oct 2026 | Retail tasks whose reward needs tau2's LLM judge (40 of 114) are excluded from every split; retail results are on a 74-task subset (ADR-005). |
 | 3 Oct 2026 | T1.3: the owner delegates the hand-off task review to Claude. Claude pre-reviewed the templates against the tau2 policies and dropped `oos_price_adjustment` (retail) before the first generation; after the `tasks` job, Claude checks the 40-task packet and the owner spot-checks 5; the record goes into `docs/handoff-tasks.md` and the report's AI-use statement says so. |
 | 3 Oct 2026 | Hardware follows the SoC QoS: A100 80 GB for the simulator, H100 96 GB (the H200 is limited to 3-hour jobs) for evaluation, SFT and RL. The owner's earlier LatentMAS project is finished; its files on the cluster are removed. |
 | 29 Sep 2026 | Hardware: one A100 80 GB for the simulator, one H200 for everything else. |

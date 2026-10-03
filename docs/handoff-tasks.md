@@ -48,11 +48,19 @@ Variants per source task (`configs/handoff_tasks/v1.yaml`):
 | --- | --- | --- |
 | train | 1 / 2 / 2 | 1 / 1 / 1 |
 | dev | 1 / 1 / 1 | 1 / 1 / 1 |
-| test | 1 / 1 / 2 | 1 / 1 / 1 |
+| test | 1 / 1 / 2 | 1 / 1 / 2 |
 
-With 20 airline and 40 retail test tasks this gives 40 / 80 positive and up to
-40 / 40 hard-negative test episodes per trial and style (README target: ≥ 30 of
-each class per domain).
+Only usable upstream tasks are sources (40 LLM-judged retail tasks are excluded,
+see ADR-005). Generated counts at tau2 v1.0.1 (xr / oos / hn):
+
+| Split | Airline | Retail |
+| --- | --- | --- |
+| train | 24 / 48 / 48 | 36 / 36 / 34 |
+| dev | 6 / 6 / 6 | 9 / 9 / 9 |
+| test | 20 / 20 / 38 | 29 / 29 / 54 |
+
+This gives 40 / 58 positive and 38 / 54 hard-negative test tasks for airline /
+retail (README target: ≥ 30 of each class per domain).
 
 ## Hand-check (definition of done)
 
@@ -63,3 +71,25 @@ instructions are consistent, and the evaluation criteria match the kind. Drop a
 template that the policy turns out to cover, record the reason, regenerate
 before M1 and commit the manifests. Label corrections for upstream tasks go
 into `data/manifests/label_overrides_v1.json` (see [labels.md](labels.md)).
+
+### Review record (v1, 3 Oct 2026)
+
+Reviewer: Claude (AI assistant), delegated by the owner; the owner spot-checks
+5 of the 40. Packet: `sample_review.py tasks --n 40` (seeded, stratified),
+generated from tau2 v1.0.1 with the generator in this repository.
+
+- Before generation, every template was checked against the airline and retail
+  policies; `oos_price_adjustment` was dropped (see above).
+- 40 / 40 sampled tasks accepted (14 explicit request, 13 out of scope, 13 hard
+  negative; both domains; train, dev and test). Labels match the tool docstring
+  and policy, criteria match the kind (positives: unchanged database and a
+  `transfer_to_human_agents` call; hard negatives: the source criteria), and
+  identities and task facts are unchanged.
+- Notes, no change needed: (1) 20 retail sources have the upstream placeholder
+  `task_instructions: "."`, so their hard negatives start with ".". (2) Explicit
+  requests keep the source goal, including its conditional steps, in
+  `reason_for_call`; the simulator is also told not to accept any change. Check
+  in the B0 dialogue review that it does not agree to the agent's actions.
+- Owner spot-check: airline/47__oos0, airline/27__hn0, airline/35__hn0,
+  retail/5__xr0, retail/101__oos0.
+

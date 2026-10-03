@@ -26,6 +26,7 @@ from handoff.envs.registry import (
     validate_handoff_manifest,
     validate_split_manifest,
 )
+from handoff.rollout.tau2_convert import needs_llm_judge
 
 
 @pytest.fixture
@@ -109,6 +110,44 @@ def test_official_overlap_is_rejected():
             tau2_commit=COMMIT,
             labels_sha256="x",
         )
+
+
+def test_needs_llm_judge_only_with_basis_and_assertions():
+    def task(basis, assertions):
+        criteria = {"reward_basis": basis, "nl_assertions": assertions}
+        return {"id": "1", "evaluation_criteria": criteria}
+
+    # airline at v1.0.1: assertions listed, but not in the reward basis
+    assert not needs_llm_judge(task(["DB", "COMMUNICATE"], ["Agent should refuse."]))
+    # most retail tasks: NL_ASSERTION in the basis, nothing to judge
+    assert not needs_llm_judge(task(["DB", "NL_ASSERTION"], None))
+    assert not needs_llm_judge(task(["DB", "NL_ASSERTION"], []))
+    assert needs_llm_judge(task(["DB", "NL_ASSERTION"], ["Agent should say $5."]))
+
+
+def test_split_manifest_leaves_out_excluded_tasks():
+    manifest = build_split_manifest(
+        {
+            "retail": {
+                "official_splits": {
+                    "train": [str(i) for i in range(10)],
+                    "test": ["10", "11", "12"],
+                },
+                "excluded": ["11", "3"],
+            }
+        },
+        dev_fraction=0.2,
+        seed=1,
+        tau2_commit=COMMIT,
+        labels_sha256="x",
+    )
+    entry = manifest["domains"]["retail"]
+    assigned = [i for ids in entry["splits"].values() for i in ids]
+    assert "3" not in assigned and "11" not in assigned
+    assert entry["excluded"] == ["3", "11"]
+    assert entry["counts"]["test"] == 2
+    assert entry["counts"]["train"] + entry["counts"]["dev"] == 9
+    validate_split_manifest(manifest)
 
 
 def test_handoff_variants_inherit_split_and_labels(domain_data):

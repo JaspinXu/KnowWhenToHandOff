@@ -100,15 +100,20 @@ def build_split_manifest(
     """Create the frozen split manifest.
 
     ``domains`` maps a domain to ``{"official_splits": {...}, "labels": {...},
-    "file_sha256": {"tasks": ..., "split_tasks": ...}}`` where official splits
-    contain at least ``train`` and ``test``.
+    "file_sha256": {"tasks": ..., "split_tasks": ...}, "excluded": [...]}`` where
+    official splits contain at least ``train`` and ``test``. ``excluded`` lists
+    upstream tasks left out of every split (tasks whose reward needs an LLM
+    judge); they are recorded in the manifest.
     """
     body_domains: dict[str, Any] = {}
     for domain in sorted(domains):
         source = domains[domain]
         official = source["official_splits"]
-        train_ids = [str(i) for i in official["train"]]
-        test_ids = [str(i) for i in official["test"]]
+        excluded = sorted(
+            {str(i) for i in source.get("excluded", [])}, key=_natural_key
+        )
+        train_ids = [str(i) for i in official["train"] if str(i) not in excluded]
+        test_ids = [str(i) for i in official["test"] if str(i) not in excluded]
         overlap = set(train_ids) & set(test_ids)
         if overlap:
             raise ValueError(
@@ -127,6 +132,7 @@ def build_split_manifest(
             "splits": splits,
             "counts": {name: len(ids) for name, ids in splits.items()},
             "official_counts": {name: len(ids) for name, ids in official.items()},
+            "excluded": excluded,
             "positives": {
                 name: sum(labels.get(i, False) for i in ids)
                 for name, ids in splits.items()

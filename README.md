@@ -381,10 +381,12 @@ Hyper-parameters (`configs/rl/grpo.yaml`; fixed, changed only if a run diverges)
 
 | Split | Airline | Retail | Use |
 | --- | --- | --- | --- |
-| Train | 30 upstream tasks | 74 upstream tasks | SFT data and RL, minus the dev tasks |
+| Train | 30 upstream tasks | 45 of 74 upstream tasks* | SFT data and RL, minus the dev tasks |
 | Dev | About 20% of train | About 20% of train | Checkpoint selection |
-| Test | 20 upstream tasks | 40 upstream tasks | Run once per frozen checkpoint |
+| Test | 20 upstream tasks | 29 of 40 upstream tasks* | Run once per frozen checkpoint |
 | Hand-off set | Same train/dev/test separation | Same train/dev/test separation | Hand-off calibration |
+
+\* At τ²-bench v1.0.1, 40 of the 114 retail tasks are scored partly by an LLM judge (natural-language assertions). Rewards here must be deterministic, so those tasks are left out of every split (listed in the split manifest); retail numbers are therefore on a 74-task subset and not directly comparable with official retail leaderboard scores. Airline is complete.
 
 **Metrics.**
 

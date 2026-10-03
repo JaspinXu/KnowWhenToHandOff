@@ -31,6 +31,7 @@ from handoff.envs.tau2_adapter import (
     validate_task_set,
     write_task_file,
 )
+from handoff.rollout.tau2_convert import needs_llm_judge
 
 ROOT = repo_root(__file__)
 
@@ -57,6 +58,12 @@ def main() -> int:
         personas = personas_from_config(container(config.persona))
         commit = tau2_commit()
         sources = {domain: load_domain_source(domain) for domain in config.domains}
+        # Upstream tasks whose reward needs tau2's LLM judge stay out of every
+        # split (AGENTS hard rule 3); the split manifest lists them.
+        excluded = {
+            domain: {str(t["id"]) for t in source.tasks if needs_llm_judge(t)}
+            for domain, source in sources.items()
+        }
         overrides_path = Path(paths.label_overrides)
         overrides = read_json(overrides_path) if overrides_path.exists() else {}
         label_file = build_label_file(
@@ -75,6 +82,7 @@ def main() -> int:
                         if d == domain
                     },
                     "file_sha256": source.file_sha256,
+                    "excluded": sorted(excluded[domain]),
                 }
                 for domain, source in sources.items()
             },
@@ -97,8 +105,9 @@ def main() -> int:
                 counts=handoff_config["counts"][domain],
                 seed=int(handoff_config["seed"]),
             )
+            usable = [t for t in source.tasks if str(t["id"]) in split_of]
             problems = validate_task_set(
-                [*source.tasks, *(task for task, _ in pairs)], personas
+                [*usable, *(task for task, _ in pairs)], personas
             )
             if problems:
                 raise CliError(
@@ -131,6 +140,9 @@ def main() -> int:
             for d, e in label_file["domains"].items()
         },
         "splits": {d: e["counts"] for d, e in split_manifest["domains"].items()},
+        "excluded_llm_judged": {
+            d: len(e["excluded"]) for d, e in split_manifest["domains"].items()
+        },
         "positives": {d: e["positives"] for d, e in split_manifest["domains"].items()},
         "handoff": {d: e["counts"] for d, e in handoff_manifest["domains"].items()},
     }

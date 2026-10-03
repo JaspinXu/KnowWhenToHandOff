@@ -9,4 +9,6 @@ counts:
   retail:
     train: {explicit_request: 1, out_of_scope: 1, hard_negative: 1}
     dev: {explicit_request: 1, out_of_scope: 1, hard_negative: 1}
-    test: {explicit_request: 1, out_of_scope: 1, hard_negative: 1}
+    # 29 usable retail test tasks (LLM-judged ones are excluded): 2 hard
+    # negatives each keep the class above 30.
+    test: {explicit_request: 1, out_of_scope: 1, hard_negative: 2}

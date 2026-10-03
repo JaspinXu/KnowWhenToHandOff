@@ -238,6 +238,9 @@ def test_toy_tasks_validate_and_tool_types():
         **nl_task["evaluation_criteria"],
         "reward_basis": ["DB", "NL_ASSERTION"],
     }
+    # NL_ASSERTION without assertions: tau2 scores it 1.0 without a judge
+    assert_deterministic_reward_basis(task_from_dict(nl_task))
+    nl_task["evaluation_criteria"]["nl_assertions"] = ["Agent should say why."]
     with pytest.raises(ValueError, match="NL_ASSERTION"):
         assert_deterministic_reward_basis(task_from_dict(nl_task))
     names = register_agents()

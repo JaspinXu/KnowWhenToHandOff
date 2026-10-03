@@ -15,9 +15,11 @@ R = R_{\text{task}} - \lambda_v \sum_r w_r N_r - \lambda_{FP}\,\mathbf{1}[\text{
 $$
 
 - $R_{\text{task}} \in \{0, 1\}$: τ²-bench's evaluator (`EvaluationType.ALL`) on
-  the task's own `reward_basis`. Tasks whose basis includes `NL_ASSERTION` (an
-  LLM judge) are rejected before any rollout; the task-set build checks that no
-  airline or retail task needs one. Early stops (turn cut at the token limit, empty message,
+  the task's own `reward_basis`. Tasks whose reward would call tau2's LLM judge
+  (`NL_ASSERTION` in the basis with a non-empty `nl_assertions` list) are left
+  out of the splits by the task-set build and rejected before any rollout; a
+  basis with `NL_ASSERTION` but no assertions scores 1.0 without a judge
+  (ADR-005). Early stops (turn cut at the token limit, empty message,
   non-object tool arguments, context overflow) end the episode with reward 0 in
   both drivers.
 - $N_r$: violations of rule $r$ (five deterministic rules, see labels.md),

@@ -17,7 +17,7 @@ premature termination. The sentinel itself never appears in a
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from typing import Any
 
 from handoff.rewards.rules import GoldAction
@@ -149,21 +149,42 @@ def gold_actions_from_task(task: Any) -> tuple[GoldAction, ...]:
     )
 
 
+def _field(obj: Any, name: str) -> Any:
+    """Read ``name`` from a tau2 object or its serialized dict."""
+    if isinstance(obj, Mapping):
+        return obj.get(name)
+    return getattr(obj, name, None)
+
+
 def reward_basis_names(task: Any) -> list[str]:
     """Return the task's reward basis as plain strings."""
-    criteria = getattr(task, "evaluation_criteria", None)
-    basis = getattr(criteria, "reward_basis", None) or []
+    criteria = _field(task, "evaluation_criteria")
+    basis = _field(criteria, "reward_basis") or []
     return [getattr(item, "value", str(item)) for item in basis]
+
+
+def needs_llm_judge(task: Any) -> bool:
+    """Whether tau2's reward for this task (object or dict) calls its LLM judge.
+
+    tau2 runs the NL-assertion evaluator only when ``NL_ASSERTION`` is in the
+    reward basis, and that evaluator returns 1.0 without a model call when the
+    task lists no assertions. At v1.0.1 almost every retail task has the basis
+    but only 40 of 114 list assertions; airline tasks list assertions without
+    the basis. Only the combination needs the judge.
+    """
+    if NL_ASSERTION not in reward_basis_names(task):
+        return False
+    return bool(_field(_field(task, "evaluation_criteria"), "nl_assertions"))
 
 
 def assert_deterministic_reward_basis(task: Any) -> None:
     """Refuse tasks whose official reward would need an LLM judge.
 
-    AGENTS hard rule 3: training rewards must be deterministic. Airline and retail
-    tasks at the pinned revision do not use NL assertions; this guard makes any
-    change to that fail loudly before a rollout starts.
+    AGENTS hard rule 3: rewards must be deterministic. The task-set build leaves
+    such tasks out of the splits (``excluded`` in the split manifest); this guard
+    makes any that slip through fail before a rollout starts.
     """
-    if NL_ASSERTION in reward_basis_names(task):
+    if needs_llm_judge(task):
         raise ValueError(
             f"task {getattr(task, 'id', '?')} requires NL_ASSERTION; "
             "LLM-judged rewards are not allowed"

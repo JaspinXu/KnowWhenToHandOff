@@ -19,14 +19,22 @@
 
 | Split | Airline | Retail | Source |
 | --- | --- | --- | --- |
-| Train | official train minus dev | official train minus dev | `split_tasks.json` (30 / 74 tasks) |
+| Train | official train minus dev | official train minus dev | `split_tasks.json` (30 / 74 tasks; retail usable: 45) |
 | Dev | ≈ 20 % of official train | ≈ 20 % of official train | stratified by should-transfer label, seed 20261011 |
-| Test | 20 tasks | 40 tasks | official test |
+| Test | 20 tasks | 29 of 40 tasks | official test |
 
 Hand-off tasks (explicit request, out of scope, hard negative) are generated per
 source task and **inherit the source task's split**; no source task contributes
 to two splits. Counts per split and kind: `configs/handoff_tasks/v1.yaml`.
 Labels, splits and derived tasks are hashed in the manifests and committed.
+
+Upstream tasks whose reward needs tau2's LLM judge (`NL_ASSERTION` in the reward
+basis **and** a non-empty `nl_assertions` list) are left out of every split and
+listed under `excluded` in the split manifest: 40 retail tasks (29 train, 11
+test), no airline task. A basis with `NL_ASSERTION` but no assertions scores 1.0
+in tau2 without a model call, so those tasks keep their official reward.
+Consequence: retail results cover a 74-task subset and are not directly
+comparable with official retail scores (decided 3 Oct 2026, before M1).
 
 ## Episodes
 
