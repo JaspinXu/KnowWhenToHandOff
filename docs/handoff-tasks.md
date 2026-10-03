@@ -13,7 +13,7 @@ written to `data/handoff_tasks/v1/<domain>_tasks.json` with hashes in
 | Kind | y | What changes in the source task | Evaluation criteria |
 | --- | --- | --- | --- |
 | `explicit_request` | 1 | The user asks for a human agent and declines the AI agent's help (3 templates) | database unchanged **and** a `transfer_to_human_agents` call (arguments not compared) |
-| `out_of_scope` | 1 | The user asks for a service no tool or policy clause covers (5 templates per domain) | as above |
+| `out_of_scope` | 1 | The user asks for a service no tool or policy clause covers (5 airline, 4 retail templates) | as above |
 | `hard_negative` | 0 | The source task plus a difficult but cooperative user (frustrated, hurried, skeptical) who never asks for a human | the source task's own criteria |
 
 Out-of-scope requests are outside both policies' stated scope (airline: book,
@@ -23,7 +23,12 @@ delivered orders, the default address, profile information):
 - airline: wheelchair assistance, a special meal, a lost-item search, a formal
   complaint about staff, an escort for an unaccompanied minor;
 - retail: a warranty repair visit, gift wrapping, an email address change, a
-  price adjustment for a later sale, a mailed paper invoice.
+  mailed paper invoice.
+
+A fifth retail template (refund of a later price drop) was dropped on 3 Oct 2026
+before the first generation: it asked for money while the user instructions say
+"no compensation", and the policy arguably makes it a denial rather than a
+transfer.
 
 The user keeps the source task's identity and known information, so the agent
 can authenticate normally; it does not want any change, cancellation or

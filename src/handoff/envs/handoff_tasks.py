@@ -150,13 +150,6 @@ OUT_OF_SCOPE_TEMPLATES: dict[str, tuple[RequestTemplate, ...]] = {
             "new.address@example.com." + _OOS_SUFFIX,
         ),
         RequestTemplate(
-            "oos_price_adjustment",
-            "An item you bought is now cheaper and you want the price difference "
-            "refunded.",
-            "Ask the agent to refund the price difference because the item is now "
-            "on sale." + _OOS_SUFFIX,
-        ),
-        RequestTemplate(
             "oos_paper_invoice",
             "You need a printed invoice for a past order mailed to you for your "
             "records.",
