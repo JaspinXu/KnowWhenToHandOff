@@ -1,0 +1,3779 @@
+{
+  "schema_version": 1,
+  "generator_version": "handoff_tasks_v1",
+  "split_manifest_sha256": "db3c9aed80d6ce2e27692605b7cff9b6142cf3fbab927bdd23492fad708daa56",
+  "config": {
+    "seed": 20261011,
+    "counts": {
+      "airline": {
+        "train": {
+          "explicit_request": 1,
+          "out_of_scope": 2,
+          "hard_negative": 2
+        },
+        "dev": {
+          "explicit_request": 1,
+          "out_of_scope": 1,
+          "hard_negative": 1
+        },
+        "test": {
+          "explicit_request": 1,
+          "out_of_scope": 1,
+          "hard_negative": 2
+        }
+      },
+      "retail": {
+        "train": {
+          "explicit_request": 1,
+          "out_of_scope": 1,
+          "hard_negative": 1
+        },
+        "dev": {
+          "explicit_request": 1,
+          "out_of_scope": 1,
+          "hard_negative": 1
+        },
+        "test": {
+          "explicit_request": 1,
+          "out_of_scope": 1,
+          "hard_negative": 2
+        }
+      }
+    }
+  },
+  "domains": {
+    "airline": {
+      "tasks": [
+        {
+          "task_id": "0__hn0",
+          "source_task_id": "0",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "0__hn1",
+          "source_task_id": "0",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "0__oos0",
+          "source_task_id": "0",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_staff_complaint",
+          "should_transfer": true
+        },
+        {
+          "task_id": "0__oos1",
+          "source_task_id": "0",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_minor_escort",
+          "should_transfer": true
+        },
+        {
+          "task_id": "0__xr0",
+          "source_task_id": "0",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "10__hn0",
+          "source_task_id": "10",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "10__hn1",
+          "source_task_id": "10",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "10__oos0",
+          "source_task_id": "10",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_minor_escort",
+          "should_transfer": true
+        },
+        {
+          "task_id": "10__oos1",
+          "source_task_id": "10",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_wheelchair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "10__xr0",
+          "source_task_id": "10",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "11__hn0",
+          "source_task_id": "11",
+          "split": "dev",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "11__oos0",
+          "source_task_id": "11",
+          "split": "dev",
+          "kind": "out_of_scope",
+          "template_id": "oos_special_meal",
+          "should_transfer": true
+        },
+        {
+          "task_id": "11__xr0",
+          "source_task_id": "11",
+          "split": "dev",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "12__hn0",
+          "source_task_id": "12",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "12__hn1",
+          "source_task_id": "12",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "12__oos0",
+          "source_task_id": "12",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_lost_item",
+          "should_transfer": true
+        },
+        {
+          "task_id": "12__oos1",
+          "source_task_id": "12",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_staff_complaint",
+          "should_transfer": true
+        },
+        {
+          "task_id": "12__xr0",
+          "source_task_id": "12",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "13__oos0",
+          "source_task_id": "13",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_minor_escort",
+          "should_transfer": true
+        },
+        {
+          "task_id": "13__xr0",
+          "source_task_id": "13",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "14__hn0",
+          "source_task_id": "14",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "14__hn1",
+          "source_task_id": "14",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "14__oos0",
+          "source_task_id": "14",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_wheelchair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "14__oos1",
+          "source_task_id": "14",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_special_meal",
+          "should_transfer": true
+        },
+        {
+          "task_id": "14__xr0",
+          "source_task_id": "14",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "15__hn0",
+          "source_task_id": "15",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "15__hn1",
+          "source_task_id": "15",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "15__oos0",
+          "source_task_id": "15",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_lost_item",
+          "should_transfer": true
+        },
+        {
+          "task_id": "15__oos1",
+          "source_task_id": "15",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_staff_complaint",
+          "should_transfer": true
+        },
+        {
+          "task_id": "15__xr0",
+          "source_task_id": "15",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "16__hn0",
+          "source_task_id": "16",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "16__hn1",
+          "source_task_id": "16",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "16__oos0",
+          "source_task_id": "16",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_minor_escort",
+          "should_transfer": true
+        },
+        {
+          "task_id": "16__xr0",
+          "source_task_id": "16",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "17__hn0",
+          "source_task_id": "17",
+          "split": "dev",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "17__oos0",
+          "source_task_id": "17",
+          "split": "dev",
+          "kind": "out_of_scope",
+          "template_id": "oos_wheelchair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "17__xr0",
+          "source_task_id": "17",
+          "split": "dev",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "18__hn0",
+          "source_task_id": "18",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "18__hn1",
+          "source_task_id": "18",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "18__oos0",
+          "source_task_id": "18",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_special_meal",
+          "should_transfer": true
+        },
+        {
+          "task_id": "18__xr0",
+          "source_task_id": "18",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "19__hn0",
+          "source_task_id": "19",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "19__hn1",
+          "source_task_id": "19",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "19__oos0",
+          "source_task_id": "19",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_lost_item",
+          "should_transfer": true
+        },
+        {
+          "task_id": "19__xr0",
+          "source_task_id": "19",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "1__hn0",
+          "source_task_id": "1",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "1__hn1",
+          "source_task_id": "1",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "1__oos0",
+          "source_task_id": "1",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_wheelchair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "1__oos1",
+          "source_task_id": "1",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_special_meal",
+          "should_transfer": true
+        },
+        {
+          "task_id": "1__xr0",
+          "source_task_id": "1",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "20__hn0",
+          "source_task_id": "20",
+          "split": "dev",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "20__oos0",
+          "source_task_id": "20",
+          "split": "dev",
+          "kind": "out_of_scope",
+          "template_id": "oos_staff_complaint",
+          "should_transfer": true
+        },
+        {
+          "task_id": "20__xr0",
+          "source_task_id": "20",
+          "split": "dev",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "21__hn0",
+          "source_task_id": "21",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "21__hn1",
+          "source_task_id": "21",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "21__oos0",
+          "source_task_id": "21",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_minor_escort",
+          "should_transfer": true
+        },
+        {
+          "task_id": "21__oos1",
+          "source_task_id": "21",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_wheelchair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "21__xr0",
+          "source_task_id": "21",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "22__hn0",
+          "source_task_id": "22",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "22__hn1",
+          "source_task_id": "22",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "22__oos0",
+          "source_task_id": "22",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_special_meal",
+          "should_transfer": true
+        },
+        {
+          "task_id": "22__xr0",
+          "source_task_id": "22",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "23__hn0",
+          "source_task_id": "23",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "23__hn1",
+          "source_task_id": "23",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "23__oos0",
+          "source_task_id": "23",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_lost_item",
+          "should_transfer": true
+        },
+        {
+          "task_id": "23__oos1",
+          "source_task_id": "23",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_staff_complaint",
+          "should_transfer": true
+        },
+        {
+          "task_id": "23__xr0",
+          "source_task_id": "23",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "24__hn0",
+          "source_task_id": "24",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "24__hn1",
+          "source_task_id": "24",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "24__oos0",
+          "source_task_id": "24",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_minor_escort",
+          "should_transfer": true
+        },
+        {
+          "task_id": "24__xr0",
+          "source_task_id": "24",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "25__hn0",
+          "source_task_id": "25",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "25__hn1",
+          "source_task_id": "25",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "25__oos0",
+          "source_task_id": "25",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_wheelchair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "25__xr0",
+          "source_task_id": "25",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "26__hn0",
+          "source_task_id": "26",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "26__hn1",
+          "source_task_id": "26",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "26__oos0",
+          "source_task_id": "26",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_special_meal",
+          "should_transfer": true
+        },
+        {
+          "task_id": "26__xr0",
+          "source_task_id": "26",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "27__hn0",
+          "source_task_id": "27",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "27__hn1",
+          "source_task_id": "27",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "27__oos0",
+          "source_task_id": "27",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_lost_item",
+          "should_transfer": true
+        },
+        {
+          "task_id": "27__oos1",
+          "source_task_id": "27",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_staff_complaint",
+          "should_transfer": true
+        },
+        {
+          "task_id": "27__xr0",
+          "source_task_id": "27",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "28__hn0",
+          "source_task_id": "28",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "28__hn1",
+          "source_task_id": "28",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "28__oos0",
+          "source_task_id": "28",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_minor_escort",
+          "should_transfer": true
+        },
+        {
+          "task_id": "28__oos1",
+          "source_task_id": "28",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_wheelchair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "28__xr0",
+          "source_task_id": "28",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "29__hn0",
+          "source_task_id": "29",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "29__hn1",
+          "source_task_id": "29",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "29__oos0",
+          "source_task_id": "29",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_special_meal",
+          "should_transfer": true
+        },
+        {
+          "task_id": "29__xr0",
+          "source_task_id": "29",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "2__hn0",
+          "source_task_id": "2",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "2__hn1",
+          "source_task_id": "2",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "2__oos0",
+          "source_task_id": "2",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_lost_item",
+          "should_transfer": true
+        },
+        {
+          "task_id": "2__xr0",
+          "source_task_id": "2",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "30__hn0",
+          "source_task_id": "30",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "30__hn1",
+          "source_task_id": "30",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "30__oos0",
+          "source_task_id": "30",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_lost_item",
+          "should_transfer": true
+        },
+        {
+          "task_id": "30__xr0",
+          "source_task_id": "30",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "31__hn0",
+          "source_task_id": "31",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "31__hn1",
+          "source_task_id": "31",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "31__oos0",
+          "source_task_id": "31",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_staff_complaint",
+          "should_transfer": true
+        },
+        {
+          "task_id": "31__xr0",
+          "source_task_id": "31",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "32__hn0",
+          "source_task_id": "32",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "32__hn1",
+          "source_task_id": "32",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "32__oos0",
+          "source_task_id": "32",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_minor_escort",
+          "should_transfer": true
+        },
+        {
+          "task_id": "32__xr0",
+          "source_task_id": "32",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "33__hn0",
+          "source_task_id": "33",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "33__hn1",
+          "source_task_id": "33",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "33__oos0",
+          "source_task_id": "33",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_wheelchair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "33__oos1",
+          "source_task_id": "33",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_special_meal",
+          "should_transfer": true
+        },
+        {
+          "task_id": "33__xr0",
+          "source_task_id": "33",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "34__hn0",
+          "source_task_id": "34",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "34__hn1",
+          "source_task_id": "34",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "34__oos0",
+          "source_task_id": "34",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_lost_item",
+          "should_transfer": true
+        },
+        {
+          "task_id": "34__oos1",
+          "source_task_id": "34",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_staff_complaint",
+          "should_transfer": true
+        },
+        {
+          "task_id": "34__xr0",
+          "source_task_id": "34",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "35__hn0",
+          "source_task_id": "35",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "35__hn1",
+          "source_task_id": "35",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "35__oos0",
+          "source_task_id": "35",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_minor_escort",
+          "should_transfer": true
+        },
+        {
+          "task_id": "35__xr0",
+          "source_task_id": "35",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "36__hn0",
+          "source_task_id": "36",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "36__hn1",
+          "source_task_id": "36",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "36__oos0",
+          "source_task_id": "36",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_wheelchair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "36__oos1",
+          "source_task_id": "36",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_special_meal",
+          "should_transfer": true
+        },
+        {
+          "task_id": "36__xr0",
+          "source_task_id": "36",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "37__hn0",
+          "source_task_id": "37",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "37__hn1",
+          "source_task_id": "37",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "37__oos0",
+          "source_task_id": "37",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_lost_item",
+          "should_transfer": true
+        },
+        {
+          "task_id": "37__xr0",
+          "source_task_id": "37",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "38__hn0",
+          "source_task_id": "38",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "38__hn1",
+          "source_task_id": "38",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "38__oos0",
+          "source_task_id": "38",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_staff_complaint",
+          "should_transfer": true
+        },
+        {
+          "task_id": "38__oos1",
+          "source_task_id": "38",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_minor_escort",
+          "should_transfer": true
+        },
+        {
+          "task_id": "38__xr0",
+          "source_task_id": "38",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "39__hn0",
+          "source_task_id": "39",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "39__hn1",
+          "source_task_id": "39",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "39__oos0",
+          "source_task_id": "39",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_wheelchair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "39__oos1",
+          "source_task_id": "39",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_special_meal",
+          "should_transfer": true
+        },
+        {
+          "task_id": "39__xr0",
+          "source_task_id": "39",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "3__hn0",
+          "source_task_id": "3",
+          "split": "dev",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "3__oos0",
+          "source_task_id": "3",
+          "split": "dev",
+          "kind": "out_of_scope",
+          "template_id": "oos_staff_complaint",
+          "should_transfer": true
+        },
+        {
+          "task_id": "3__xr0",
+          "source_task_id": "3",
+          "split": "dev",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "40__hn0",
+          "source_task_id": "40",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "40__hn1",
+          "source_task_id": "40",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "40__oos0",
+          "source_task_id": "40",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_lost_item",
+          "should_transfer": true
+        },
+        {
+          "task_id": "40__oos1",
+          "source_task_id": "40",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_staff_complaint",
+          "should_transfer": true
+        },
+        {
+          "task_id": "40__xr0",
+          "source_task_id": "40",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "41__hn0",
+          "source_task_id": "41",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "41__hn1",
+          "source_task_id": "41",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "41__oos0",
+          "source_task_id": "41",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_minor_escort",
+          "should_transfer": true
+        },
+        {
+          "task_id": "41__oos1",
+          "source_task_id": "41",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_wheelchair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "41__xr0",
+          "source_task_id": "41",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "42__hn0",
+          "source_task_id": "42",
+          "split": "dev",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "42__oos0",
+          "source_task_id": "42",
+          "split": "dev",
+          "kind": "out_of_scope",
+          "template_id": "oos_special_meal",
+          "should_transfer": true
+        },
+        {
+          "task_id": "42__xr0",
+          "source_task_id": "42",
+          "split": "dev",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "43__hn0",
+          "source_task_id": "43",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "43__hn1",
+          "source_task_id": "43",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "43__oos0",
+          "source_task_id": "43",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_lost_item",
+          "should_transfer": true
+        },
+        {
+          "task_id": "43__oos1",
+          "source_task_id": "43",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_staff_complaint",
+          "should_transfer": true
+        },
+        {
+          "task_id": "43__xr0",
+          "source_task_id": "43",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "44__hn0",
+          "source_task_id": "44",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "44__hn1",
+          "source_task_id": "44",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "44__oos0",
+          "source_task_id": "44",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_minor_escort",
+          "should_transfer": true
+        },
+        {
+          "task_id": "44__xr0",
+          "source_task_id": "44",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "45__hn0",
+          "source_task_id": "45",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "45__hn1",
+          "source_task_id": "45",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "45__oos0",
+          "source_task_id": "45",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_wheelchair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "45__xr0",
+          "source_task_id": "45",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "46__hn0",
+          "source_task_id": "46",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "46__hn1",
+          "source_task_id": "46",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "46__oos0",
+          "source_task_id": "46",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_special_meal",
+          "should_transfer": true
+        },
+        {
+          "task_id": "46__oos1",
+          "source_task_id": "46",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_lost_item",
+          "should_transfer": true
+        },
+        {
+          "task_id": "46__xr0",
+          "source_task_id": "46",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "47__hn0",
+          "source_task_id": "47",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "47__hn1",
+          "source_task_id": "47",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "47__oos0",
+          "source_task_id": "47",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_staff_complaint",
+          "should_transfer": true
+        },
+        {
+          "task_id": "47__oos1",
+          "source_task_id": "47",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_minor_escort",
+          "should_transfer": true
+        },
+        {
+          "task_id": "47__xr0",
+          "source_task_id": "47",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "48__hn0",
+          "source_task_id": "48",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "48__hn1",
+          "source_task_id": "48",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "48__oos0",
+          "source_task_id": "48",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_wheelchair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "48__xr0",
+          "source_task_id": "48",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "49__hn0",
+          "source_task_id": "49",
+          "split": "dev",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "49__oos0",
+          "source_task_id": "49",
+          "split": "dev",
+          "kind": "out_of_scope",
+          "template_id": "oos_special_meal",
+          "should_transfer": true
+        },
+        {
+          "task_id": "49__xr0",
+          "source_task_id": "49",
+          "split": "dev",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "4__hn0",
+          "source_task_id": "4",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "4__hn1",
+          "source_task_id": "4",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "4__oos0",
+          "source_task_id": "4",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_minor_escort",
+          "should_transfer": true
+        },
+        {
+          "task_id": "4__oos1",
+          "source_task_id": "4",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_wheelchair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "4__xr0",
+          "source_task_id": "4",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "5__hn0",
+          "source_task_id": "5",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "5__hn1",
+          "source_task_id": "5",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "5__oos0",
+          "source_task_id": "5",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_special_meal",
+          "should_transfer": true
+        },
+        {
+          "task_id": "5__oos1",
+          "source_task_id": "5",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_lost_item",
+          "should_transfer": true
+        },
+        {
+          "task_id": "5__xr0",
+          "source_task_id": "5",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "6__hn0",
+          "source_task_id": "6",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "6__hn1",
+          "source_task_id": "6",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "6__oos0",
+          "source_task_id": "6",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_staff_complaint",
+          "should_transfer": true
+        },
+        {
+          "task_id": "6__xr0",
+          "source_task_id": "6",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "7__hn0",
+          "source_task_id": "7",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "7__hn1",
+          "source_task_id": "7",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "7__oos0",
+          "source_task_id": "7",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_minor_escort",
+          "should_transfer": true
+        },
+        {
+          "task_id": "7__oos1",
+          "source_task_id": "7",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_wheelchair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "7__xr0",
+          "source_task_id": "7",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "8__hn0",
+          "source_task_id": "8",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "8__hn1",
+          "source_task_id": "8",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "8__oos0",
+          "source_task_id": "8",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_special_meal",
+          "should_transfer": true
+        },
+        {
+          "task_id": "8__xr0",
+          "source_task_id": "8",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "9__hn0",
+          "source_task_id": "9",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "9__hn1",
+          "source_task_id": "9",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "9__oos0",
+          "source_task_id": "9",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_lost_item",
+          "should_transfer": true
+        },
+        {
+          "task_id": "9__oos1",
+          "source_task_id": "9",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_staff_complaint",
+          "should_transfer": true
+        },
+        {
+          "task_id": "9__xr0",
+          "source_task_id": "9",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        }
+      ],
+      "tasks_file_sha256": "cd2f2cc80916d298507c71690771488bbd1009dd04bc92cbfff42f6ff7fd68b8",
+      "counts": {
+        "train": {
+          "explicit_request": 24,
+          "out_of_scope": 48,
+          "hard_negative": 48
+        },
+        "dev": {
+          "explicit_request": 6,
+          "out_of_scope": 6,
+          "hard_negative": 6
+        },
+        "test": {
+          "explicit_request": 20,
+          "out_of_scope": 20,
+          "hard_negative": 38
+        }
+      }
+    },
+    "retail": {
+      "tasks": [
+        {
+          "task_id": "0__hn0",
+          "source_task_id": "0",
+          "split": "dev",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "0__oos0",
+          "source_task_id": "0",
+          "split": "dev",
+          "kind": "out_of_scope",
+          "template_id": "oos_paper_invoice",
+          "should_transfer": true
+        },
+        {
+          "task_id": "0__xr0",
+          "source_task_id": "0",
+          "split": "dev",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "100__hn0",
+          "source_task_id": "100",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "100__hn1",
+          "source_task_id": "100",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "100__oos0",
+          "source_task_id": "100",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_gift_wrap",
+          "should_transfer": true
+        },
+        {
+          "task_id": "100__xr0",
+          "source_task_id": "100",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "101__hn0",
+          "source_task_id": "101",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "101__hn1",
+          "source_task_id": "101",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "101__oos0",
+          "source_task_id": "101",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_email_change",
+          "should_transfer": true
+        },
+        {
+          "task_id": "101__xr0",
+          "source_task_id": "101",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "102__hn0",
+          "source_task_id": "102",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "102__hn1",
+          "source_task_id": "102",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "102__oos0",
+          "source_task_id": "102",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_paper_invoice",
+          "should_transfer": true
+        },
+        {
+          "task_id": "102__xr0",
+          "source_task_id": "102",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "10__oos0",
+          "source_task_id": "10",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_email_change",
+          "should_transfer": true
+        },
+        {
+          "task_id": "10__xr0",
+          "source_task_id": "10",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "112__hn0",
+          "source_task_id": "112",
+          "split": "dev",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "112__oos0",
+          "source_task_id": "112",
+          "split": "dev",
+          "kind": "out_of_scope",
+          "template_id": "oos_warranty_repair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "112__xr0",
+          "source_task_id": "112",
+          "split": "dev",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "11__hn0",
+          "source_task_id": "11",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "11__oos0",
+          "source_task_id": "11",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_paper_invoice",
+          "should_transfer": true
+        },
+        {
+          "task_id": "11__xr0",
+          "source_task_id": "11",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "12__oos0",
+          "source_task_id": "12",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_warranty_repair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "12__xr0",
+          "source_task_id": "12",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "13__hn0",
+          "source_task_id": "13",
+          "split": "dev",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "13__oos0",
+          "source_task_id": "13",
+          "split": "dev",
+          "kind": "out_of_scope",
+          "template_id": "oos_gift_wrap",
+          "should_transfer": true
+        },
+        {
+          "task_id": "13__xr0",
+          "source_task_id": "13",
+          "split": "dev",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "14__hn0",
+          "source_task_id": "14",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "14__oos0",
+          "source_task_id": "14",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_email_change",
+          "should_transfer": true
+        },
+        {
+          "task_id": "14__xr0",
+          "source_task_id": "14",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "15__hn0",
+          "source_task_id": "15",
+          "split": "dev",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "15__oos0",
+          "source_task_id": "15",
+          "split": "dev",
+          "kind": "out_of_scope",
+          "template_id": "oos_paper_invoice",
+          "should_transfer": true
+        },
+        {
+          "task_id": "15__xr0",
+          "source_task_id": "15",
+          "split": "dev",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "17__hn0",
+          "source_task_id": "17",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "17__hn1",
+          "source_task_id": "17",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "17__oos0",
+          "source_task_id": "17",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_warranty_repair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "17__xr0",
+          "source_task_id": "17",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "18__hn0",
+          "source_task_id": "18",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "18__hn1",
+          "source_task_id": "18",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "18__oos0",
+          "source_task_id": "18",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_gift_wrap",
+          "should_transfer": true
+        },
+        {
+          "task_id": "18__xr0",
+          "source_task_id": "18",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "1__hn0",
+          "source_task_id": "1",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "1__oos0",
+          "source_task_id": "1",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_warranty_repair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "1__xr0",
+          "source_task_id": "1",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "20__hn0",
+          "source_task_id": "20",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "20__oos0",
+          "source_task_id": "20",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_email_change",
+          "should_transfer": true
+        },
+        {
+          "task_id": "20__xr0",
+          "source_task_id": "20",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "22__hn0",
+          "source_task_id": "22",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "22__oos0",
+          "source_task_id": "22",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_paper_invoice",
+          "should_transfer": true
+        },
+        {
+          "task_id": "22__xr0",
+          "source_task_id": "22",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "23__hn0",
+          "source_task_id": "23",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "23__oos0",
+          "source_task_id": "23",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_warranty_repair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "23__xr0",
+          "source_task_id": "23",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "25__hn0",
+          "source_task_id": "25",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "25__oos0",
+          "source_task_id": "25",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_gift_wrap",
+          "should_transfer": true
+        },
+        {
+          "task_id": "25__xr0",
+          "source_task_id": "25",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "26__oos0",
+          "source_task_id": "26",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_email_change",
+          "should_transfer": true
+        },
+        {
+          "task_id": "26__xr0",
+          "source_task_id": "26",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "27__hn0",
+          "source_task_id": "27",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "27__hn1",
+          "source_task_id": "27",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "27__oos0",
+          "source_task_id": "27",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_paper_invoice",
+          "should_transfer": true
+        },
+        {
+          "task_id": "27__xr0",
+          "source_task_id": "27",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "30__hn0",
+          "source_task_id": "30",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "30__oos0",
+          "source_task_id": "30",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_warranty_repair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "30__xr0",
+          "source_task_id": "30",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "31__hn0",
+          "source_task_id": "31",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "31__oos0",
+          "source_task_id": "31",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_gift_wrap",
+          "should_transfer": true
+        },
+        {
+          "task_id": "31__xr0",
+          "source_task_id": "31",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "32__hn0",
+          "source_task_id": "32",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "32__hn1",
+          "source_task_id": "32",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "32__oos0",
+          "source_task_id": "32",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_email_change",
+          "should_transfer": true
+        },
+        {
+          "task_id": "32__xr0",
+          "source_task_id": "32",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "33__hn0",
+          "source_task_id": "33",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "33__hn1",
+          "source_task_id": "33",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "33__oos0",
+          "source_task_id": "33",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_paper_invoice",
+          "should_transfer": true
+        },
+        {
+          "task_id": "33__xr0",
+          "source_task_id": "33",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "34__hn0",
+          "source_task_id": "34",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "34__oos0",
+          "source_task_id": "34",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_warranty_repair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "34__xr0",
+          "source_task_id": "34",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "35__hn0",
+          "source_task_id": "35",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "35__oos0",
+          "source_task_id": "35",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_gift_wrap",
+          "should_transfer": true
+        },
+        {
+          "task_id": "35__xr0",
+          "source_task_id": "35",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "41__hn0",
+          "source_task_id": "41",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "41__oos0",
+          "source_task_id": "41",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_email_change",
+          "should_transfer": true
+        },
+        {
+          "task_id": "41__xr0",
+          "source_task_id": "41",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "42__hn0",
+          "source_task_id": "42",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "42__hn1",
+          "source_task_id": "42",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "42__oos0",
+          "source_task_id": "42",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_paper_invoice",
+          "should_transfer": true
+        },
+        {
+          "task_id": "42__xr0",
+          "source_task_id": "42",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "48__hn0",
+          "source_task_id": "48",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "48__oos0",
+          "source_task_id": "48",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_warranty_repair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "48__xr0",
+          "source_task_id": "48",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "49__hn0",
+          "source_task_id": "49",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "49__hn1",
+          "source_task_id": "49",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "49__oos0",
+          "source_task_id": "49",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_gift_wrap",
+          "should_transfer": true
+        },
+        {
+          "task_id": "49__xr0",
+          "source_task_id": "49",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "50__oos0",
+          "source_task_id": "50",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_email_change",
+          "should_transfer": true
+        },
+        {
+          "task_id": "50__xr0",
+          "source_task_id": "50",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "51__hn0",
+          "source_task_id": "51",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "51__hn1",
+          "source_task_id": "51",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "51__oos0",
+          "source_task_id": "51",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_paper_invoice",
+          "should_transfer": true
+        },
+        {
+          "task_id": "51__xr0",
+          "source_task_id": "51",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "52__hn0",
+          "source_task_id": "52",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "52__oos0",
+          "source_task_id": "52",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_warranty_repair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "52__xr0",
+          "source_task_id": "52",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "53__hn0",
+          "source_task_id": "53",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "53__hn1",
+          "source_task_id": "53",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "53__oos0",
+          "source_task_id": "53",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_gift_wrap",
+          "should_transfer": true
+        },
+        {
+          "task_id": "53__xr0",
+          "source_task_id": "53",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "55__hn0",
+          "source_task_id": "55",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "55__hn1",
+          "source_task_id": "55",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "55__oos0",
+          "source_task_id": "55",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_email_change",
+          "should_transfer": true
+        },
+        {
+          "task_id": "55__xr0",
+          "source_task_id": "55",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "56__hn0",
+          "source_task_id": "56",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "56__hn1",
+          "source_task_id": "56",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "56__oos0",
+          "source_task_id": "56",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_paper_invoice",
+          "should_transfer": true
+        },
+        {
+          "task_id": "56__xr0",
+          "source_task_id": "56",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "57__hn0",
+          "source_task_id": "57",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "57__oos0",
+          "source_task_id": "57",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_warranty_repair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "57__xr0",
+          "source_task_id": "57",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "58__hn0",
+          "source_task_id": "58",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "58__oos0",
+          "source_task_id": "58",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_gift_wrap",
+          "should_transfer": true
+        },
+        {
+          "task_id": "58__xr0",
+          "source_task_id": "58",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "5__hn0",
+          "source_task_id": "5",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "5__hn1",
+          "source_task_id": "5",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "5__oos0",
+          "source_task_id": "5",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_gift_wrap",
+          "should_transfer": true
+        },
+        {
+          "task_id": "5__xr0",
+          "source_task_id": "5",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "61__hn0",
+          "source_task_id": "61",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "61__hn1",
+          "source_task_id": "61",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "61__oos0",
+          "source_task_id": "61",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_email_change",
+          "should_transfer": true
+        },
+        {
+          "task_id": "61__xr0",
+          "source_task_id": "61",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "64__hn0",
+          "source_task_id": "64",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "64__hn1",
+          "source_task_id": "64",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "64__oos0",
+          "source_task_id": "64",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_paper_invoice",
+          "should_transfer": true
+        },
+        {
+          "task_id": "64__xr0",
+          "source_task_id": "64",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "65__hn0",
+          "source_task_id": "65",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "65__hn1",
+          "source_task_id": "65",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "65__oos0",
+          "source_task_id": "65",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_warranty_repair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "65__xr0",
+          "source_task_id": "65",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "66__hn0",
+          "source_task_id": "66",
+          "split": "dev",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "66__oos0",
+          "source_task_id": "66",
+          "split": "dev",
+          "kind": "out_of_scope",
+          "template_id": "oos_gift_wrap",
+          "should_transfer": true
+        },
+        {
+          "task_id": "66__xr0",
+          "source_task_id": "66",
+          "split": "dev",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "69__hn0",
+          "source_task_id": "69",
+          "split": "dev",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "69__oos0",
+          "source_task_id": "69",
+          "split": "dev",
+          "kind": "out_of_scope",
+          "template_id": "oos_email_change",
+          "should_transfer": true
+        },
+        {
+          "task_id": "69__xr0",
+          "source_task_id": "69",
+          "split": "dev",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "6__hn0",
+          "source_task_id": "6",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "6__oos0",
+          "source_task_id": "6",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_email_change",
+          "should_transfer": true
+        },
+        {
+          "task_id": "6__xr0",
+          "source_task_id": "6",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "71__hn0",
+          "source_task_id": "71",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "71__hn1",
+          "source_task_id": "71",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "71__oos0",
+          "source_task_id": "71",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_paper_invoice",
+          "should_transfer": true
+        },
+        {
+          "task_id": "71__xr0",
+          "source_task_id": "71",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "72__hn0",
+          "source_task_id": "72",
+          "split": "dev",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "72__oos0",
+          "source_task_id": "72",
+          "split": "dev",
+          "kind": "out_of_scope",
+          "template_id": "oos_warranty_repair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "72__xr0",
+          "source_task_id": "72",
+          "split": "dev",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "73__hn0",
+          "source_task_id": "73",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "73__oos0",
+          "source_task_id": "73",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_gift_wrap",
+          "should_transfer": true
+        },
+        {
+          "task_id": "73__xr0",
+          "source_task_id": "73",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "74__hn0",
+          "source_task_id": "74",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "74__hn1",
+          "source_task_id": "74",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "74__oos0",
+          "source_task_id": "74",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_email_change",
+          "should_transfer": true
+        },
+        {
+          "task_id": "74__xr0",
+          "source_task_id": "74",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "75__hn0",
+          "source_task_id": "75",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "75__oos0",
+          "source_task_id": "75",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_paper_invoice",
+          "should_transfer": true
+        },
+        {
+          "task_id": "75__xr0",
+          "source_task_id": "75",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "77__hn0",
+          "source_task_id": "77",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "77__hn1",
+          "source_task_id": "77",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "77__oos0",
+          "source_task_id": "77",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_warranty_repair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "77__xr0",
+          "source_task_id": "77",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "78__hn0",
+          "source_task_id": "78",
+          "split": "dev",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "78__oos0",
+          "source_task_id": "78",
+          "split": "dev",
+          "kind": "out_of_scope",
+          "template_id": "oos_gift_wrap",
+          "should_transfer": true
+        },
+        {
+          "task_id": "78__xr0",
+          "source_task_id": "78",
+          "split": "dev",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "79__hn0",
+          "source_task_id": "79",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "79__hn1",
+          "source_task_id": "79",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "79__oos0",
+          "source_task_id": "79",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_email_change",
+          "should_transfer": true
+        },
+        {
+          "task_id": "79__xr0",
+          "source_task_id": "79",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "7__hn0",
+          "source_task_id": "7",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "7__oos0",
+          "source_task_id": "7",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_paper_invoice",
+          "should_transfer": true
+        },
+        {
+          "task_id": "7__xr0",
+          "source_task_id": "7",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "80__hn0",
+          "source_task_id": "80",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "80__oos0",
+          "source_task_id": "80",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_paper_invoice",
+          "should_transfer": true
+        },
+        {
+          "task_id": "80__xr0",
+          "source_task_id": "80",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "81__hn0",
+          "source_task_id": "81",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "81__oos0",
+          "source_task_id": "81",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_warranty_repair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "81__xr0",
+          "source_task_id": "81",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "82__hn0",
+          "source_task_id": "82",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "82__oos0",
+          "source_task_id": "82",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_gift_wrap",
+          "should_transfer": true
+        },
+        {
+          "task_id": "82__xr0",
+          "source_task_id": "82",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "83__hn0",
+          "source_task_id": "83",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "83__oos0",
+          "source_task_id": "83",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_email_change",
+          "should_transfer": true
+        },
+        {
+          "task_id": "83__xr0",
+          "source_task_id": "83",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "84__hn0",
+          "source_task_id": "84",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "84__oos0",
+          "source_task_id": "84",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_paper_invoice",
+          "should_transfer": true
+        },
+        {
+          "task_id": "84__xr0",
+          "source_task_id": "84",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "85__hn0",
+          "source_task_id": "85",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "85__oos0",
+          "source_task_id": "85",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_warranty_repair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "85__xr0",
+          "source_task_id": "85",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "86__hn0",
+          "source_task_id": "86",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "86__hn1",
+          "source_task_id": "86",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "86__oos0",
+          "source_task_id": "86",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_gift_wrap",
+          "should_transfer": true
+        },
+        {
+          "task_id": "86__xr0",
+          "source_task_id": "86",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "87__hn0",
+          "source_task_id": "87",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "87__oos0",
+          "source_task_id": "87",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_email_change",
+          "should_transfer": true
+        },
+        {
+          "task_id": "87__xr0",
+          "source_task_id": "87",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "88__hn0",
+          "source_task_id": "88",
+          "split": "dev",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "88__oos0",
+          "source_task_id": "88",
+          "split": "dev",
+          "kind": "out_of_scope",
+          "template_id": "oos_paper_invoice",
+          "should_transfer": true
+        },
+        {
+          "task_id": "88__xr0",
+          "source_task_id": "88",
+          "split": "dev",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "8__hn0",
+          "source_task_id": "8",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "8__oos0",
+          "source_task_id": "8",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_warranty_repair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "8__xr0",
+          "source_task_id": "8",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "90__hn0",
+          "source_task_id": "90",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "90__hn1",
+          "source_task_id": "90",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "90__oos0",
+          "source_task_id": "90",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_warranty_repair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "90__xr0",
+          "source_task_id": "90",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "91__hn0",
+          "source_task_id": "91",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "91__oos0",
+          "source_task_id": "91",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_gift_wrap",
+          "should_transfer": true
+        },
+        {
+          "task_id": "91__xr0",
+          "source_task_id": "91",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "92__hn0",
+          "source_task_id": "92",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "92__oos0",
+          "source_task_id": "92",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_email_change",
+          "should_transfer": true
+        },
+        {
+          "task_id": "92__xr0",
+          "source_task_id": "92",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "93__hn0",
+          "source_task_id": "93",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "93__oos0",
+          "source_task_id": "93",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_paper_invoice",
+          "should_transfer": true
+        },
+        {
+          "task_id": "93__xr0",
+          "source_task_id": "93",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "94__hn0",
+          "source_task_id": "94",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "94__hn1",
+          "source_task_id": "94",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "94__oos0",
+          "source_task_id": "94",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_warranty_repair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "94__xr0",
+          "source_task_id": "94",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "96__hn0",
+          "source_task_id": "96",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "96__oos0",
+          "source_task_id": "96",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_gift_wrap",
+          "should_transfer": true
+        },
+        {
+          "task_id": "96__xr0",
+          "source_task_id": "96",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "97__hn0",
+          "source_task_id": "97",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "97__hn1",
+          "source_task_id": "97",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_hurried",
+          "should_transfer": false
+        },
+        {
+          "task_id": "97__oos0",
+          "source_task_id": "97",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_email_change",
+          "should_transfer": true
+        },
+        {
+          "task_id": "97__xr0",
+          "source_task_id": "97",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_after_details",
+          "should_transfer": true
+        },
+        {
+          "task_id": "98__hn0",
+          "source_task_id": "98",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "98__oos0",
+          "source_task_id": "98",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_paper_invoice",
+          "should_transfer": true
+        },
+        {
+          "task_id": "98__xr0",
+          "source_task_id": "98",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_insistent",
+          "should_transfer": true
+        },
+        {
+          "task_id": "99__hn0",
+          "source_task_id": "99",
+          "split": "train",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "99__oos0",
+          "source_task_id": "99",
+          "split": "train",
+          "kind": "out_of_scope",
+          "template_id": "oos_warranty_repair",
+          "should_transfer": true
+        },
+        {
+          "task_id": "99__xr0",
+          "source_task_id": "99",
+          "split": "train",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        },
+        {
+          "task_id": "9__hn0",
+          "source_task_id": "9",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_skeptical",
+          "should_transfer": false
+        },
+        {
+          "task_id": "9__hn1",
+          "source_task_id": "9",
+          "split": "test",
+          "kind": "hard_negative",
+          "template_id": "hn_frustrated",
+          "should_transfer": false
+        },
+        {
+          "task_id": "9__oos0",
+          "source_task_id": "9",
+          "split": "test",
+          "kind": "out_of_scope",
+          "template_id": "oos_gift_wrap",
+          "should_transfer": true
+        },
+        {
+          "task_id": "9__xr0",
+          "source_task_id": "9",
+          "split": "test",
+          "kind": "explicit_request",
+          "template_id": "xr_direct",
+          "should_transfer": true
+        }
+      ],
+      "tasks_file_sha256": "4ee35d0fe1f11ba3dcb46784f9b6a9ef49e6b2466b9a1d8e0195a1cd4ad8d1ca",
+      "counts": {
+        "train": {
+          "explicit_request": 36,
+          "out_of_scope": 36,
+          "hard_negative": 34
+        },
+        "dev": {
+          "explicit_request": 9,
+          "out_of_scope": 9,
+          "hard_negative": 9
+        },
+        "test": {
+          "explicit_request": 29,
+          "out_of_scope": 29,
+          "hard_negative": 54
+        }
+      }
+    }
+  },
+  "manifest_sha256": "d19492bb9de4b3cbdd062726a0e61c10f5ceb511229e69ccec4cd7278e1220c4"
+}

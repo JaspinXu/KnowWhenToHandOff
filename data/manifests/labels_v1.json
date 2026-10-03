@@ -1,0 +1,675 @@
+{
+  "schema_version": 1,
+  "tau2_commit": "fc0055dc4e0a316c3f83133267fbd6faaa770992",
+  "domains": {
+    "airline": {
+      "labels": {
+        "0": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "1": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "10": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "11": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "12": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "13": {
+          "should_transfer": true,
+          "rule": "gold_transfer_action"
+        },
+        "14": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "15": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "16": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "17": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "18": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "19": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "2": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "20": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "21": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "22": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "23": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "24": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "25": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "26": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "27": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "28": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "29": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "3": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "30": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "31": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "32": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "33": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "34": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "35": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "36": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "37": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "38": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "39": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "4": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "40": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "41": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "42": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "43": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "44": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "45": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "46": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "47": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "48": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "49": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "5": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "6": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "7": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "8": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "9": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        }
+      },
+      "n_tasks": 50,
+      "n_positive": 1
+    },
+    "retail": {
+      "labels": {
+        "0": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "1": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "10": {
+          "should_transfer": true,
+          "rule": "gold_transfer_action"
+        },
+        "100": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "101": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "102": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "103": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "104": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "105": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "106": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "107": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "108": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "109": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "11": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "110": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "111": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "112": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "113": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "12": {
+          "should_transfer": true,
+          "rule": "gold_transfer_action"
+        },
+        "13": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "14": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "15": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "16": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "17": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "18": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "19": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "2": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "20": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "21": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "22": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "23": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "24": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "25": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "26": {
+          "should_transfer": true,
+          "rule": "gold_transfer_action"
+        },
+        "27": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "28": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "29": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "3": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "30": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "31": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "32": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "33": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "34": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "35": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "36": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "37": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "38": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "39": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "4": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "40": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "41": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "42": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "43": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "44": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "45": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "46": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "47": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "48": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "49": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "5": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "50": {
+          "should_transfer": true,
+          "rule": "gold_transfer_action"
+        },
+        "51": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "52": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "53": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "54": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "55": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "56": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "57": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "58": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "59": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "6": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "60": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "61": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "62": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "63": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "64": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "65": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "66": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "67": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "68": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "69": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "7": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "70": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "71": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "72": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "73": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "74": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "75": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "76": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "77": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "78": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "79": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "8": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "80": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "81": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "82": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "83": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "84": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "85": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "86": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "87": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "88": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "89": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "9": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "90": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "91": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "92": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "93": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "94": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "95": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "96": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "97": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "98": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        },
+        "99": {
+          "should_transfer": false,
+          "rule": "no_transfer"
+        }
+      },
+      "n_tasks": 114,
+      "n_positive": 4
+    }
+  },
+  "labels_sha256": "eadde4aa0ecce9dc224ab942468ac1f75b235907fc6a76b9e8e6099a396f1478"
+}
