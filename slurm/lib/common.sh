@@ -18,6 +18,7 @@ export HANDOFF_SCRATCH HF_HOME TAU2_DATA_DIR TAU2_COMMIT
 # node-local disk; a TMPDIR inherited from ~/.bashrc may point at NFS.
 if [[ -n "${SLURM_JOB_ID:-}" ]]; then
   export TMPDIR="/tmp/${USER}-handoff-${SLURM_JOB_ID}"
+  export TMP="${TMPDIR}" TEMP="${TMPDIR}"
   mkdir -p "${TMPDIR}"
 fi
 cd "${HANDOFF_REPO}"

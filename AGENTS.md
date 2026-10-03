@@ -96,9 +96,13 @@ abstractions unless the owner asks. Prefer deleting over adding.
   (3 days) has 2 × `a100-80` nodes and 5 nodes with 2 × `h100-96`, so
   `cluster.env.example` now uses `GPU_TYPE_BIG=h100-96`. Jobs get a node-local
   `TMPDIR` (the owner's `~/.bashrc` points `TMPDIR` at NFS for an older
-  project). The owner's fair-share is low after September's LatentMAS runs.
+  project); `cluster.env` also pins `HF_HUB_CACHE`, which `~/.bashrc` set to
+  the old project's cache. The owner's fair-share is low after September's LatentMAS runs.
 - **Open risks:** RL memory on one H100 96 GB is unmeasured (the SPIKE run
-  decides; fall back to `NGPUS=2` or `rl.use_lora=true`). A serve job that sits
+  decides; fall back to `rl.use_lora=true`). QoS `normal` caps each user at
+  1 × h100-96, 2 × a100-80 and 1 × h200-141 at a time, so `NGPUS=2` on
+  h100-96 is impossible, and the simulator must stay on a100-80 (only 2 such
+  nodes in `gpu-long`; queueing for it is the main schedule risk). A serve job that sits
   idle for > 30 min may be cancelled under SoC policy (§15).
 - **Owner decisions pending:** confirm H100 96 GB instead of H200 for
   evaluation, SFT and RL (then update README compute plan + zh-CN, runbook §0);
