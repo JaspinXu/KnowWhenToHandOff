@@ -21,12 +21,12 @@ Job logs go to `logs/<job name>-<job id>.out` in this checkout.
 
 ## 0. Resources
 
-The owner has one A100 and one H200. The plan keeps each on one job:
+On the NUS SoC cluster the `normal` QoS allows each user one H100 96 GB and two A100 80 GB at a time; `gpu-long` (3 days) has 2 nodes with an A100 80 GB and 5 with H100 96 GB, and the only H200 node is in the 3-hour `gpu` partition. The plan keeps each GPU on one job:
 
 | GPU | Holds | Notes |
 | --- | --- | --- |
-| A100 80 GB (`GPU_TYPE_SIM`) | User simulator Qwen3-30B-A3B-Instruct-2507 (bf16, ~61 GB) for the whole campaign | With a 40 GB A100 the simulator does not fit; serve it on the H200 between jobs or ask for an 80 GB card |
-| H200 141 GB (`GPU_TYPE_BIG`) | One of: the policy server of an evaluation, SFT, or RL (policy + vLLM rollout) | Jobs queue one after another |
+| A100 80 GB (`GPU_TYPE_SIM=a100-80`) | User simulator Qwen3-30B-A3B-Instruct-2507 (bf16, ~61 GB) during a campaign | Only two such nodes in `gpu-long`: submit `serve` early and `scancel` it between campaigns (SoC cancels jobs idle for > 30 min) |
+| H100 96 GB (`GPU_TYPE_BIG=h100-96`) | One of: the policy server of an evaluation, SFT, or RL (policy + vLLM rollout) | Jobs queue one after another; one per user, so `NGPUS=2` is not possible (RL falls back to `rl.use_lora=true` if memory is short) |
 
 `HANDOFF_SCRATCH` must be on storage that **every compute node sees** (the
 simulator job publishes its address there; models, runs and the environment
@@ -194,7 +194,7 @@ set, all six styles, two sampled trials (config `eval=teacher_train`).
 ```bash
 bash slurm/submit.sh teacher POLICY_ENDPOINT="$usersim" POLICY_LABEL=qwen3_30b_a3b
 bash slurm/submit.sh sft-data TEACHER_RUNS=TEACH-teacher_train-s0-<date> DATASET=b2_v1
-bash slurm/submit.sh sft DATASET=b2_v1                 # 1x H200; NGPUS=2 uses FSDP
+bash slurm/submit.sh sft DATASET=b2_v1                 # 1x H100 96 GB
 ```
 
 `sft-data` keeps only successful, violation-free, format-clean episodes with the
@@ -312,13 +312,13 @@ server started).
 | --- | --- | --- |
 | 1 | `setup`, `download`, `tasks` (CPU) | — |
 | 2 | `serve` (A100, stays up) | user simulator |
-| 3 | `check-tokens`, `eval smoke` (H200) | SMOKE |
-| 4 | `eval` dev + 3 test presets (H200) | B0 |
+| 3 | `check-tokens`, `eval smoke` (H100) | SMOKE |
+| 4 | `eval` dev + 3 test presets (H100) | B0 |
 | 5 | `eval test_main` via the simulator server (CPU) | B1 (optional) |
-| 6 | `teacher` (CPU), `sft-data` (CPU), `sft` (H200) | TEACH, B2 |
-| 7 | `eval` dev + 3 test presets (H200) | B2 |
-| 8 | `rl` spike, then R1 and R2 (H200, one after the other) | SPIKE, R1, R2 |
-| 9 | `eval` dev + 3 test presets for each (H200) | R1, R2 |
+| 6 | `teacher` (CPU), `sft-data` (CPU), `sft` (H100) | TEACH, B2 |
+| 7 | `eval` dev + 3 test presets (H100) | B2 |
+| 8 | `rl` spike, then R1 and R2 (H100, one after the other) | SPIKE, R1, R2 |
+| 9 | `eval` dev + 3 test presets for each (H100) | R1, R2 |
 | 10 | `make_report`, review packets, demo (login node / CPU) | — |
 
 If time runs short, drop B1 first, then lower `rl.verl.trainer.total_training_steps`.

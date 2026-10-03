@@ -463,7 +463,7 @@ KnowWhenToHandOff/
 | Trainer | verl 0.8 (agent loop, GRPO) | Multi-turn token masks, FSDP | LoRA GRPO; offline rejection-sampling fine-tuning |
 | Config and tracking | Hydra, console logs, run records | Reproducible runs | — |
 | Packaging and CI | uv, ruff, pytest, GitHub Actions (CPU tests) | Matches τ²-bench tooling | — |
-| Compute | Slurm cluster, one A100 + one H200 | Needed for multi-turn RL | LoRA, shorter episodes |
+| Compute | NUS SoC Slurm cluster: one A100 80 GB + one H100 96 GB at a time (per-user QoS) | Needed for multi-turn RL | LoRA, shorter episodes |
 
 **Architecture decision records** (`docs/adr/`):
 
@@ -482,12 +482,12 @@ KnowWhenToHandOff/
 | Job | GPUs (80 GB+ class) | Notes |
 | --- | --- | --- |
 | Smoke tests | 1 | Qwen3-4B policy (+ the simulator server) |
-| User-simulator server | 1 | 30B-A3B MoE in bf16 fits on one H200 |
-| SFT (4B, full) | 1 | Short run on the H200; LoRA if memory is short |
+| User-simulator server | 1 | 30B-A3B MoE in bf16 fits on one A100 80 GB |
+| SFT (4B, full) | 1 | Short run on the H100 96 GB; LoRA if memory is short |
 | GRPO (4B, full) | 1 | FSDP training with the rollout engine co-located; + 1 GPU for the simulator |
 | Evaluation | 1 | Policy server + simulator; parallel episodes |
 
-These are estimates. Available now: one A100 and one H200; the runbook keeps the user simulator on the A100 for a whole campaign and runs evaluation, SFT and RL on the H200 one job at a time. T0.3 measures real throughput (episodes per hour) and the plan is re-sized from that. Checkpoints and trajectories live on cluster scratch; only small manifests, configs and final reports go into git.
+These are estimates. Available: the cluster QoS allows one A100 80 GB and one H100 96 GB per user at a time in the 3-day `gpu-long` partition (its only H200 node is limited to 3-hour jobs); the runbook keeps the user simulator on the A100 for a campaign and runs evaluation, SFT and RL on the H100 one job at a time. T0.3 measures real throughput (episodes per hour) and the plan is re-sized from that. Checkpoints and trajectories live on cluster scratch; only small manifests, configs and final reports go into git.
 
 ---
 

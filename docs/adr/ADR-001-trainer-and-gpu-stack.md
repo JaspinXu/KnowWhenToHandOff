@@ -86,7 +86,7 @@ need a GPU; `tests/test_gpu_stack.py`, run by the setup job):
 - the checkpoint export (including a LoRA merge on a tiny model) and its hook
   into verl's trainer.
 
-Pending (T0.4): three GRPO steps from B2 on the H200 (`EXPERIMENT=SPIKE`,
+Pending (T0.4): three GRPO steps from B2 on the H100 96 GB (changed from the H200 on 3 Oct: cluster QoS) (`EXPERIMENT=SPIKE`,
 runbook §7), recording step time, rollout time and peak memory here, then the
 go/no-go. Fallbacks if it fails: `rl.use_lora=true`, fewer steps, or offline
 rejection-sampling fine-tuning with the existing teacher → SFT path.
