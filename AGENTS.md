@@ -107,7 +107,9 @@ abstractions unless the owner asks. Prefer deleting over adding.
 - **First `setup` (job 904807, 3 Oct) failed:** it landed on a Titan RTX node
   whose `nvidia-smi` saw no GPU, and the driver check crashed on the text. Setup
   now runs on a CPU node (`PARTITION_CPU`, `GPU_TYPE_ANY` removed) and the
-  driver check skips when no numeric driver version is reported.
+  driver check skips when no numeric driver version is reported. The second
+  try (904848) stopped at `pip install --user uv` (PEP 668 on Ubuntu 24.04);
+  setup now passes `--break-system-packages` (writes only to `~/.local`).
 - **T1.3 (3 Oct):** retail out-of-scope templates are now 4 (price-drop refund
   dropped, see `docs/handoff-tasks.md`). Laptop gates: ruff + 275 passed,
   28 skipped; the tau2 tiers run in the next `setup` job.

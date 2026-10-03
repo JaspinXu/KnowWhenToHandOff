@@ -40,7 +40,9 @@ fi
 
 if ! command -v uv >/dev/null 2>&1; then
   log "installing uv into ~/.local"
-  python3 -m pip install --user --quiet "uv==0.12.16"
+  # Ubuntu 24.04 marks the system Python as externally managed (PEP 668);
+  # --user only writes to ~/.local, so the system packages stay untouched.
+  python3 -m pip install --user --break-system-packages --quiet "uv==0.12.16"
   export PATH="${HOME}/.local/bin:${PATH}"
 fi
 uv --version
