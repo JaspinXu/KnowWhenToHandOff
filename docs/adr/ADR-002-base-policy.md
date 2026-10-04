@@ -1,6 +1,8 @@
 # ADR-002: Base policy
 
-- Status: **Proposed** — confirm at M1 (11 Oct 2026) with the B0 dev results
+- Status: **Accepted** (4 Oct 2026, ahead of M1). B0 passes the gate: tool-call
+  format errors 2.5 % on dev (`B0-dev-s0-20261004`) and 2.6 % on test_main, below
+  the 5 % threshold; no switch to Qwen3.5-4B.
 - Related tasks: T1.6, T2.2, T3.1
 
 ## Decision

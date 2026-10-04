@@ -73,20 +73,28 @@ abstractions unless the owner asks. Prefer deleting over adding.
 > Update this section at the end of every session (§16). Newest first; keep it
 > short and factual. Code verification is not a research result.
 
-**As of 3 Oct 2026** (`main` + uncommitted cluster fixes; audits in §17):
+**As of 4 Oct 2026** (`main` at `ef34428`; audits in §17):
 
 - **Code:** the whole pipeline is implemented and CPU-verified, including RL
   learning curves (`scripts/rl_curves.py`). Tier results are in
-  [docs/implementation-status.md](docs/implementation-status.md); tiers 2–3
-  must be re-run by the next cluster `setup` job (30 Sep changes touched
-  `run_eval.py`, `train_rl.py` and `episode.py`).
-- **Experiments:** none yet. No benchmark score, checkpoint or throughput
-  measurement exists. Toy/fake results must never be cited.
-- **Next steps (in order):** on the cluster, `setup` → `download` → `tasks`
-  (hand-check ≥ 30 hand-off tasks, commit `data/`) → `serve` → `check-tokens`
-  → smoke eval → B0 (dev + three test presets) → optional B1 → teacher →
-  `sft-data` → `sft` (B2) → B2 eval → RL spike (record in ADR-001) → R1 → R2 →
-  final evaluations → report. Runbook §9 has the order with GPUs.
+  [docs/implementation-status.md](docs/implementation-status.md); laptop tier 1:
+  277 passed, 28 skipped (4 Oct); tiers 2–3 on the cluster: 315 passed (3 Oct,
+  before the NL-assertion fix, whose tier-2 tests passed in Claude's sandbox).
+- **Cluster (done 3 Oct):** `setup` passed all tiers on the cluster (315
+  passed); both models downloaded (`state/models.lock.json`); task sets built,
+  hand-off sample reviewed (40/40) and frozen in `ef34428` (split manifest
+  `db3c9aed…`, hand-off manifest `d19492bb…`).
+- **Experiments (4 Oct):** smoke passed (0 infra failures, 0 format errors).
+  **B0 complete** (`B0-*-s0-20261004`, 1,306 episodes, 0 infra failures):
+  test_main success 0.306 [0.214, 0.408], pass^4 0.102; style gap 0.041
+  (worst style impatient 0.306); hand-off test F1 0.654, precision 0.866,
+  recall 0.526, over-escalation 0.087, under-escalation 0.474; format errors
+  ≤ 2.6 %. Throughput: 490 episodes in 23 min (32 concurrent). B1 and teacher
+  submitted. ADR-002 and ADR-005 accepted (protocol frozen); T1.4 style review
+  recorded in `docs/personas.md`.
+- **Next steps (in order):** B1 + teacher (running, use the live simulator) →
+  `sft-data` → `sft` (B2) → B2 eval (dev + 3 test) + failure annotation → RL
+  spike (record in ADR-001) → R1 → R2 → final evaluations → report.
 - **Cluster facts (3 Oct, SoC DocHub + a read-only check of the owner's
   account):** no `/temp`; the cluster home and `/mnt/scratch/<letter>/<user>`
   are NFS and shared, `/tmp` is node-local, so scratch defaults to
@@ -122,7 +130,8 @@ abstractions unless the owner asks. Prefer deleting over adding.
 - **T1.3 (3 Oct):** retail out-of-scope templates are now 4 (price-drop refund
   dropped, see `docs/handoff-tasks.md`). Laptop gates: ruff + 275 passed,
   28 skipped; the tau2 tiers run in the next `setup` job.
-- **Owner decisions pending:** accept ADR-002 to ADR-005 at M1; confirm the
+- **Owner decisions pending:** accept ADR-003 (simulator/teacher) and ADR-004
+  (reward) by M2; confirm the
   course group number and team contribution statement for the report.
 
 ---
@@ -641,6 +650,7 @@ the ADRs; this is the short history agents need.
 | 29 Sep 2026 | Owner switches between Claude and Codex; AGENTS.md must be kept comprehensive and updated every session (§16). `CLAUDE.md` imports this file. |
 | 29 Sep 2026 | Course-sized scope: runs B0, B1 (optional), B2, R1, R2 with one seed; removed λ grid, R3 fairness sampler, P1 PPO, A1/A2 ablations, held-out simulator, the 1.7B/1.5B smoke models, the LLM citation judge, reward shaping, and the pre-pipeline tools (server planner, completion parser, offline SFT export). Human audit 50 → 20 dialogues. |
 | 29 Sep 2026 | Complete the whole pipeline so it can be cloned and run on the cluster with Slurm; never download datasets or models on the laptop. ADR-001 accepted; ADR-002 to ADR-005 proposed for M1. The deferred ADR-006/007 points were settled by ADR-001 to ADR-005. |
+| 4 Oct 2026 | ADR-002 (Qwen3-4B-Instruct-2507) and ADR-005 (protocol) accepted early, after B0; style cards v1 kept despite mild effect (review in `docs/personas.md`). |
 | 3 Oct 2026 | Retail tasks whose reward needs tau2's LLM judge (40 of 114) are excluded from every split; retail results are on a 74-task subset (ADR-005). |
 | 3 Oct 2026 | T1.3: the owner delegates the hand-off task review to Claude. Claude pre-reviewed the templates against the tau2 policies and dropped `oos_price_adjustment` (retail) before the first generation; after the `tasks` job, Claude checks the 40-task packet and the owner spot-checks 5; the record goes into `docs/handoff-tasks.md` and the report's AI-use statement says so. |
 | 3 Oct 2026 | Hardware follows the SoC QoS: A100 80 GB for the simulator, H100 96 GB (the H200 is limited to 3-hour jobs) for evaluation, SFT and RL. The owner's earlier LatentMAS project is finished; its files on the cluster are removed. |

@@ -90,5 +90,28 @@ each, check:
 - Tone alone does not trigger escalation, abandonment or false acceptance.
 - Clarification requests do not invent a missing capability or a new task.
 
-No dialogue audit has been performed. Do not infer fairness or task success from
-the CPU invariance tests, or change a frozen protocol based on these drafts.
+### Dialogue review record (styles v1, 4 Oct 2026)
+
+Packet: `sample_review.py styles --run B0-test_styles-s0-20261004` (B0 policy,
+simulator Qwen3-30B-A3B-Instruct-2507, eval seed 300): the same 10 test tasks
+(5 airline, 5 retail) in each of the 5 non-neutral styles, 50 dialogues.
+Reviewer: Claude (AI assistant), delegated by the owner.
+
+- **Styles are recognizable but mild.** Median words per user turn: terse 22,
+  non-native 21.5, impatient 32, low-tech-literacy 31, verbose 47; share of user
+  turns that ask a question: low-tech-literacy 0.31, verbose 0.20, others
+  ≤ 0.06. Impatient users add urgency phrases; terse users still write full
+  sentences. No demographic stereotypes or accent imitation were seen.
+- **Upstream temperament mixes with the card.** Some upstream task instructions
+  already set a temperament (e.g. retail 94: "confident, organized, creative,
+  impatient"), so a low-tech-literacy or verbose user can still sound impatient.
+- **Fact drift in 2 of 50 dialogues**, independent of the agent: retail/53
+  verbose invents a product model name; retail/101 low-tech-literacy invents an
+  order ID. Identifiers given by the agent were otherwise repeated correctly.
+- **Tone did not trigger escalation by itself** in the sample; the transfers
+  seen (airline/32, airline/45, retail/56) follow agent decisions or the
+  scenario.
+- **Decision:** keep cards v1. Changing them now would require re-running the
+  frozen B0 `test_styles` evaluation. Report RQ3 with the caveat that the style
+  manipulation is mild and the simulator occasionally drifts on facts; the B0
+  style gap is small (0.041, 95 % CI [0.031, 0.136]).

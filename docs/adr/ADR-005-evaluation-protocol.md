@@ -1,8 +1,9 @@
 # ADR-005: Evaluation protocol
 
-- Status: **Proposed — to be frozen at M1 (11 Oct 2026).** After acceptance any
-  change to a split, trial count, simulator, metric or setting below needs a new
-  ADR (AGENTS hard rule 4).
+- Status: **Accepted and frozen** (4 Oct 2026, ahead of M1; B0 ran under it:
+  `B0-{dev,test_main,test_styles,test_handoff}-s0-20261004`). Any change to a
+  split, trial count, simulator, metric or setting below needs a new ADR
+  (AGENTS hard rule 4).
 - Related tasks: T0.2, T1.1–T1.6, T3.6; supersedes ADR-006 (see its status line)
 
 ## Benchmark
