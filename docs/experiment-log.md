@@ -12,3 +12,4 @@ number here traces back to a run ID (hard rule 7). Runs live in
 | 2026-10-04 | B0-test_main-s0-20261004 | B0 baseline audit (M1) | success 0.31 [0.21, 0.41]; pass^4 0.10 [0.02, 0.18]; violation_rate 0.51 [0.43, 0.59]; handoff_f1 0.22 [0.00, 0.51] | baseline for RQ1-RQ3 |
 | 2026-10-04 | B0-test_styles-s0-20261004 | B0 baseline audit (M1) | success 0.33 [0.24, 0.43]; violation_rate 0.53 [0.46, 0.60]; handoff_f1 0.28 [0.00, 0.49] | baseline for RQ1-RQ3 |
 | 2026-10-04 | B0-test_handoff-s0-20261004 | B0 baseline audit (M1) | success 0.42 [0.36, 0.48]; violation_rate 0.31 [0.26, 0.36]; handoff_f1 0.65 [0.57, 0.73] | baseline for RQ1-RQ3 |
+| 2026-10-04 | B1-test_main-s0-20261004 | B1 reference ceiling (30B prompted) | success 0.40 [0.29, 0.51]; pass^4 0.20 [0.10, 0.33]; violation_rate 0.53 [0.44, 0.62]; handoff_f1 0.40 [0.00, 0.70] | ceiling for RQ1; same model as the simulator |
