@@ -555,7 +555,7 @@ Each task has a definition of done (DoD). Tick the box when the DoD is met and t
 - [x] **T1.5 Metrics and bootstrap.**
     - *Work:* implement every metric in the table above.
     - *DoD:* unit tests on synthetic trajectories; `docs/metrics.md` frozen (ADR-005).
-- [ ] **T1.6 Baselines B0 and B1.**
+- [x] **T1.6 Baselines B0 and B1.**
     - *Work:* run on test × personas with the protocol above.
     - *DoD:* results table v1, trajectories archived, a Responsible-AI audit write-up (finishing point #1).
 

@@ -88,7 +88,7 @@ abstractions unless the owner asks. Prefer deleting over adding.
   911507, queued for `gpu-long`) → final evaluations → report. T2.3 error
   analysis done ([docs/error-analysis.md](docs/error-analysis.md); owner
   agreed with 3 spot-checked annotations). T1.6 Responsible-AI audit drafted in
-  [docs/responsible-ai-audit.md](docs/responsible-ai-audit.md) (owner review pending).
+  [docs/responsible-ai-audit.md](docs/responsible-ai-audit.md) (owner approved 5 Oct; results table v1 in `reports/m1/`).
 - **Code:** the whole pipeline is implemented and CPU-verified, including RL
   learning curves (`scripts/rl_curves.py`). Tier results are in
   [docs/implementation-status.md](docs/implementation-status.md); laptop tier 1:

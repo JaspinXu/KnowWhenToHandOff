@@ -1,5 +1,7 @@
 # Responsible-AI audit of the baselines (T1.6, M1)
 
+Status: approved by the owner (5 Oct 2026). Drafted by Claude from the run summaries.
+
 What the prompted baselines do that a deployed customer-service agent must not,
 measured before any training. Runs: `B0-{dev,test_main,test_styles,test_handoff}-s0-20261004`
 (Qwen3-4B-Instruct-2507, prompted) and `B1-test_main-s0-20261004`
