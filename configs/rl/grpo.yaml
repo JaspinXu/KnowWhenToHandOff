@@ -31,15 +31,22 @@ verl:
       optim:
         lr: 1.0e-6
       ppo_mini_batch_size: 8
+      # One episode per forward/backward. Without flash-attn verl takes the
+      # padded path, which materialises full-vocabulary logits (and several
+      # copies for entropy/log-probs) over the padded micro-batch; packing
+      # episodes with use_dynamic_bsz ran out of memory on an H100 (SPIKE,
+      # 5 Oct: 25.5 GiB request on top of 78.8 GiB). Batch size 1 has no
+      # padding and bounds the peak by the longest episode.
       ppo_micro_batch_size_per_gpu: 1
-      use_dynamic_bsz: true
-      ppo_max_token_len_per_gpu: 32768
+      use_dynamic_bsz: false
       use_kl_loss: false
       entropy_coeff: 0
       loss_agg_mode: token-mean
       fsdp_config:
         param_offload: true
         optimizer_offload: true
+        # Recompute the entropy in backward instead of keeping its activations.
+        entropy_checkpointing: true
       checkpoint:
         # Resumable state only; every saved step is exported to a bf16
         # Hugging Face directory right away (handoff.train.export).
@@ -52,6 +59,7 @@ verl:
       top_p: 1.0
       tensor_model_parallel_size: 1
       gpu_memory_utilization: 0.45
+      log_prob_micro_batch_size_per_gpu: 1
       max_num_batched_tokens: 32768
       multi_turn:
         enable: true
@@ -65,6 +73,7 @@ verl:
         do_sample: false
         n: 1
     ref:
+      log_prob_micro_batch_size_per_gpu: 1
       fsdp_config:
         param_offload: true
   trainer:
