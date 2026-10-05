@@ -73,12 +73,24 @@ abstractions unless the owner asks. Prefer deleting over adding.
 > Update this section at the end of every session (§16). Newest first; keep it
 > short and factual. Code verification is not a research result.
 
-**As of 4 Oct 2026** (`main` at `ef34428`; audits in §17):
+**As of 5 Oct 2026** (audits in §17):
 
+- **Experiments (5 Oct):** teacher → `b2_v1` SFT data (790 dialogues) → B2
+  (LoRA SFT r=64; full fine-tuning ran out of memory on the H100) →
+  B2 evaluations (`B2-*-s0-20261005`, 0 infra failures): dev success 0.504
+  (gate B0 0.496: pass), test_main 0.327 (paired Δ vs B0 +0.020
+  [−0.056, 0.107]; B1 +0.092 [0.020, 0.163]), rule violations 0.031
+  (B0 0.179), hand-off test F1 0.768, precision 0.976, recall 0.633,
+  over-escalation 0.016; worst-style success 0.327 (B0 0.306), style gap 0.112
+  because impatient rose to 0.439. RL spike done (ADR-001): R1/R2 use LoRA and
+  `max_response_tokens` 16384; ~4–10 min per step.
+- **Next steps (in order):** R1 then R2 on the long simulator (`serve` job
+  911507, queued for `gpu-long`) → final evaluations → T2.3 failure annotation
+  → report.
 - **Code:** the whole pipeline is implemented and CPU-verified, including RL
   learning curves (`scripts/rl_curves.py`). Tier results are in
   [docs/implementation-status.md](docs/implementation-status.md); laptop tier 1:
-  277 passed, 28 skipped (4 Oct); tiers 2–3 on the cluster: 315 passed (3 Oct,
+  281 passed, 28 skipped (5 Oct); tiers 2–3 on the cluster: 315 passed (3 Oct,
   before the NL-assertion fix, whose tier-2 tests passed in Claude's sandbox).
 - **Cluster (done 3 Oct):** `setup` passed all tiers on the cluster (315
   passed); both models downloaded (`state/models.lock.json`); task sets built,
@@ -92,9 +104,6 @@ abstractions unless the owner asks. Prefer deleting over adding.
   ≤ 2.6 %. Throughput: 490 episodes in 23 min (32 concurrent). B1 and teacher
   submitted. ADR-002 and ADR-005 accepted (protocol frozen); T1.4 style review
   recorded in `docs/personas.md`.
-- **Next steps (in order):** B1 + teacher (running, use the live simulator) →
-  `sft-data` → `sft` (B2) → B2 eval (dev + 3 test) + failure annotation → RL
-  spike (record in ADR-001) → R1 → R2 → final evaluations → report.
 - **Cluster facts (3 Oct, SoC DocHub + a read-only check of the owner's
   account):** no `/temp`; the cluster home and `/mnt/scratch/<letter>/<user>`
   are NFS and shared, `/tmp` is node-local, so scratch defaults to
@@ -106,8 +115,8 @@ abstractions unless the owner asks. Prefer deleting over adding.
   `TMPDIR` (the owner's `~/.bashrc` points `TMPDIR` at NFS for an older
   project); `cluster.env` also pins `HF_HUB_CACHE`, which `~/.bashrc` set to
   the old project's cache. The owner's fair-share is low after September's LatentMAS runs.
-- **Open risks:** RL memory on one H100 96 GB is unmeasured (the SPIKE run
-  decides; fall back to `rl.use_lora=true`). QoS `normal` caps each user at
+- **Open risks:** RL memory grows with episode length (LoRA peak 70 GB of 93
+  for a 22.7k-token response; responses now capped at 16,384). QoS `normal` caps each user at
   1 × h100-96, 2 × a100-80 and 1 × h200-141 at a time, so `NGPUS=2` on
   h100-96 is impossible, and the simulator must stay on a100-80 (only 2 such
   nodes in `gpu-long`; queueing for it is the main schedule risk). A serve job that sits
@@ -646,6 +655,7 @@ the ADRs; this is the short history agents need.
 
 | Date | Decision |
 | --- | --- |
+| 5 Oct 2026 | R1/R2 use LoRA (r=64) and 16,384 response tokens after the spike (ADR-001). The A100 simulator queue is the bottleneck: keep a running `serve` job until its time limit (SoC did not cancel an idle one in practice) and use 3-hour `gpu`-partition simulators for short evaluation batches. |
 | 30 Sep 2026 | Owner asked to audit and complete the code, then tidy code and every text file (delete redundancy, fill gaps, mind token use). Added `rl_curves.py` (the only missing DoD code) and `docs/model-card.md`; eval presets extend `configs/eval/_common.yaml`; `code-readiness.md` merged into `implementation-status.md`. Keep this file under ~40k characters (Claude loads it every session): link instead of repeating. |
 | 29 Sep 2026 | Owner switches between Claude and Codex; AGENTS.md must be kept comprehensive and updated every session (§16). `CLAUDE.md` imports this file. |
 | 29 Sep 2026 | Course-sized scope: runs B0, B1 (optional), B2, R1, R2 with one seed; removed λ grid, R3 fairness sampler, P1 PPO, A1/A2 ablations, held-out simulator, the 1.7B/1.5B smoke models, the LLM citation judge, reward shaping, and the pre-pipeline tools (server planner, completion parser, offline SFT export). Human audit 50 → 20 dialogues. |

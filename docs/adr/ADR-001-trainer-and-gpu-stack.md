@@ -1,7 +1,7 @@
 # ADR-001: Trainer and GPU software stack
 
-- Status: **Accepted for implementation** (29 Sep 2026); the T0.4 spike on the
-  cluster (step time, go/no-go) is still to be recorded below.
+- Status: **Accepted** (29 Sep 2026); T0.4 spike recorded below (5 Oct 2026):
+  go, with LoRA for R1/R2.
 - Related tasks: T0.3, T0.4, T2.2, T3.1–T3.4
 - Supersedes: ADR-007 (the evaluation client is tau2's own LiteLLM path)
 
@@ -86,10 +86,33 @@ need a GPU; `tests/test_gpu_stack.py`, run by the setup job):
 - the checkpoint export (including a LoRA merge on a tiny model) and its hook
   into verl's trainer.
 
-Pending (T0.4): three GRPO steps from B2 on the H100 96 GB (changed from the H200 on 3 Oct: cluster QoS) (`EXPERIMENT=SPIKE`,
-runbook §7), recording step time, rollout time and peak memory here, then the
-go/no-go. Fallbacks if it fails: `rl.use_lora=true`, fewer steps, or offline
-rejection-sampling fine-tuning with the existing teacher → SFT path.
+## Spike (T0.4, 5 Oct 2026)
+
+Three GRPO steps from B2 (`SPIKE-*-s1-20261005`, H100 96 GB, simulator on an
+A100 80 GB, 8 tasks × 8 rollouts per step). Fixes needed on the cluster before
+the first step completed: unset Slurm's `ROCR_VISIBLE_DEVICES` (verl refuses it
+next to `CUDA_VISIBLE_DEVICES`); cap vLLM's `max_model_len` at prompt +
+response tokens (the 262k default left no KV-cache room); pure-PyTorch padding
+helpers in place of flash-attn (`handoff.train.verl_compat`); one episode per
+micro-batch (packed micro-batches materialised 25 GiB logits copies).
+
+| Run | Step | Peak GPU memory (alloc / reserved) | Step time | Update | Longest response | Mean reward |
+| --- | --- | --- | --- | --- | --- | --- |
+| full fine-tuning (`try6`) | 1 | 75.0 / 88.1 GB | 267 s | 163 s | 6,858 | 0.66 |
+| full fine-tuning (`try6`) | 2 | out of memory in the update | | | | |
+| LoRA r=64 (`try7`) | 1 | 38.1 / 56.7 GB | 241 s | 138 s | 6,444 | 0.64 |
+| LoRA r=64 (`try7`) | 2 | 42.7 / 59.9 GB | 306 s | 150 s | 8,641 | 0.50 |
+| LoRA r=64 (`try7`) | 3 | 70.4 / 87.5 GB | 600 s | 158 s | 22,651 | 0.38 |
+
+Rollouts take about a minute unless one episode runs long (step 3); vLLM weight
+sync takes 3 s. Prompts are ~5k tokens. The job used up to 126 GB of host RAM
+(200 GB requested). Rewards over three steps of different tasks are not a trend.
+
+**Decision: go, with LoRA** (`rl.use_lora: true`, rank 64, alpha 128, lr 1e-5)
+and `episode.max_response_tokens: 16384` so the longest episode stays well
+under the GPU (memory grows with episode length; step 3 shows the margin).
+Full fine-tuning is not attempted. At ~4–10 min per step, 60 steps with dev
+validation every 10 take about 6–9 h, inside one 3-day job.
 
 ## Consequences
 

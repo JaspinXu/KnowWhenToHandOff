@@ -36,7 +36,10 @@ episode:
   max_steps: 200
   max_errors: 10
   max_prompt_tokens: 8192     # verl data.max_prompt_length
-  max_response_tokens: 24576  # verl data.max_response_length
+  # verl data.max_response_length. 16384 (not 24576) bounds the actor's logits
+  # memory: a 22.7k-token response peaked at 70 GB of 93 in the LoRA SPIKE
+  # (5 Oct; ADR-001). Longer episodes end as context_window_exceeded.
+  max_response_tokens: 16384
   # Evaluation parity: the evaluation agent's max_tokens and the evaluation
   # server's max_model_len (configs/model/<policy>.yaml). A turn always gets
   # max_tokens_per_turn; the episode ends (context_window_exceeded, no format

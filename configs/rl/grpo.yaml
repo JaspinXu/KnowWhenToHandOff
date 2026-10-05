@@ -3,7 +3,9 @@
 # adds data paths, lengths and the agent loop. Tune on dev only.
 name: grpo
 entrypoint: handoff.train.verl_main
-use_lora: false
+# LoRA (rank 64, alpha 128, lr 1e-5): full fine-tuning ran out of GPU memory
+# on one H100 96 GB at the second GRPO step (SPIKE, 5 Oct; ADR-001).
+use_lora: true
 # sdpa needs no flash-attn build; set flash_attention_2 if flash-attn is installed.
 attn_implementation: sdpa
 lora:
