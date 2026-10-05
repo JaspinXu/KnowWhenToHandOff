@@ -87,7 +87,8 @@ abstractions unless the owner asks. Prefer deleting over adding.
 - **Next steps (in order):** R1 then R2 on the long simulator (`serve` job
   911507, queued for `gpu-long`) → final evaluations → report. T2.3 error
   analysis done ([docs/error-analysis.md](docs/error-analysis.md); owner
-  agreed with 3 spot-checked annotations).
+  agreed with 3 spot-checked annotations). T1.6 Responsible-AI audit drafted in
+  [docs/responsible-ai-audit.md](docs/responsible-ai-audit.md) (owner review pending).
 - **Code:** the whole pipeline is implemented and CPU-verified, including RL
   learning curves (`scripts/rl_curves.py`). Tier results are in
   [docs/implementation-status.md](docs/implementation-status.md); laptop tier 1:

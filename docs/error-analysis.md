@@ -43,7 +43,7 @@ of 10. Every failure ends with task reward 0.
    the hand-off phrasing from the teacher dialogues but sometimes skips the
    tool call; the metric counts these as under-escalation (B2 recall 0.633 on
    test_handoff). A transfer counts only when the tool is called, and R2
-   penalises a missed transfer (λ_fn = 1.0, ADR-004), so this is the first
+   penalises a missed transfer (λ_FN = 1.0, ADR-004), so this is the first
    behaviour to check in the R1/R2 audits (T3.5).
 2. **Out-of-scope requests can still be "handled" (B).** Instead of handing
    off, B2 sometimes pretends a capability exists; #4 adds a write the policy
