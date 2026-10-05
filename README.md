@@ -528,10 +528,10 @@ Each task has a definition of done (DoD). Tick the box when the DoD is met and t
 - [ ] **T0.2 Pin τ²-bench.**
     - *Work:* pin to a commit; run `tau2 run` on 5 airline tasks with any available model.
     - *DoD:* results in `data/simulations/` and a script that parses them.
-- [ ] **T0.3 Bring up the cluster.**
+- [x] **T0.3 Bring up the cluster.**
     - *Work:* Slurm templates for the policy server, the user-simulator server and training; HF cache on scratch.
     - *DoD:* both servers answer OpenAI-style tool-calling requests from a compute node; throughput measured.
-- [ ] **T0.4 Trainer spike (ADR-001).**
+- [x] **T0.4 Trainer spike (ADR-001).**
     - *Work:* run verl's multi-turn agent-loop example end to end on 1–2 GPUs.
     - *DoD:* ADR-001 written with measured step time and the go/no-go decision.
 - [ ] **T0.5 Point τ²-bench at local models.**
@@ -540,19 +540,19 @@ Each task has a definition of done (DoD). Tick the box when the DoD is met and t
 
 ### Phase 1 — Baseline audit, milestone M1 (5 – 11 Oct) · *finishing point*
 
-- [ ] **T1.1 Task registry and manifests.**
+- [x] **T1.1 Task registry and manifests.**
     - *Work:* load the official splits; carve dev from train; freeze manifests with hashes.
     - *DoD:* a unit test proves the train, dev and test sets are disjoint.
-- [ ] **T1.2 Should-transfer labels.**
+- [x] **T1.2 Should-transfer labels.**
     - *Work:* count gold `transfer_to_human_agents` actions; write the label rules from the domain policies.
     - *DoD:* label file + `docs/labels.md`.
-- [ ] **T1.3 Hand-off task set.**
+- [x] **T1.3 Hand-off task set.**
     - *Work:* generate should-transfer variants and hard negatives as valid τ²-bench tasks with evaluation criteria; target ≥ 30 of each per domain for test, and more for train.
     - *DoD:* sets with provenance; 30+ tasks hand-checked.
-- [ ] **T1.4 Persona library v1.**
+- [x] **T1.4 Persona library v1.**
     - *Work:* write 6 style cards and inject them via `user_scenario.persona`.
     - *DoD:* 10 dialogues per style reviewed; style changes and task facts do not.
-- [ ] **T1.5 Metrics and bootstrap.**
+- [x] **T1.5 Metrics and bootstrap.**
     - *Work:* implement every metric in the table above.
     - *DoD:* unit tests on synthetic trajectories; `docs/metrics.md` frozen (ADR-005).
 - [ ] **T1.6 Baselines B0 and B1.**
@@ -561,13 +561,13 @@ Each task has a definition of done (DoD). Tick the box when the DoD is met and t
 
 ### Phase 2 — Imitation warm start, milestone M2 (12 – 18 Oct) · *finishing point*
 
-- [ ] **T2.1 Teacher trajectories.**
+- [x] **T2.1 Teacher trajectories.**
     - *Work:* run a stronger model on train and the hand-off training set; keep only successful, violation-free, correctly transferred episodes.
     - *DoD:* SFT dataset with statistics and no test tasks.
-- [ ] **T2.2 SFT of the 4B policy.**
+- [x] **T2.2 SFT of the 4B policy.**
     - *Work:* train with loss on assistant tokens only.
     - *DoD:* checkpoint + B2 evaluation.
-- [ ] **T2.3 Error analysis.**
+- [x] **T2.3 Error analysis.**
     - *Work:* compare B2 with B0 and annotate 10 failure cases.
     - *DoD:* finishing point #2.
 

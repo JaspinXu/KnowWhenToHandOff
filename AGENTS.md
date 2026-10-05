@@ -85,8 +85,9 @@ abstractions unless the owner asks. Prefer deleting over adding.
   because impatient rose to 0.439. RL spike done (ADR-001): R1/R2 use LoRA and
   `max_response_tokens` 16384; ~4–10 min per step.
 - **Next steps (in order):** R1 then R2 on the long simulator (`serve` job
-  911507, queued for `gpu-long`) → final evaluations → T2.3 failure annotation
-  → report.
+  911507, queued for `gpu-long`) → final evaluations → report. T2.3 error
+  analysis done ([docs/error-analysis.md](docs/error-analysis.md); owner
+  agreed with 3 spot-checked annotations).
 - **Code:** the whole pipeline is implemented and CPU-verified, including RL
   learning curves (`scripts/rl_curves.py`). Tier results are in
   [docs/implementation-status.md](docs/implementation-status.md); laptop tier 1:
