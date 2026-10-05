@@ -47,3 +47,5 @@ Thumbs.db
 
 # Slurm job logs (slurm/submit.sh)
 logs/
+# Default output of ad-hoc `sbatch --wrap` jobs submitted from the checkout.
+slurm-*.out

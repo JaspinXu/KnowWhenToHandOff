@@ -25,6 +25,9 @@ usersim="${USERSIM_ENDPOINT:-${HANDOFF_SCRATCH}/state/endpoints/usersim.json}"
 python scripts/model_server.py wait --endpoint-file "${usersim}" \
   --timeout "${WAIT_USERSIM:-900}" --outlive-job "${SLURM_JOB_ID:-}" --warn-only
 export RAY_TMPDIR="${RAY_TMPDIR:-${TMPDIR:-/tmp}/ray-${USER}}"
+# Slurm on SoC also exports ROCR_VISIBLE_DEVICES with GPU gres; verl refuses to
+# start workers when it is set together with CUDA_VISIBLE_DEVICES.
+unset ROCR_VISIBLE_DEVICES
 if [[ -n "${RESUME:-}" ]]; then
   exec python scripts/train_rl.py "resume_run_id=${RESUME}"
 fi

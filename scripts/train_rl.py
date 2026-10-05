@@ -56,6 +56,7 @@ from handoff.train.rl_launch import (
     build_agent_loop_settings,
     build_verl_overrides,
     validate_overrides,
+    verl_environment,
 )
 
 ROOT = repo_root(__file__)
@@ -70,7 +71,7 @@ def _write_parquet(rows: list[dict], path: Path) -> None:
 
 def _run_verl(run_dir: Path, command: list[str], settings_path: Path) -> int:
     """Run verl in the run directory and record how it ended."""
-    environment = dict(os.environ, HANDOFF_AGENT_LOOP_CONFIG=str(settings_path))
+    environment = verl_environment(os.environ, settings_path)
     result = subprocess.run(command, cwd=run_dir, env=environment, check=False)
     if result.returncode == 0:
         finish_run(run_dir, status="completed")

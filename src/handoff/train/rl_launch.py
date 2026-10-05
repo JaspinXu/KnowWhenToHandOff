@@ -155,3 +155,19 @@ def validate_overrides(overrides: Sequence[str]) -> None:
 
     with initialize_config_dir(version_base=None, config_dir=str(verl_config_dir())):
         compose(config_name="ppo_trainer", overrides=list(overrides))
+
+
+# Slurm exports ROCR_VISIBLE_DEVICES next to CUDA_VISIBLE_DEVICES for GPU gres
+# on some clusters (NUS SoC does). verl's workers refuse to start when both are
+# set, and on NVIDIA GPUs the ROCm variable has no effect, so it is dropped.
+_CONFLICTING_GPU_VARS = ("ROCR_VISIBLE_DEVICES",)
+_GPU_SELECTORS = ("CUDA_VISIBLE_DEVICES", "HIP_VISIBLE_DEVICES")
+
+
+def verl_environment(base: Mapping[str, str], settings_path: Path) -> dict[str, str]:
+    """Environment for the verl subprocess: agent-loop settings, no GPU clash."""
+    environment = dict(base, HANDOFF_AGENT_LOOP_CONFIG=str(settings_path))
+    if any(environment.get(name) for name in _GPU_SELECTORS):
+        for name in _CONFLICTING_GPU_VARS:
+            environment.pop(name, None)
+    return environment

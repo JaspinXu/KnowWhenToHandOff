@@ -34,6 +34,7 @@ from handoff.train.rl_launch import (
     build_verl_overrides,
     flatten,
     format_value,
+    verl_environment,
 )
 from handoff.train.sft_batch import SFTBatchConfig, build_sft_batch
 from handoff.train.sft_data import (
@@ -416,3 +417,18 @@ def test_rl_curves_script_writes_tables(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(sys, "argv", ["rl_curves", "--name", "rl", "--runs", "R2=x"])
     with pytest.raises(SystemExit):
         module.main()
+
+
+def test_verl_environment_drops_rocr_when_cuda_is_set(tmp_path):
+    settings = tmp_path / "agent_loop.json"
+    slurm_env = {"CUDA_VISIBLE_DEVICES": "0", "ROCR_VISIBLE_DEVICES": "0"}
+    environment = verl_environment(slurm_env, settings)
+    assert "ROCR_VISIBLE_DEVICES" not in environment
+    assert environment["CUDA_VISIBLE_DEVICES"] == "0"
+    assert environment["HANDOFF_AGENT_LOOP_CONFIG"] == str(settings)
+    assert slurm_env["ROCR_VISIBLE_DEVICES"] == "0"  # caller's mapping untouched
+
+
+def test_verl_environment_keeps_rocr_without_cuda(tmp_path):
+    environment = verl_environment({"ROCR_VISIBLE_DEVICES": "1"}, tmp_path / "s.json")
+    assert environment["ROCR_VISIBLE_DEVICES"] == "1"
