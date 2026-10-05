@@ -544,7 +544,7 @@ gantt
 - [x] **T0.1 搭仓库骨架。**
     - *工作：* `pyproject.toml`（uv，Python 3.12）、`src/handoff`、ruff、pytest、pre-commit、跑 CPU 测试的 GitHub Actions、MIT LICENSE、`.gitignore`、`.env.example`。
     - *完成标准：* `uv run pytest` 通过，CI 为绿。
-- [ ] **T0.2 固定 τ²-bench 版本。**
+- [x] **T0.2 固定 τ²-bench 版本。**
     - *工作：* 锁定到某个 commit；用任意可用模型在 5 个航空任务上跑 `tau2 run`。
     - *完成标准：* `data/simulations/` 下有结果，并有一个解析结果的脚本。
 - [x] **T0.3 集群环境。**
@@ -553,7 +553,7 @@ gantt
 - [x] **T0.4 训练框架技术验证（ADR-001）。**
     - *工作：* 在 1–2 张卡上把 verl 的多轮 agent loop 示例端到端跑通。
     - *完成标准：* 写好 ADR-001，附实测单步耗时和是否采用的结论。
-- [ ] **T0.5 让 τ²-bench 接本地模型。**
+- [x] **T0.5 让 τ²-bench 接本地模型。**
     - *工作：* Agent 和模拟用户都用 LiteLLM 模型串（`openai/<服务名>` + `api_base`）。
     - *完成标准：* 不调用任何外部 API 跑完 5 个任务。
 

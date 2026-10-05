@@ -525,7 +525,7 @@ Each task has a definition of done (DoD). Tick the box when the DoD is met and t
 - [x] **T0.1 Scaffold the repo.**
     - *Work:* `pyproject.toml` (uv, Python 3.12), `src/handoff`, ruff, pytest, pre-commit, GitHub Actions for CPU tests, MIT LICENSE, `.gitignore`, `.env.example`.
     - *DoD:* `uv run pytest` passes and CI is green.
-- [ ] **T0.2 Pin τ²-bench.**
+- [x] **T0.2 Pin τ²-bench.**
     - *Work:* pin to a commit; run `tau2 run` on 5 airline tasks with any available model.
     - *DoD:* results in `data/simulations/` and a script that parses them.
 - [x] **T0.3 Bring up the cluster.**
@@ -534,7 +534,7 @@ Each task has a definition of done (DoD). Tick the box when the DoD is met and t
 - [x] **T0.4 Trainer spike (ADR-001).**
     - *Work:* run verl's multi-turn agent-loop example end to end on 1–2 GPUs.
     - *DoD:* ADR-001 written with measured step time and the go/no-go decision.
-- [ ] **T0.5 Point τ²-bench at local models.**
+- [x] **T0.5 Point τ²-bench at local models.**
     - *Work:* LiteLLM model strings (`openai/<served-name>` + `api_base`) for both the agent and the simulator.
     - *DoD:* a full 5-task run with no external API.
 
