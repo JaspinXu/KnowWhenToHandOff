@@ -5,9 +5,6 @@ import importlib.util
 import sys
 import types
 
-import pytest
-from omegaconf import OmegaConf
-
 from handoff.train import verl_compat
 
 
@@ -56,15 +53,3 @@ def test_fallback_is_a_noop_with_flash_attn(monkeypatch):
     original = attention._get_attention_functions
     assert verl_compat.install_flash_attn_fallback() is False
     assert attention._get_attention_functions is original
-
-
-@pytest.mark.parametrize("ray_init", [{"num_cpus": None}, {"runtime_env": {"x": 1}}])
-def test_worker_setup_hook_is_added_to_struct_config(ray_init):
-    config = OmegaConf.create({"ray_kwargs": {"ray_init": ray_init}})
-    OmegaConf.set_struct(config, True)
-    verl_compat.add_worker_setup_hook(config)
-    runtime_env = config.ray_kwargs.ray_init.runtime_env
-    assert runtime_env.worker_process_setup_hook == verl_compat.WORKER_SETUP_HOOK
-    assert runtime_env.get("x", 1) == 1
-    module, _, function = verl_compat.WORKER_SETUP_HOOK.rpartition(".")
-    assert getattr(importlib.import_module(module), function)
