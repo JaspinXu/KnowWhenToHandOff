@@ -22,6 +22,10 @@ from verl.trainer.main_ppo import TaskRunner, run_ppo
 from verl.utils.device import auto_set_device
 
 from handoff.train.export import export_pending, export_step
+from handoff.train.verl_compat import (
+    add_worker_setup_hook,
+    install_flash_attn_fallback,
+)
 
 VERL_CONFIG_DIR = str(Path(verl_main_ppo.__file__).resolve().parent / "config")
 logger = logging.getLogger(__name__)
@@ -60,8 +64,10 @@ class HandoffTaskRunner(TaskRunner):
 @hydra.main(config_path=VERL_CONFIG_DIR, config_name="ppo_trainer", version_base=None)
 def main(config) -> None:
     """Same flow as verl's ``main_ppo.main`` with a custom task runner."""
+    install_flash_attn_fallback()
     auto_set_device(config)
     config = migrate_legacy_reward_impl(config)
+    add_worker_setup_hook(config)
     run_ppo(config, task_runner_class=ray.remote(num_cpus=1)(HandoffTaskRunner))
 
 
