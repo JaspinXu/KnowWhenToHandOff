@@ -265,6 +265,7 @@ def test_verl_overrides_include_run_paths_and_optional_features(tmp_path):
     init = format_value(str(tmp_path / "b2"))  # Windows paths get quoted
     assert f"actor_rollout_ref.model.path={init}" in joined
     assert "data.max_response_length=24576" in joined
+    assert "actor_rollout_ref.rollout.max_model_len=32768" in joined
     assert "+actor_rollout_ref.model.override_config.attn_implementation=sdpa" in joined
     assert "lora_rank" not in joined
     fancy = launch_config(tmp_path, use_lora=True)

@@ -102,11 +102,17 @@ def build_verl_overrides(
     rl = config["rl"]
     episode = config["episode"]
     pairs = flatten(rl["verl"])
+    prompt_tokens = int(episode["max_prompt_tokens"])
+    response_tokens = int(episode["max_response_tokens"])
     run_specific: list[tuple[str, Any]] = [
         ("data.train_files", str(train_file)),
         ("data.val_files", str(val_file)),
-        ("data.max_prompt_length", int(episode["max_prompt_tokens"])),
-        ("data.max_response_length", int(episode["max_response_tokens"])),
+        ("data.max_prompt_length", prompt_tokens),
+        ("data.max_response_length", response_tokens),
+        # Left unset, verl's vLLM server takes the model's full context (262k
+        # for Qwen3-4B-Instruct-2507), whose KV cache does not fit next to the
+        # FSDP actor on one GPU. An episode never needs more than this.
+        ("actor_rollout_ref.rollout.max_model_len", prompt_tokens + response_tokens),
         ("data.seed", int(config["seed"])),
         ("actor_rollout_ref.model.path", str(config["policy"]["init_path"])),
         (
