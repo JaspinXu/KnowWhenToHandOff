@@ -243,7 +243,7 @@ While it runs (per-episode records, with timestamps, are in
 `runs/<id>/rollout_dumps/` and `validation_dumps/`):
 
 ```bash
-bash slurm/run.sh python scripts/monitor_rl.py --run R2-s1-<date> --baseline B2-dev-s0-<date>
+bash slurm/run.sh python scripts/monitor_rl.py --run R2-s1-<date> --baseline B2-dev-s0-<date> --self-baseline 128
 bash slurm/run.sh python scripts/rl_curves.py --name rl --runs R1=R1-s1-<date> R2=R2-s1-<date>
 ```
 
@@ -251,8 +251,11 @@ bash slurm/run.sh python scripts/rl_curves.py --name rl --runs R1=R1-s1-<date> R
 and per dev validation) to `reports/rl/` as tables and a figure; commit the
 final version with the report (T3.2–T3.4).
 
-Exit status 3 means a reward-hacking indicator drifted more than 2× from B2
-(AGENTS §7: stop the run with `scancel`); 4 means more than 5 % of recent
+Exit status 3 means a reward-hacking indicator drifted more than 2× from the
+run's own first two steps (`--self-baseline 128`, sampled from B2 at the
+training temperature; without it the greedy B2 dev evaluation is the reference,
+which under-counts transfers: R1 step 1 had 0.22 on negatives vs 0.04 in B2
+dev) (AGENTS §7: stop the run with `scancel`); 4 means more than 5 % of recent
 episodes were lost to infrastructure (check the simulator job).
 
 A run stopped by its time limit, a simulator outage or a crash resumes from its

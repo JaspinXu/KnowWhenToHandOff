@@ -19,7 +19,11 @@ from pathlib import Path
 
 from handoff.cli import CliError, compose_config, fail, repo_root, require_scratch
 from handoff.eval.metrics import drifted_indicators
-from handoff.train.monitors import read_rollout_records, rollout_indicators
+from handoff.train.monitors import (
+    read_rollout_records,
+    rollout_indicators,
+    split_self_baseline,
+)
 
 ROOT = repo_root(__file__)
 
@@ -29,6 +33,13 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run", required=True)
     parser.add_argument("--baseline", required=True, help="B2 evaluation run ID")
+    parser.add_argument(
+        "--self-baseline",
+        type=int,
+        default=0,
+        help="compare with the run's own first N training episodes (same sampling)"
+        " instead of the greedy B2 evaluation; B2 is still printed",
+    )
     parser.add_argument("--last", type=int, default=512)
     parser.add_argument("--factor", type=float, default=2.0)
     parser.add_argument("--max-infra", type=float, default=0.05)
@@ -45,18 +56,28 @@ def main() -> int:
         baseline_metrics = json.loads(
             (runs / args.baseline / "metrics.json").read_text(encoding="utf-8")
         )
-        baseline = baseline_metrics.get("hacking", {})
+        b2 = baseline_metrics.get("hacking", {})
+        baseline = b2
+        if args.self_baseline > 0:
+            first, rest = split_self_baseline(records, args.self_baseline)
+            if not rest:
+                raise CliError(f"fewer than {args.self_baseline} training episodes yet")
+            own = rollout_indicators(first, last=None)
+            baseline = {k: own.get(k) for k in b2}
+            current = rollout_indicators(rest, last=args.last)
         watched = {k: current.get(k) for k in baseline}
         flagged = drifted_indicators(watched, baseline, factor=args.factor)
     except (CliError, OSError, ValueError) as error:
         fail(str(error))
     print(
         json.dumps(
-            {"current": current, "baseline": baseline, "drifted": flagged}, indent=2
+            {"current": current, "baseline": baseline, "b2": b2, "drifted": flagged},
+            indent=2,
         )
     )
     if flagged:
-        print(f"DRIFT: {flagged} exceed {args.factor}x the B2 baseline; stop the run")
+        source = "the run's first episodes" if args.self_baseline else "the B2 baseline"
+        print(f"DRIFT: {flagged} exceed {args.factor}x {source}; stop the run")
         return 3
     infra = current.get("infra_failure_rate") or 0.0
     if infra > args.max_infra:

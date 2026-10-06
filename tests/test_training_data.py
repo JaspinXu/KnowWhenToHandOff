@@ -25,6 +25,7 @@ from handoff.rollout.schema import FormatError, Violation
 from handoff.train.monitors import (
     read_rollout_records,
     rollout_indicators,
+    split_self_baseline,
     step_curve,
 )
 from handoff.train.rl_data import rl_rows, rows_summary, stable_seed
@@ -433,3 +434,10 @@ def test_verl_environment_drops_rocr_when_cuda_is_set(tmp_path):
 def test_verl_environment_keeps_rocr_without_cuda(tmp_path):
     environment = verl_environment({"ROCR_VISIBLE_DEVICES": "1"}, tmp_path / "s.json")
     assert environment["ROCR_VISIBLE_DEVICES"] == "1"
+
+
+def test_split_self_baseline_drops_validation_and_keeps_order():
+    records = [{"i": 0}, {"i": 1, "validate": True}, {"i": 2}, {"i": 3}, {"i": 4}]
+    first, rest = split_self_baseline(records, 2)
+    assert [r["i"] for r in first] == [0, 2]
+    assert [r["i"] for r in rest] == [3, 4]

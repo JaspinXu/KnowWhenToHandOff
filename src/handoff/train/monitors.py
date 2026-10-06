@@ -92,6 +92,21 @@ def rollout_indicators(
     }
 
 
+def split_self_baseline(
+    records: Sequence[Mapping[str, Any]], n_baseline: int
+) -> tuple[list[Mapping[str, Any]], list[Mapping[str, Any]]]:
+    """Split training episodes into the run's first ``n_baseline`` and the rest.
+
+    The first training steps are sampled from the initial policy with the same
+    temperature and task mix as the rest of the run, so they are the fair
+    reference for drift. A B2 evaluation is greedy on dev and under-counts rare
+    actions such as transfers (R1, 7 Oct: 0.22 at step 1 vs 0.04 in B2 dev).
+    Validation episodes are dropped from both parts.
+    """
+    train = [r for r in records if not r.get("validate")]
+    return train[:n_baseline], train[n_baseline:]
+
+
 def step_curve(directory: Path) -> list[dict[str, float]]:
     """Per-step means of :data:`CURVE_KEYS` from a verl dump directory.
 

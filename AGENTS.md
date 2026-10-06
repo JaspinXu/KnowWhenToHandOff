@@ -657,6 +657,7 @@ the ADRs; this is the short history agents need.
 
 | Date | Decision |
 | --- | --- |
+| 7 Oct 2026 | R1's monitor flagged transfers on negatives (0.11 vs 0.04 in B2 dev). Per-step check: 0.22 at step 1 (B2 itself, before any update), then 0.00–0.25 with no trend, so not reward hacking; R1 continues. The B2 baseline is greedy dev evaluation; drift is now measured against the run's first 128 training episodes (`monitor_rl.py --self-baseline 128`). |
 | 5 Oct 2026 | R1/R2 use LoRA (r=64) and 16,384 response tokens after the spike (ADR-001). The A100 simulator queue is the bottleneck: keep a running `serve` job until its time limit (SoC did not cancel an idle one in practice) and use 3-hour `gpu`-partition simulators for short evaluation batches. |
 | 30 Sep 2026 | Owner asked to audit and complete the code, then tidy code and every text file (delete redundancy, fill gaps, mind token use). Added `rl_curves.py` (the only missing DoD code) and `docs/model-card.md`; eval presets extend `configs/eval/_common.yaml`; `code-readiness.md` merged into `implementation-status.md`. Keep this file under ~40k characters (Claude loads it every session): link instead of repeating. |
 | 29 Sep 2026 | Owner switches between Claude and Codex; AGENTS.md must be kept comprehensive and updated every session (§16). `CLAUDE.md` imports this file. |
