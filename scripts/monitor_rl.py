@@ -21,6 +21,7 @@ from handoff.cli import CliError, compose_config, fail, repo_root, require_scrat
 from handoff.eval.metrics import drifted_indicators
 from handoff.train.monitors import (
     read_rollout_records,
+    reference_max,
     rollout_indicators,
     split_self_baseline,
 )
@@ -37,8 +38,9 @@ def main() -> int:
         "--self-baseline",
         type=int,
         default=0,
-        help="compare with the run's own first N training episodes (same sampling)"
-        " instead of the greedy B2 evaluation; B2 is still printed",
+        help="also use the run's own first N training episodes (same sampling) as"
+        " a reference; an indicator is flagged only above factor x the larger of"
+        " the two references",
     )
     parser.add_argument("--last", type=int, default=512)
     parser.add_argument("--factor", type=float, default=2.0)
@@ -63,7 +65,7 @@ def main() -> int:
             if not rest:
                 raise CliError(f"fewer than {args.self_baseline} training episodes yet")
             own = rollout_indicators(first, last=None)
-            baseline = {k: own.get(k) for k in b2}
+            baseline = {k: reference_max(own.get(k), b2.get(k)) for k in b2}
             current = rollout_indicators(rest, last=args.last)
         watched = {k: current.get(k) for k in baseline}
         flagged = drifted_indicators(watched, baseline, factor=args.factor)

@@ -107,6 +107,17 @@ def split_self_baseline(
     return train[:n_baseline], train[n_baseline:]
 
 
+def reference_max(own: float | None, b2: float | None) -> float | None:
+    """Larger of the run's own start and B2 (either may be missing).
+
+    A few hundred start-up episodes can show zero of a rare event (format
+    errors: 0 of 128 in R1) although B2 has it, so drift is flagged only above
+    both references.
+    """
+    values = [v for v in (own, b2) if v is not None]
+    return max(values) if values else None
+
+
 def step_curve(directory: Path) -> list[dict[str, float]]:
     """Per-step means of :data:`CURVE_KEYS` from a verl dump directory.
 

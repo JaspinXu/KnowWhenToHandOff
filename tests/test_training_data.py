@@ -24,6 +24,7 @@ from handoff.rollout.chat_delta import ChatDeltaTokenizer
 from handoff.rollout.schema import FormatError, Violation
 from handoff.train.monitors import (
     read_rollout_records,
+    reference_max,
     rollout_indicators,
     split_self_baseline,
     step_curve,
@@ -441,3 +442,10 @@ def test_split_self_baseline_drops_validation_and_keeps_order():
     first, rest = split_self_baseline(records, 2)
     assert [r["i"] for r in first] == [0, 2]
     assert [r["i"] for r in rest] == [3, 4]
+
+
+def test_reference_max_ignores_missing_values():
+    assert reference_max(0.0, 0.02) == 0.02
+    assert reference_max(0.125, 0.04) == 0.125
+    assert reference_max(None, 0.3) == 0.3
+    assert reference_max(None, None) is None
