@@ -15,5 +15,22 @@
       "run": 1
     },
     "config_sha256": "dd78caab9b3333c7e2d3d5d1ff8bbb45eb5de229b6d4b8a47885d169f4156b20"
+  },
+  {
+    "label": "R2",
+    "run_id": "R2-s1-20261006",
+    "eval_name": null,
+    "execution_kind": "real",
+    "git_sha": "c6d50dfad3439b9ef92976cca7aedfcfed8b77f7",
+    "git_dirty": false,
+    "tau2_sha": "fc0055dc4e0a316c3f83133267fbd6faaa770992",
+    "model_revisions": {
+      "policy": "sha256:36bc27053332e4d01462f0e0b803c9db0f442095f8356b669585090a8e4cb57e",
+      "user_sim": "0d7cf23991f47feeb3a57ecb4c9cee8ea4a17bfe"
+    },
+    "seeds": {
+      "run": 1
+    },
+    "config_sha256": "28d77598eead9b344822ec98a0eba0a478d2019d697a04539382aff1aa6efc22"
   }
 ]
