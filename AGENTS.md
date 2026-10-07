@@ -73,7 +73,19 @@ abstractions unless the owner asks. Prefer deleting over adding.
 > Update this section at the end of every session (§16). Newest first; keep it
 > short and factual. Code verification is not a research result.
 
-**As of 5 Oct 2026** (audits in §17):
+**As of 8 Oct 2026** (audits in §17):
+
+- **All runs done (6–7 Oct; `reports/main/`):** test_main success B0 0.306,
+  B1 0.398, B2 0.327, R1 0.347, R2 0.342; paired Δ vs B2: R1 +0.020
+  [−0.066, 0.107], R2 +0.015 [−0.056, 0.082] (RQ1: RL does not beat SFT on
+  success; R1 pass^4 0.224 vs 0.102). test_handoff F1 / precision / recall /
+  over-escalation: B2 0.768 / 0.976 / 0.633 / 0.016, R1 0.802 / 0.689 / 0.959
+  / 0.462, R2 0.812 / 0.886 / 0.750 / 0.103 (RQ2: R2 keeps recall, cuts R1's
+  over-escalation). R1 over-escalation grows late (post-hoc step 40: 0.141).
+  Worst-style success B2 0.327, R1 0.286, R2 0.316 (RQ3: no change).
+  RQ4 audit in [docs/rl-audit.md](docs/rl-audit.md) (owner agreed with 3 spot-checks).
+- **Next steps:** report (T4.2) → slides and demo
+  (T4.3) → release (T4.4). No more GPU runs planned.
 
 - **Experiments (5 Oct):** teacher → `b2_v1` SFT data (790 dialogues) → B2
   (LoRA SFT r=64; full fine-tuning ran out of memory on the H100) →

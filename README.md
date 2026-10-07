@@ -576,23 +576,23 @@ Each task has a definition of done (DoD). Tick the box when the DoD is met and t
 - [x] **T3.1 `Tau2AgentLoop` for verl.**
     - *Work:* token-in/token-out generation.
     - *DoD:* a parity test on replayed trajectories matches the eval driver's reward. Met on scripted tau2 conversations (`tests/test_tau2_integration.py`); GPU validation follows in T0.4.
-- [ ] **T3.2 Reward composer.**
+- [x] **T3.2 Reward composer.**
     - *Work:* implement the reward with per-term logging and λs set in config.
     - *DoD:* unit tests and a reward-statistics panel.
-- [ ] **T3.3 R1: GRPO with outcome reward.**
+- [x] **T3.3 R1: GRPO with outcome reward.**
     - *DoD:* learning curves; dev ≥ B2.
-- [ ] **T3.4 R2: composite reward.**
+- [x] **T3.4 R2: composite reward.**
     - *DoD:* learning curves; R2 compared with R1 on dev.
-- [ ] **T3.5 Reward-hacking check.**
+- [x] **T3.5 Reward-hacking check.**
     - *Work:* track transfer rate and episode length during training; review 20 dialogues.
     - *DoD:* list of observed behaviours (RQ4).
-- [ ] **T3.6 Final evaluation.**
+- [x] **T3.6 Final evaluation.**
     - *Work:* test protocols for the frozen checkpoints (B0, B1, B2, R1, R2).
     - *DoD:* final tables; **experiment freeze on 1 Nov**.
 
 ### Phase 4 — Write-up and release (2 – 15 Nov)
 
-- [ ] **T4.1 Reproducible figures and tables.**
+- [x] **T4.1 Reproducible figures and tables.**
     - *Work:* generate them from run IDs into `reports/`.
 - [ ] **T4.2 Report.**
     - *Work:* ≤ 10 pages, Vancouver references, contribution statement and AI-use statement.

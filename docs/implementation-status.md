@@ -28,11 +28,11 @@ person still has to do for the README definition of done.
 | T2.2 | SFT trainer (full, LoRA, FSDP) | Done 5 Oct: LoRA SFT (full fine-tuning OOM), B2 evaluated |
 | T2.3 | Comparison and failure packets | Done 5 Oct: [error analysis](error-analysis.md) |
 | T3.1 | `Tau2AgentLoop`, parity test with the evaluation driver | GPU-validated in the spike (5 Oct) |
-| T3.2 | Reward composer, per-term logging, the two reward presets, per-step reward-term statistics (`rl_curves.py`) | Reward statistics from a real run |
-| T3.3–T3.4 | GRPO launcher, checkpoint export, resume, learning curves (`rl_curves.py`) | The R1 and R2 runs |
-| T3.5 | Reward-hacking monitor, review packet | Review 20 dialogues |
-| T3.6 | Test protocols, test ledger | Final evaluation |
-| T4.1 | Tables, figures and sources from run IDs | Real results |
+| T3.2 | Reward composer, per-term logging, the two reward presets, per-step reward-term statistics (`rl_curves.py`) | Done 7 Oct: reward-term curves in `reports/rl/` |
+| T3.3–T3.4 | GRPO launcher, checkpoint export, resume, learning curves (`rl_curves.py`) | Done 6–7 Oct: `R1-s1-20261006`, `R2-s1-20261006` (LoRA, 60 steps) |
+| T3.5 | Reward-hacking monitor, review packet | Done 8 Oct: 40 dialogues annotated, owner spot-checked 3 ([rl-audit](rl-audit.md)) |
+| T3.6 | Test protocols, test ledger | Done 7 Oct: `reports/main/` |
+| T4.1 | Tables, figures and sources from run IDs | Done: `reports/m1`, `reports/main`, `reports/rl` |
 | T4.3 | HTML demo page and terminal demo | Slides, recorded demo |
 | T4.2, T4.4 | Model card template ([model card](model-card.md)) | Report, release |
 
