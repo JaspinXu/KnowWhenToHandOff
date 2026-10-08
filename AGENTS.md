@@ -95,7 +95,7 @@ on its own terms; write-ups (reports, venue papers) live outside it
   risk register and compute plan were removed); `scripts/export_release.py` packages the task set, run
   records, SFT data and RL rollouts for Hugging Face (`docs/release.md`); Hugging Face account `JaspinXu`, and `scripts/upload_kaggle.py` mirrors the dataset (not the weights) to Kaggle.
 - **Uploads (8 Oct, all private):** Hugging Face `JaspinXu/KnowWhenToHandOff-Qwen3-4B-{R2,R1,SFT}`
-  (16 files each) and `JaspinXu/KnowWhenToHandOff-data` (160 files: 22 runs, 124.9 MB);
+  (14 files each; bookkeeping files with cluster paths removed and history squashed) and `JaspinXu/KnowWhenToHandOff-data` (160 files: 22 runs, 124.9 MB);
   Kaggle `zhaobinxu/knowwhentohandoff-data` (dataset only; sub-folders as zip).
 - **Next steps (owner):** make the GitHub repository, the four Hugging Face
   repositories and the Kaggle dataset public together. No more GPU runs.
