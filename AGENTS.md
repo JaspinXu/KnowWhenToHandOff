@@ -91,7 +91,7 @@ on its own terms; write-ups (reports, venue papers) live outside it
   `tests/test_cli_pipeline.py` 6 passed on a CPU node (the login node's memory
   cap breaks it: run tests with `submit.sh cpu`, never `run.sh`).
 - **Release (8 Oct):** README rewritten (results first, figures in
-  `docs/assets/` from `scripts/readme_figures.py`; the old execution plan,
+  `docs/assets/`, vector SVG in EN and ZH from `scripts/readme_figures.py`; the old execution plan,
   risk register and compute plan were removed); `scripts/export_release.py` packages the task set, run
   records, SFT data and RL rollouts for Hugging Face (`docs/release.md`).
 - **Next steps (owner):** run the release export on the cluster and upload to

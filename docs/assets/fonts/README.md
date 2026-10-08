@@ -1,9 +1,11 @@
 # Figure fonts
 
-Used by `scripts/readme_figures.py` to render the README figures. Both families
-are under the SIL Open Font License 1.1:
+Used by `scripts/readme_figures.py` to render the README figures. All three
+families are under the SIL Open Font License 1.1 (latin and greek subsets,
+from @fontsource):
 
-- IBM Plex Sans and IBM Plex Mono, © IBM Corp. (latin subsets, from @fontsource)
-- Source Serif 4, © Adobe (latin subset, variable weight, from @fontsource)
+- Space Grotesk, © The Space Grotesk Project Authors (titles and numbers)
+- Inter, © The Inter Project Authors (body text)
+- JetBrains Mono, © The JetBrains Mono Project Authors (labels and code)
 
-Chinese text falls back to the system's Noto Sans/Serif CJK SC.
+Chinese text falls back to the system's Noto Sans CJK SC.
