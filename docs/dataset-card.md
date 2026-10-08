@@ -24,6 +24,7 @@ variants). Code: <https://github.com/JaspinXu/KnowWhenToHandOff>. Models:
 [`KnowWhenToHandOff-Qwen3-4B-R2`](https://huggingface.co/JaspinXu/KnowWhenToHandOff-Qwen3-4B-R2),
 [`-R1`](https://huggingface.co/JaspinXu/KnowWhenToHandOff-Qwen3-4B-R1),
 [`-SFT`](https://huggingface.co/JaspinXu/KnowWhenToHandOff-Qwen3-4B-SFT).
+Kaggle mirror: <https://www.kaggle.com/datasets/zhaobinxu/knowwhentohandoff-data>.
 
 > **Synthetic data only.** All users are simulated (Qwen3-30B-A3B-Instruct-2507)
 > on τ²-bench's synthetic airline and retail databases; names, IDs and

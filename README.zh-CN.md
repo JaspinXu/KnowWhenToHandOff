@@ -128,7 +128,7 @@ R1/R2：从 B2 出发，用 verl 0.8 和 vLLM 0.12 做 GRPO；每步 8 个任务
 | [`KnowWhenToHandOff-Qwen3-4B-SFT`](https://huggingface.co/JaspinXu/KnowWhenToHandOff-Qwen3-4B-SFT) | SFT 起点（B2） | [B2](docs/model-cards/B2.md) |
 | [`KnowWhenToHandOff-data`](https://huggingface.co/datasets/JaspinXu/KnowWhenToHandOff-data) | 转人工任务集与划分、所有运行的轨迹和指标、GRPO 训练 rollouts、SFT 筛选记录 | [数据集卡](docs/dataset-card.md) |
 
-任务集和清单也在本仓库的 [`data/`](data/) 中；对话样例在 [`reports/demo/`](reports/demo/)。
+任务集和清单也在本仓库的 [`data/`](data/) 中；对话样例在 [`reports/demo/`](reports/demo/)。数据集在 [Kaggle](https://www.kaggle.com/datasets/zhaobinxu/knowwhentohandoff-data) 上有镜像。
 
 ## 复现
 

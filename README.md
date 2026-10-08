@@ -158,7 +158,8 @@ upload steps in [docs/release.md](docs/release.md).
 | [`KnowWhenToHandOff-data`](https://huggingface.co/datasets/JaspinXu/KnowWhenToHandOff-data) | Hand-off task set and splits, every run's trajectories and metrics, GRPO training rollouts, SFT selection | [dataset card](docs/dataset-card.md) |
 
 The task set and manifests are also in this repository
-([`data/`](data/)); a dialogue sample is in [`reports/demo/`](reports/demo/).
+([`data/`](data/)); a dialogue sample is in [`reports/demo/`](reports/demo/). The dataset is
+mirrored on [Kaggle](https://www.kaggle.com/datasets/zhaobinxu/knowwhentohandoff-data).
 
 ## Reproduce
 

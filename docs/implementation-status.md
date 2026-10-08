@@ -9,7 +9,7 @@ Owner decisions and scope changes are in [AGENTS.md §17](../AGENTS.md#17-decisi
 ## Task status
 
 "Code" means implemented and tested on CPU; "Run" is what the cluster or a
-person still had to do for the definition of done (only the Hugging Face upload is open).
+person still had to do for the definition of done (uploads done 8 Oct; going public is open).
 
 | Task | Code | Run / review still needed |
 | --- | --- | --- |
@@ -35,7 +35,7 @@ person still had to do for the definition of done (only the Hugging Face upload 
 | T4.1 | Tables, figures and sources from run IDs | Done: `reports/m1`, `reports/main`, `reports/rl` |
 | T4.2 | Write-up (kept outside the repository) | Done 8 Oct |
 | T4.3 | HTML demo page (`render_demo.py`, also `--jsonl`), terminal demo | Done 8 Oct: `reports/demo/` (R2 hand-offs, R1 over-escalation; HTML + JSONL) |
-| T4.4 | README, [model cards](model-cards/README.md), [release export](release.md) | Trajectory sample done (`reports/demo/*.jsonl`); owner: Hugging Face upload |
+| T4.4 | README, [model cards](model-cards/README.md), [release export](release.md) | Trajectory sample done (`reports/demo/*.jsonl`); uploaded 8 Oct, private: 3 models + dataset on Hugging Face (`JaspinXu`), dataset mirror on Kaggle (`zhaobinxu`) |
 
 ## Verification
 

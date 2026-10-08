@@ -94,9 +94,11 @@ on its own terms; write-ups (reports, venue papers) live outside it
   `docs/assets/`, PNG in EN and ZH from `scripts/readme_figures.py`; the old execution plan,
   risk register and compute plan were removed); `scripts/export_release.py` packages the task set, run
   records, SFT data and RL rollouts for Hugging Face (`docs/release.md`); Hugging Face account `JaspinXu`, and `scripts/upload_kaggle.py` mirrors the dataset (not the weights) to Kaggle.
-- **Next steps (owner):** run the release export on the cluster and upload to
-  Hugging Face (private first); make the GitHub repository public later. No more
-  GPU runs.
+- **Uploads (8 Oct, all private):** Hugging Face `JaspinXu/KnowWhenToHandOff-Qwen3-4B-{R2,R1,SFT}`
+  (16 files each) and `JaspinXu/KnowWhenToHandOff-data` (160 files: 22 runs, 124.9 MB);
+  Kaggle `zhaobinxu/knowwhentohandoff-data` (dataset only; sub-folders as zip).
+- **Next steps (owner):** make the GitHub repository, the four Hugging Face
+  repositories and the Kaggle dataset public together. No more GPU runs.
 
 - **Experiments (5 Oct):** teacher → `b2_v1` SFT data (790 dialogues) → B2
   (LoRA SFT r=64; full fine-tuning ran out of memory on the H100) →
