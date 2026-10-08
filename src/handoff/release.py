@@ -150,3 +150,41 @@ def run_index(items: Sequence[Item]) -> list[dict[str, object]]:
                 if isinstance(value, int | float):
                     row[key] = round(float(value), 3)
     return list(rows.values())
+
+
+# --------------------------------------------------------------------------- Kaggle
+KAGGLE_SLUG = "knowwhentohandoff-data"
+KAGGLE_TITLE = "KnowWhenToHandOff: hand-off tasks and runs"
+KAGGLE_SUBTITLE = "tau2-bench hand-off task set, evaluation records and GRPO rollouts"
+HF_DATASET_URL = "https://huggingface.co/datasets/JaspinXu/KnowWhenToHandOff-data"
+
+
+def strip_front_matter(text: str) -> str:
+    """Drop a leading YAML block (``---`` ... ``---``) from a Markdown card."""
+    if text.startswith("---\n"):
+        end = text.find("\n---\n", 4)
+        if end != -1:
+            return text[end + 5 :].lstrip("\n")
+    return text
+
+
+def kaggle_metadata(user: str, card: str) -> dict[str, object]:
+    """``dataset-metadata.json`` for the Kaggle mirror of the dataset release.
+
+    Kaggle's licence list has no MIT entry, so the licence is ``other`` and the
+    description states it (MIT, derived from tau2-bench).
+    """
+    description = strip_front_matter(card).rstrip() + (
+        f"\n\nPrimary copy and model weights: {HF_DATASET_URL}. "
+        "Licence: MIT (see *Licence and attribution* above).\n"
+    )
+    meta: dict[str, object] = {
+        "title": KAGGLE_TITLE,
+        "subtitle": KAGGLE_SUBTITLE,
+        "id": f"{user}/{KAGGLE_SLUG}",
+        "licenses": [{"name": "other"}],
+        "description": description,
+    }
+    if not 6 <= len(KAGGLE_TITLE) <= 50 or not 20 <= len(KAGGLE_SUBTITLE) <= 80:
+        raise ValueError("Kaggle title must be 6-50 and subtitle 20-80 characters")
+    return meta

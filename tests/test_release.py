@@ -71,3 +71,17 @@ def test_scrub_replaces_longest_path_first():
     text = "/home/u/handoff/runs and /home/u/x"
     pairs = [("/home/u", "~"), ("/home/u/handoff", "<scratch>")]
     assert scrub(text, pairs) == "<scratch>/runs and ~/x"
+
+
+def test_kaggle_metadata_strips_card_front_matter():
+    from handoff.release import kaggle_metadata
+
+    card = "---\nlicense: mit\n---\n\n# Title\n\nBody text.\n"
+    meta = kaggle_metadata("someone", card)
+    assert meta["id"] == "someone/knowwhentohandoff-data"
+    assert meta["licenses"] == [{"name": "other"}]
+    assert str(meta["description"]).startswith("# Title")
+    assert "license: mit" not in str(meta["description"])
+    assert "Licence: MIT" in str(meta["description"])
+    assert 6 <= len(str(meta["title"])) <= 50
+    assert 20 <= len(str(meta["subtitle"])) <= 80

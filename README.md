@@ -152,10 +152,10 @@ upload steps in [docs/release.md](docs/release.md).
 
 | Artefact | What | Card |
 | --- | --- | --- |
-| `KnowWhenToHandOff-Qwen3-4B-R2` | GRPO with the Responsible-AI reward (best-calibrated hand-offs) | [R2](docs/model-cards/R2.md) |
-| `KnowWhenToHandOff-Qwen3-4B-R1` | GRPO with the task reward (the over-escalation case) | [R1](docs/model-cards/R1.md) |
-| `KnowWhenToHandOff-Qwen3-4B-SFT` | The SFT warm start (B2) | [B2](docs/model-cards/B2.md) |
-| `KnowWhenToHandOff-data` | Hand-off task set and splits, every run's trajectories and metrics, GRPO training rollouts, SFT selection | [dataset card](docs/dataset-card.md) |
+| [`KnowWhenToHandOff-Qwen3-4B-R2`](https://huggingface.co/JaspinXu/KnowWhenToHandOff-Qwen3-4B-R2) | GRPO with the Responsible-AI reward (best-calibrated hand-offs) | [R2](docs/model-cards/R2.md) |
+| [`KnowWhenToHandOff-Qwen3-4B-R1`](https://huggingface.co/JaspinXu/KnowWhenToHandOff-Qwen3-4B-R1) | GRPO with the task reward (the over-escalation case) | [R1](docs/model-cards/R1.md) |
+| [`KnowWhenToHandOff-Qwen3-4B-SFT`](https://huggingface.co/JaspinXu/KnowWhenToHandOff-Qwen3-4B-SFT) | The SFT warm start (B2) | [B2](docs/model-cards/B2.md) |
+| [`KnowWhenToHandOff-data`](https://huggingface.co/datasets/JaspinXu/KnowWhenToHandOff-data) | Hand-off task set and splits, every run's trajectories and metrics, GRPO training rollouts, SFT selection | [dataset card](docs/dataset-card.md) |
 
 The task set and manifests are also in this repository
 ([`data/`](data/)); a dialogue sample is in [`reports/demo/`](reports/demo/).

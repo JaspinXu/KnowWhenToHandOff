@@ -4,7 +4,7 @@ Needs ``hf auth login`` once (your own write token) and the dataset folder from
 ``scripts/export_release.py``. Run it as a CPU job, not on the login node.
 
 Example:
-    python scripts/upload_release.py --user <hf-user>
+    python scripts/upload_release.py --user JaspinXu
 """
 
 from __future__ import annotations

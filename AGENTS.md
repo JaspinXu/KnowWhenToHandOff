@@ -93,7 +93,7 @@ on its own terms; write-ups (reports, venue papers) live outside it
 - **Release (8 Oct):** README rewritten (results first, figures in
   `docs/assets/`, PNG in EN and ZH from `scripts/readme_figures.py`; the old execution plan,
   risk register and compute plan were removed); `scripts/export_release.py` packages the task set, run
-  records, SFT data and RL rollouts for Hugging Face (`docs/release.md`).
+  records, SFT data and RL rollouts for Hugging Face (`docs/release.md`); Hugging Face account `JaspinXu`, and `scripts/upload_kaggle.py` mirrors the dataset (not the weights) to Kaggle.
 - **Next steps (owner):** run the release export on the cluster and upload to
   Hugging Face (private first); make the GitHub repository public later. No more
   GPU runs.
