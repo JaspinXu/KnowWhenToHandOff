@@ -577,7 +577,7 @@ gantt
 
 Each task has a definition of done (DoD). Tick the box when the DoD is met and the commit references the task ID.
 
-**Status (8 Oct 2026):** all experiments are done (T0–T4.1); T4.2 report and T4.3 slides are drafted. A box is ticked only when the whole DoD is met; most DoDs also need cluster runs or human reviews, listed per task in the [implementation status](docs/implementation-status.md).
+**Status (8 Oct 2026):** all experiments are done (T0–T4.1); T4.2 report, T4.3 slides and demo pages are done; T4.4 waits for the Hugging Face upload. A box is ticked only when the whole DoD is met; most DoDs also need cluster runs or human reviews, listed per task in the [implementation status](docs/implementation-status.md).
 
 ### Phase 0 — Foundations (28 Sep – 4 Oct)
 
@@ -656,7 +656,7 @@ Each task has a definition of done (DoD). Tick the box when the DoD is met and t
 - [x] **T4.2 Report.**
     - *Work:* ≤ 10 pages, Vancouver references, contribution statement and AI-use statement.
     - *Due:* 15 Nov.
-- [ ] **T4.3 Slides (15 minutes) and demo.**
+- [x] **T4.3 Slides (15 minutes) and demo.**
     - *Work:* the demo shows a hand-off with the policy citation.
     - *When:* presentation in the week of 10 Nov.
 - [ ] **T4.4 Release.**

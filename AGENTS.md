@@ -90,10 +90,14 @@ abstractions unless the owner asks. Prefer deleting over adding.
   artifact (16 slides, speaker notes). T4.4: README results (EN + zh-CN),
   model cards in `docs/model-cards/`, `render_demo.py --jsonl` for the
   trajectory sample. Laptop tier 1: 283 passed, 28 skipped; ruff clean.
-- **Next steps (owner):** review the report and slides; on the cluster render
-  `reports/demo/` (commands in the 8 Oct HANDOFF note) and commit it; upload R1/R2
-  to Hugging Face (`docs/model-cards/README.md`); rotate the leaked SoCLaaS key.
-  No more GPU runs planned.
+- **Demo (8 Oct, `6e9f5de`):** `reports/demo/R2-handoffs.*` and
+  `R1-over-escalation.*` (HTML + JSONL) rendered on a CPU node; tier-2
+  `tests/test_cli_pipeline.py` 6 passed on a CPU node (the login node's memory
+  cap breaks it: run tests with `submit.sh cpu`, never `run.sh`). Owner
+  approved the report and slides.
+- **Next steps (owner):** upload R1/R2 to Hugging Face
+  (`docs/model-cards/README.md`) after the report; present in the week of
+  10 Nov; upload `report/submission.pdf` to Canvas by 15 Nov. No more GPU runs.
 
 - **Experiments (5 Oct):** teacher → `b2_v1` SFT data (790 dialogues) → B2
   (LoRA SFT r=64; full fine-tuning ran out of memory on the H100) →

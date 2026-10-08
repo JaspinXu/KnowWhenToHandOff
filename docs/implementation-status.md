@@ -34,8 +34,8 @@ person still has to do for the README definition of done.
 | T3.6 | Test protocols, test ledger | Done 7 Oct: `reports/main/` |
 | T4.1 | Tables, figures and sources from run IDs | Done: `reports/m1`, `reports/main`, `reports/rl` |
 | T4.2 | Report source, figures script, public and submission builds ([report/](../report/README.md)) | Drafted 8 Oct (body 9 pages); owner review |
-| T4.3 | HTML demo page (`render_demo.py`, now also `--jsonl`), terminal demo; slides (Claude Slides artifact) | Slides drafted 8 Oct; owner renders `reports/demo/` on the cluster |
-| T4.4 | README results, [model cards](model-cards/README.md) for R1 and R2, reproduction commands | Owner: demo/trajectory sample, Hugging Face upload |
+| T4.3 | HTML demo page (`render_demo.py`, now also `--jsonl`), terminal demo; slides (Claude Slides artifact) | Done 8 Oct: slides; `reports/demo/` (R2 hand-offs, R1 over-escalation; HTML + JSONL) |
+| T4.4 | README results, [model cards](model-cards/README.md) for R1 and R2, reproduction commands | Trajectory sample done (`reports/demo/*.jsonl`); owner: Hugging Face upload |
 
 ## Verification
 
