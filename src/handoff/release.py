@@ -203,13 +203,74 @@ def strip_front_matter(text: str) -> str:
     return text
 
 
+KAGGLE_LOADING = """## Loading
+
+On Kaggle the files are under `/kaggle/input/knowwhentohandoff-data/`:
+
+```python
+import json
+from pathlib import Path
+
+import pandas as pd
+
+root = Path("/kaggle/input/knowwhentohandoff-data")
+runs = pd.read_json(root / "runs.jsonl", lines=True)            # run index
+airline = json.loads((root / "tasks/v1/airline_tasks.json").read_text())
+run = root / "runs" / "R2-final-test_handoff-s0-20261007"
+dialogues = pd.read_json(run / "trajectories.jsonl", lines=True)
+```
+"""
+KAGGLE_KEYWORDS = [
+    "artificial intelligence",
+    "nlp",
+    "reinforcement learning",
+    "text",
+    "computer science",
+    "deep learning",
+]
+KAGGLE_FILES = {
+    "runs.jsonl": "One row per released run: run ID, file count and headline "
+    "metrics (success, hand-off F1, over-escalation).",
+    "tasks/v1/airline_tasks.json": "Airline hand-off tasks in tau2-bench's task "
+    "schema (explicit request, out of scope, hard negative).",
+    "tasks/v1/retail_tasks.json": "Retail hand-off tasks in tau2-bench's task "
+    "schema (explicit request, out of scope, hard negative).",
+    "tasks/manifests/labels_v1.json": "Should-transfer label and rule for every "
+    "upstream tau2-bench task.",
+    "tasks/manifests/splits_v1.json": "Train / dev / test task IDs per domain, "
+    "with hashes.",
+    "tasks/manifests/handoff_tasks_v1.json": "Every derived hand-off task with its "
+    "source task, split, kind and label.",
+    "tasks/manifests/label_overrides_v1.json": "Audited label corrections with "
+    "reasons.",
+    "sft/b2_v1/records_meta.jsonl": "Which teacher dialogues were kept for SFT "
+    "and why.",
+}
+KAGGLE_SOURCES = (
+    "Generated with the KnowWhenToHandOff code "
+    "(https://github.com/JaspinXu/KnowWhenToHandOff) on the airline and retail "
+    "domains of tau2-bench (https://github.com/sierra-research/tau2-bench, MIT); "
+    "users simulated by Qwen3-30B-A3B-Instruct-2507, agents are Qwen3 models. "
+    f"No real user data. Primary copy: {HF_DATASET_URL}."
+)
+
+
 def kaggle_metadata(user: str, card: str) -> dict[str, object]:
     """``dataset-metadata.json`` for the Kaggle mirror of the dataset release.
 
-    Kaggle's licence list has no MIT entry, so the licence is ``other`` and the
-    description states it (MIT, derived from tau2-bench).
+    The description is the dataset card without its YAML block and title (Kaggle
+    shows the title itself), with a Kaggle-specific *Loading* section. Kaggle's
+    licence list has no MIT entry, so the licence is ``other`` and the
+    description states it. Tags that Kaggle does not know are ignored by Kaggle.
     """
-    description = strip_front_matter(card).rstrip() + (
+    body = strip_front_matter(card)
+    if body.startswith("# "):
+        body = body.split("\n", 1)[1].lstrip("\n")
+    if "## Loading" in body:
+        head, rest = body.split("## Loading", 1)
+        tail = rest[rest.find("\n## ") + 1 :] if "\n## " in rest else ""
+        body = head + KAGGLE_LOADING + "\n" + tail
+    description = body.rstrip() + (
         f"\n\nPrimary copy and model weights: {HF_DATASET_URL}. "
         "Licence: MIT (see *Licence and attribution* above).\n"
     )
@@ -218,7 +279,13 @@ def kaggle_metadata(user: str, card: str) -> dict[str, object]:
         "subtitle": KAGGLE_SUBTITLE,
         "id": f"{user}/{KAGGLE_SLUG}",
         "licenses": [{"name": "other"}],
+        "keywords": KAGGLE_KEYWORDS,
         "description": description,
+        "resources": [
+            {"path": path, "description": text} for path, text in KAGGLE_FILES.items()
+        ],
+        "expectedUpdateFrequency": "never",
+        "userSpecifiedSources": KAGGLE_SOURCES,
     }
     if not 6 <= len(KAGGLE_TITLE) <= 50 or not 20 <= len(KAGGLE_SUBTITLE) <= 80:
         raise ValueError("Kaggle title must be 6-50 and subtitle 20-80 characters")

@@ -29,7 +29,7 @@ from pathlib import Path
 from handoff.release import KAGGLE_SLUG, kaggle_metadata
 
 ROOT = Path(__file__).resolve().parents[1]
-COVER = ROOT / "docs" / "assets" / "hero-en.png"
+COVER = ROOT / "docs" / "assets" / "kaggle-cover.png"
 
 
 def main() -> int:
@@ -81,8 +81,9 @@ def main() -> int:
         shutil.rmtree(stage)
 
     def top_card(folder: str, names: list[str]) -> list[str]:
-        # Only the top-level Hugging Face card; keep README.md files in sub-folders.
-        return ["README.md"] if Path(folder) == data else []
+        # Top level only: the Hugging Face card (the description replaces it) and
+        # SHA256SUMS (Kaggle would preview it first). Sub-folder READMEs stay.
+        return ["README.md", "SHA256SUMS"] if Path(folder) == data else []
 
     shutil.copytree(data, stage, copy_function=os.link, ignore=top_card)
     meta = kaggle_metadata(args.user, card)

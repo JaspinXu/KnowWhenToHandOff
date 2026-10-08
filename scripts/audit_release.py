@@ -212,12 +212,17 @@ def main() -> int:
                 str(p.relative_to(kg)): p for p in kg.rglob("*") if p.is_file()
             }
             missing = [n for n in sums if n not in kaggle_files]
+            differ = [
+                n
+                for n in sums
+                if n in kaggle_files
+                and hashlib.sha256(kaggle_files[n].read_bytes()).hexdigest() != sums[n]
+            ]
             report.append(
-                f"  {'!!' if missing else 'ok'} Kaggle has {len(sums) - len(missing)}/{len(sums)} files listed in SHA256SUMS"
-                + (f"; missing e.g. {missing[:5]}" if missing else "")
+                f"  {'!!' if missing or differ else 'ok'} Kaggle matches {len(sums) - len(missing) - len(differ)}/{len(sums)} files of the Hugging Face SHA256SUMS"
+                + (f"; missing {missing[:5]}" if missing else "")
+                + (f"; different {differ[:5]}" if differ else "")
             )
-            if not missing:
-                sums_ok(kg, report, "Kaggle")
             scan(kg, "Kaggle dataset", report)
     text = "\n".join(report)
     print(text)

@@ -81,11 +81,18 @@ def test_scrub_replaces_longest_path_first():
 def test_kaggle_metadata_strips_card_front_matter():
     from handoff.release import kaggle_metadata
 
-    card = "---\nlicense: mit\n---\n\n# Title\n\nBody text.\n"
+    card = (
+        "---\nlicense: mit\n---\n\n# Title\n\nBody text.\n\n"
+        "## Loading\n\nload_dataset(...)\n\n## Licence\n\nMIT\n"
+    )
     meta = kaggle_metadata("someone", card)
     assert meta["id"] == "someone/knowwhentohandoff-data"
     assert meta["licenses"] == [{"name": "other"}]
-    assert str(meta["description"]).startswith("# Title")
+    description = str(meta["description"])
+    assert description.startswith("Body text.")
+    assert "/kaggle/input/knowwhentohandoff-data" in description
+    assert "load_dataset" not in description and "## Licence" in description
+    assert meta["expectedUpdateFrequency"] == "never"
     assert "license: mit" not in str(meta["description"])
     assert "Licence: MIT" in str(meta["description"])
     assert 6 <= len(str(meta["title"])) <= 50
