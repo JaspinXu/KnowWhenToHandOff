@@ -14,6 +14,7 @@ Example:
     python scripts/upload_kaggle.py --user <kaggle-handle> \
         --kaggle "$HANDOFF_SCRATCH/kaggle-venv/bin/kaggle"
     python scripts/upload_kaggle.py --user <kaggle-handle> --version "Fix run index"
+    python scripts/upload_kaggle.py --user <kaggle-handle> --metadata-only
 """
 
 from __future__ import annotations
@@ -28,6 +29,7 @@ from pathlib import Path
 from handoff.release import KAGGLE_SLUG, kaggle_metadata
 
 ROOT = Path(__file__).resolve().parents[1]
+COVER = ROOT / "docs" / "assets" / "hero-en.png"
 
 
 def main() -> int:
@@ -43,9 +45,30 @@ def main() -> int:
     parser.add_argument(
         "--dry-run", action="store_true", help="stage and print metadata only"
     )
+    parser.add_argument(
+        "--metadata-only",
+        action="store_true",
+        help="update title, description and cover image of the existing dataset",
+    )
     args = parser.parse_args()
 
     release = Path(os.environ["HANDOFF_SCRATCH"]) / "release"
+    card = (ROOT / "docs" / "dataset-card.md").read_text(encoding="utf-8")
+    if args.metadata_only:
+        meta_dir = release / "kaggle-metadata"
+        meta_dir.mkdir(parents=True, exist_ok=True)
+        meta = kaggle_metadata(args.user, card)
+        if COVER.is_file():
+            shutil.copyfile(COVER, meta_dir / "dataset-cover-image.png")
+            meta["image"] = "dataset-cover-image.png"
+        (meta_dir / "dataset-metadata.json").write_text(
+            json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8"
+        )
+        dataset = f"{args.user}/{KAGGLE_SLUG}"
+        command = [args.kaggle, "datasets", "metadata", dataset, "-p", str(meta_dir)]
+        subprocess.run([*command, "--update"], check=True)
+        print(f"updated metadata of https://www.kaggle.com/datasets/{dataset}")
+        return 0
     data, stage = release / "data", release / "kaggle"
     if not (data / "SHA256SUMS").is_file():
         raise SystemExit(f"missing {data}; run scripts/export_release.py first")
@@ -54,8 +77,9 @@ def main() -> int:
     shutil.copytree(
         data, stage, copy_function=os.link, ignore=shutil.ignore_patterns("README.md")
     )
-    card = (ROOT / "docs" / "dataset-card.md").read_text(encoding="utf-8")
     meta = kaggle_metadata(args.user, card)
+    if COVER.is_file():  # picked up automatically on create, not uploaded as data
+        shutil.copyfile(COVER, stage / "dataset-cover-image.png")
     (stage / "dataset-metadata.json").write_text(
         json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8"
     )

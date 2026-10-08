@@ -35,6 +35,11 @@ def main() -> int:
         help="remove bookkeeping files from the model repositories and squash "
         "their history (repairs uploads made before they were excluded)",
     )
+    parser.add_argument(
+        "--cards-only",
+        action="store_true",
+        help="re-upload only the cards (README.md) of the selected repositories",
+    )
     args = parser.parse_args()
     from huggingface_hub import HfApi
 
@@ -51,6 +56,28 @@ def main() -> int:
                     api.delete_file(path, repo_id=repo, commit_message=f"Remove {path}")
             api.super_squash_history(repo_id=repo, repo_type="model")
             print(f"cleaned https://huggingface.co/{repo}")
+        return 0
+    if args.cards_only:
+        for name, (_, card) in MODELS.items():
+            if name in args.only:
+                repo = f"{args.user}/KnowWhenToHandOff-Qwen3-4B-{name}"
+                api.upload_file(
+                    path_or_fileobj=ROOT / card,
+                    path_in_repo="README.md",
+                    repo_id=repo,
+                    commit_message="Update model card",
+                )
+                print(f"card https://huggingface.co/{repo}")
+        if "data" in args.only:
+            repo = f"{args.user}/KnowWhenToHandOff-data"
+            api.upload_file(
+                path_or_fileobj=ROOT / "docs/dataset-card.md",
+                path_in_repo="README.md",
+                repo_id=repo,
+                repo_type="dataset",
+                commit_message="Update dataset card",
+            )
+            print(f"card https://huggingface.co/datasets/{repo}")
         return 0
     for name, (folder, card) in MODELS.items():
         if name not in args.only:

@@ -92,3 +92,25 @@ stays primary. Your Kaggle *handle* is the last part of your profile URL
 
 4. Check the dataset page, then make it public from its Settings together with
    the rest.
+
+## Audit and refresh (after any upload)
+
+Check what is published, without downloading weights: file lists, model
+config keys, `SHA256SUMS` on Hugging Face and on Kaggle, and a scan of every
+text file for absolute paths, cluster host names, personal or course
+identifiers, student IDs, real e-mail addresses, tokens and private URLs.
+
+```bash
+bash slurm/submit.sh cpu CMD="python scripts/audit_release.py --kaggle \$HANDOFF_SCRATCH/kaggle-venv/bin/kaggle"
+```
+
+After editing a card, push only the cards (Hugging Face) or the metadata,
+description and cover image (Kaggle):
+
+```bash
+bash slurm/submit.sh cpu CMD="python scripts/upload_release.py --user JaspinXu --cards-only"
+bash slurm/submit.sh cpu CMD="python scripts/upload_kaggle.py --user zhaobinxu --metadata-only --kaggle \$HANDOFF_SCRATCH/kaggle-venv/bin/kaggle"
+```
+
+Model repositories carry no bookkeeping files (`upload_release.py` skips them;
+`--clean` removes them from an earlier upload and squashes the history).

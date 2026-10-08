@@ -13,6 +13,14 @@ tags:
 - reward-hacking
 size_categories:
 - 10K<n<100K
+configs:
+- config_name: runs
+  data_files: runs.jsonl
+  default: true
+- config_name: airline_tasks
+  data_files: tasks/v1/airline_tasks.json
+- config_name: retail_tasks
+  data_files: tasks/v1/retail_tasks.json
 ---
 
 # KnowWhenToHandOff — hand-off tasks and run records
@@ -42,6 +50,26 @@ Kaggle mirror: <https://www.kaggle.com/datasets/zhaobinxu/knowwhentohandoff-data
 | `sft/b2_v1/` | Which teacher episodes were kept for SFT and why (`records_meta.jsonl`, `manifest.json`) | Rebuild the SFT set |
 | `runs.jsonl` | One row per run with headline metrics | Index |
 | `SHA256SUMS` | Checksums of every file | Integrity |
+
+## Loading
+
+```python
+from datasets import load_dataset
+from huggingface_hub import snapshot_download
+
+runs = load_dataset("JaspinXu/KnowWhenToHandOff-data", "runs", split="train")       # run index
+airline = load_dataset("JaspinXu/KnowWhenToHandOff-data", "airline_tasks", split="train")
+
+# Everything (trajectories, rollouts, manifests), about 125 MB:
+path = snapshot_download("JaspinXu/KnowWhenToHandOff-data", repo_type="dataset")
+```
+
+Each line of a `trajectories.jsonl` is one conversation: `messages` (with tool
+calls and results), `task_reward`, `db_match`, `transferred` and `transfer_turn`
+against the `should_transfer` label, `violations`, `format_errors`, plus the
+task, domain, split, kind (`upstream` for official
+tasks, or `explicit_request`, `out_of_scope`, `hard_negative`), user style and seed. The code that writes and scores them is in
+the [code repository](https://github.com/JaspinXu/KnowWhenToHandOff).
 
 Run IDs: `B0` prompted Qwen3-4B, `B1` prompted Qwen3-30B-A3B, `B2` SFT,
 `R1` GRPO with the task reward, `R2` GRPO with the Responsible-AI reward;
