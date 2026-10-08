@@ -102,11 +102,16 @@ on its own terms; write-ups (reports, venue papers) live outside it
   deleted); `scripts/audit_release.py` then found no paths, host names, personal
   or course identifiers, student IDs or tokens on either platform (only
   τ²-bench's fictional e-mails and model-invented generic URLs).
-- **Release pages (9 Oct):** `upload_release.py --collection` builds the private
-  Hugging Face collection *KnowWhenToHandOff* (R2, R1, SFT, data, with notes);
-  `upload_kaggle.py --notebook` pushes `notebooks/kaggle_quickstart.ipynb`
-  (CPU tour of the data, `--dry-run` runs it on the local export) as a private
-  Kaggle notebook attached to the dataset.
+- **Release pages (9 Oct, done in the browser, all private):** Hugging Face
+  collection `JaspinXu/knowwhentohandoff` (R2, R1, SFT, data, with notes);
+  Kaggle notebook `zhaobinxu/knowwhentohandoff-quickstart` (version 1 of
+  `notebooks/kaggle_quickstart.ipynb`, ran in 22 s on the real data); Kaggle
+  description re-saved through `kaggle_markdown` (the API upload had been cut
+  at the first `<https://...>` autolink) and *Collection methodology* filled in;
+  usability 5.63 → 6.88. Scripted equivalents: `upload_release.py --collection`,
+  `upload_kaggle.py --notebook` (`--dry-run` runs it on the local export) and
+  `--metadata-only`. Kaggle mounts the dataset at
+  `/kaggle/input/datasets/<owner>/knowwhentohandoff-data/`.
 - **Next steps (owner):** release day as in `docs/release.md` (GitHub, then
   `upload_release.py --publish`, Kaggle visibility, dataset viewer check,
   DOIs into the citation blocks). No more GPU runs.
