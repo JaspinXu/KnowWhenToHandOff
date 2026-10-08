@@ -7,7 +7,7 @@
 [English](README.md) · **简体中文**
 
 <p>
-<img src="https://img.shields.io/badge/%E7%8A%B6%E6%80%81-%E4%BB%A3%E7%A0%81%E5%AE%8C%E6%88%90%20%C2%B7%20%E5%AE%9E%E9%AA%8C%E5%BE%85%E8%B7%91-2563EB" alt="状态：代码完成，实验待跑">
+<img src="https://img.shields.io/badge/%E7%8A%B6%E6%80%81-%E5%AE%9E%E9%AA%8C%E5%AE%8C%E6%88%90%20%C2%B7%20%E6%92%B0%E5%86%99%E4%B8%AD-16A34A" alt="状态：实验完成，撰写中">
 <img src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white" alt="Python 3.12">
 <img src="https://img.shields.io/badge/%E7%8E%AF%E5%A2%83-%CF%84%C2%B2--bench-4B32C3" alt="环境：tau2-bench">
 <img src="https://img.shields.io/badge/RL-GRPO-EE4C2C" alt="GRPO">
@@ -44,7 +44,7 @@ LLM 客服 Agent 已经大量上线，但仍然会违反业务政策、在错误
 最后量化每个目标要付出多少任务成功率。
 
 > [!NOTE]
-> **状态（2026 年 9 月 29 日）：整条流水线的代码已完成并在 CPU 上验证，尚未跑任何实验。** 下面每个阶段都能在 Slurm 集群上用一条命令运行（见[集群运行手册](docs/cluster-runbook.md)）；剩下的是集群实验、人工审核和 M1 决策（见[实施状态](docs/implementation-status.md)）。本 README 是项目设计与执行计划；[AGENTS.md](AGENTS.md) 规定仓库工作方式。课程为 NUS CS4246/5446，proposal 截止 9 月 28 日，展示在 11 月 10 日当周，报告截止 11 月 15 日。
+> **状态（2026 年 10 月 8 日）：全部运行（B0、B1、B2、R1、R2）已完成，结果见下文；报告（[report/](report/)）和幻灯片已出初稿。** 每个阶段都能在 Slurm 集群上用一条命令运行（见[集群运行手册](docs/cluster-runbook.md)）。本 README 是项目设计与执行计划；[AGENTS.md](AGENTS.md) 规定仓库工作方式。课程为 NUS CS4246/5446，proposal 截止 9 月 28 日，展示在 11 月 10 日当周，报告截止 11 月 15 日。
 
 <details>
 <summary><b>目录</b></summary>
@@ -71,6 +71,45 @@ LLM 客服 Agent 已经大量上线，但仍然会违反业务政策、在错误
 - [参考文献](#参考文献)
 
 </details>
+
+---
+
+## 结果
+
+留出测试任务，每个检查点只评测一次；方括号为按任务自助法得到的 95 % 区间；
+Δ 是与 B2 在同 49 个任务上的配对成功率差。完整表格见
+[reports/main](reports/main/main_table.md)（运行编号在 `sources.json`），报告见
+[report/main.pdf](report/main.pdf)。
+
+| 系统 | 成功率（pass^1） | pass^4 | 相对 B2 的 Δ | 转人工 F1 | 过度转人工 | 最差风格成功率 |
+| --- | --- | --- | --- | --- | --- | --- |
+| B0 提示词 4B | 0.306 [0.219, 0.408] | 0.102 | −0.020 [−0.107, 0.056] | 0.654 | 0.087 | 0.306 |
+| B1 提示词 30B | 0.398 [0.301, 0.505] | 0.204 | +0.071 [−0.020, 0.153] | — | — | — |
+| B2 SFT | 0.327 [0.224, 0.434] | 0.102 | — | 0.768 | **0.016** | **0.327** |
+| R1 GRPO，仅任务奖励 | **0.347** [0.235, 0.459] | **0.224** | +0.020 [−0.066, 0.107] | 0.802 | 0.462 | 0.286 |
+| R2 GRPO，Responsible-AI 奖励 | 0.342 [0.245, 0.449] | 0.122 | +0.015 [−0.056, 0.082] | **0.812** | 0.103 | 0.316 |
+
+成功率和 pass^4：`test_main`（49 个任务，中性风格，4 次试验）。转人工 F1 和过度转人工：
+`test_handoff`（98 个应转、92 个困难负例任务，2 次试验）。最差风格成功率：六种沟通风格。
+B1 只跑了 `test_main`。
+
+- **RQ1：否。** RL 在任务成功率上没有超过 SFT，两个配对区间都包含 0。提升集中在训练中占多数的
+  转人工任务上（`test_handoff` 成功率 B2 0.47 → R1 0.63、R2 0.55）。
+- **RQ2：存在权衡，R2 达标。** R2 的转人工 F1 最高（0.812，B2 0.768），召回 0.750，
+  过度转人工 0.103，且不损失成功率。R1 的 F1 相近，但它把 96 % 需要人工的用户和 46 % 不需要的用户都转走了。
+- **RQ3：没有超出噪声的影响。** 最差风格成功率保持在 0.29–0.33，所有风格的区间都重叠。
+- **RQ4：奖励有漏洞。** 只要参考解不改数据库，τ²-bench 就给转人工记 1.0 分，所以在仅任务奖励下
+  "拿不准就转人工"弱占优；R1 在最后 20 步学会了它（第 40 步过度转人工 0.141）。R2 的误转惩罚消除了它。
+  R1 转人工时不解释原因（引用率 0.06）；R2 有时拒绝而不转人工。没有发现拉长回合或格式作弊。
+  审计见 [docs/rl-audit.md](docs/rl-audit.md)。
+
+**复现。** 每个数字都能追溯到带 git SHA、τ²-bench 提交、模型版本和种子的运行编号
+（[实验日志](docs/experiment-log.md)）。完整流程（setup → 任务 → B0/B1 → 教师 → SFT → R1/R2 →
+最终评测 → 报表）见[集群运行手册](docs/cluster-runbook.md)；表格和图由英文 README "Results"
+一节中的三条命令生成。
+
+发布内容：[reports/demo/](reports/demo/) 中的对话样例（离线网页和 JSONL 记录），以及
+[docs/model-cards/](docs/model-cards/) 中 R1、R2 的模型卡（研究用途，**不可用于部署**）。
 
 ---
 
@@ -537,7 +576,7 @@ gantt
 
 每个任务都有完成标准（DoD）。满足完成标准、且提交信息里带任务编号后，才打勾。
 
-**状态（2026 年 9 月 29 日）：** 下面所有任务的代码都已实现并通过 CPU 测试。只有完整满足完成标准才打勾；多数完成标准还需要集群实验或人工审核，逐项列在[实施状态](docs/implementation-status.md)中。
+**状态（2026 年 10 月 8 日）：** 全部实验已完成（T0–T4.1）；T4.2 报告和 T4.3 幻灯片已出初稿。只有完整满足完成标准才打勾；多数完成标准还需要集群实验或人工审核，逐项列在[实施状态](docs/implementation-status.md)中。
 
 ### 阶段 0：基础搭建（9 月 28 日 – 10 月 4 日）
 
@@ -613,7 +652,7 @@ gantt
 
 - [x] **T4.1 可复现的图表。**
     - *工作：* 按运行编号生成到 `reports/`。
-- [ ] **T4.2 报告。**
+- [x] **T4.2 报告。**
     - *工作：* ≤ 10 页，Vancouver 引用格式，附贡献声明和 AI 使用声明。
     - *截止：* 11 月 15 日。
 - [ ] **T4.3 15 分钟幻灯片 + 演示。**
@@ -681,4 +720,4 @@ gantt
 7. Shao Z, Wang P, Zhu Q, Xu R, Song J, Bi X, et al. DeepSeekMath: pushing the limits of mathematical reasoning in open language models (GRPO). arXiv:2402.03300. 2024.
 8. verl Agent Loop 文档：<https://verl.readthedocs.io/en/latest/advance/agent_loop.html>
 
-<p align="center"><sub>由 <a href="https://github.com/JaspinXu">@JaspinXu</a> 为 NUS CS4246/5446（2026/27 学年）构建。代码已完成，结果会随里程碑推进陆续补充。</sub></p>
+<p align="center"><sub>由 <a href="https://github.com/JaspinXu">@JaspinXu</a> 为 NUS CS4246/5446（2026/27 学年）构建。实验已完成，结果见上文。</sub></p>

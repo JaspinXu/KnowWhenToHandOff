@@ -194,11 +194,12 @@ def test_task_sets_evaluation_and_reports(toy_cluster, monkeypatch, capsys):
     )
     assert len(list((reports / "review").glob("*.md"))) == 2
     page = reports / "demo.html"
-    assert (
-        run_script("render_demo", ["--run", run_id, "--out", str(page)], monkeypatch)
-        == 0
-    )
+    sample = reports / "demo.jsonl"
+    args = ["--run", run_id, "--out", str(page), "--jsonl", str(sample)]
+    assert run_script("render_demo", args, monkeypatch) == 0
     assert page.read_text().startswith("<!doctype html>")
+    lines = sample.read_text().splitlines()
+    assert lines and all(json.loads(line)["task_id"] for line in lines)
 
 
 def test_lost_test_episodes_resume_under_the_one_evaluation_rule(

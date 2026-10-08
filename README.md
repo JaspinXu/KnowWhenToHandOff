@@ -7,7 +7,7 @@
 **English** · [简体中文](README.zh-CN.md)
 
 <p>
-<img src="https://img.shields.io/badge/Status-Code%20complete%20%C2%B7%20experiments%20pending-2563EB" alt="Status: code complete, experiments pending">
+<img src="https://img.shields.io/badge/Status-Experiments%20complete%20%C2%B7%20write--up-16A34A" alt="Status: experiments complete, write-up">
 <img src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white" alt="Python 3.12">
 <img src="https://img.shields.io/badge/Env-%CF%84%C2%B2--bench-4B32C3" alt="tau2-bench">
 <img src="https://img.shields.io/badge/RL-GRPO-EE4C2C" alt="GRPO">
@@ -37,7 +37,7 @@
 LLM customer-service agents are widely deployed, yet they still break business policies, hand off to human staff at the wrong time, and serve users unevenly depending on how those users talk. **KnowWhenToHandOff** trains a small open model (about 4B parameters) with multi-turn reinforcement learning on [τ²-bench](https://github.com/sierra-research/tau2-bench) so that it completes airline and retail support tasks while meeting four Responsible-AI goals: **accountability** (no policy violations), **trust** (escalating when, and only when, needed), **fairness** (similar success across communication styles) and **transparency** (citing the policy behind every refusal or hand-off). We then measure what each goal costs in task success.
 
 > [!NOTE]
-> **Status (29 Sep 2026): the pipeline is code-complete and verified on CPU; no experiment has run yet.** Every stage below runs on a Slurm cluster with one command each ([cluster runbook](docs/cluster-runbook.md)); what remains are the cluster runs, the human reviews and the M1 decisions ([implementation status](docs/implementation-status.md)). This README is the top-level design and the execution plan; [AGENTS.md](AGENTS.md) tells coding agents how to work in this repo. Course context: NUS CS4246/5446 *Reinforcement Learning and Sequential Decision Making*, AY2026/27 Semester 1 — proposal 28 Sep, presentation in the week of 10 Nov, report due 15 Nov 2026.
+> **Status (8 Oct 2026): every run is done (B0, B1, B2, R1, R2) and the results are below; the report ([report/](report/)) and slides are drafted.** Every stage runs on a Slurm cluster with one command each ([cluster runbook](docs/cluster-runbook.md)). This README is the top-level design and the execution plan; [AGENTS.md](AGENTS.md) tells coding agents how to work in this repo. Course context: NUS CS4246/5446 *Reinforcement Learning and Sequential Decision Making*, AY2026/27 Semester 1 — proposal 28 Sep, presentation in the week of 10 Nov, report due 15 Nov 2026.
 
 <details>
 <summary><b>Contents</b></summary>
@@ -64,6 +64,65 @@ LLM customer-service agents are widely deployed, yet they still break business p
 - [References](#references)
 
 </details>
+
+---
+
+## Results
+
+Held-out test tasks, each checkpoint evaluated once; 95 % bootstrap intervals over
+tasks; Δ is the paired difference in success against B2 on the same 49 tasks.
+Full tables: [reports/main](reports/main/main_table.md) (run IDs in
+`sources.json`); write-up: [report/main.pdf](report/main.pdf).
+
+| System | Success (pass^1) | pass^4 | Δ success vs B2 | Hand-off F1 | Over-escalation | Worst-style success |
+| --- | --- | --- | --- | --- | --- | --- |
+| B0 prompted 4B | 0.306 [0.219, 0.408] | 0.102 | −0.020 [−0.107, 0.056] | 0.654 | 0.087 | 0.306 |
+| B1 prompted 30B | 0.398 [0.301, 0.505] | 0.204 | +0.071 [−0.020, 0.153] | — | — | — |
+| B2 SFT | 0.327 [0.224, 0.434] | 0.102 | — | 0.768 | **0.016** | **0.327** |
+| R1 GRPO, task reward | **0.347** [0.235, 0.459] | **0.224** | +0.020 [−0.066, 0.107] | 0.802 | 0.462 | 0.286 |
+| R2 GRPO, Responsible-AI reward | 0.342 [0.245, 0.449] | 0.122 | +0.015 [−0.056, 0.082] | **0.812** | 0.103 | 0.316 |
+
+Success and pass^4: `test_main` (49 tasks, neutral, 4 trials). Hand-off F1 and
+over-escalation: `test_handoff` (98 should-transfer and 92 hard-negative tasks,
+2 trials). Worst-style success: six communication styles. B1 ran `test_main` only.
+
+- **RQ1 — no.** RL does not beat SFT on task success: both paired intervals
+  include zero. Gains landed on the hand-off tasks that dominate training
+  (`test_handoff` success B2 0.47 → R1 0.63, R2 0.55).
+- **RQ2 — a trade-off, met by R2.** R2 has the highest hand-off F1 (0.812 vs
+  0.768) with recall 0.750 and over-escalation 0.103, at no success cost. R1
+  reaches a similar F1 by transferring 96 % of the users who need a human and
+  46 % of those who do not.
+- **RQ3 — no effect beyond noise.** Worst-style success stays 0.29–0.33;
+  every style interval overlaps.
+- **RQ4 — the reward has a loophole.** τ²-bench scores a transfer 1.0 whenever
+  the reference solution makes no database change, so under the task-only
+  reward "transfer when unsure" is weakly dominant; R1 learned it in its last
+  20 steps (step 40: over-escalation 0.141). R2's FP penalty removes it. R1
+  hands off without explaining (citation rate 0.06); R2 sometimes refuses
+  instead of handing off. No length or format hacking. Audit:
+  [docs/rl-audit.md](docs/rl-audit.md).
+
+**Reproduce.** Every number traces to a run ID with its git SHA, τ²-bench
+commit, model revisions and seeds ([experiment log](docs/experiment-log.md)).
+The whole sequence (setup → tasks → B0/B1 → teacher → SFT → R1/R2 → final
+evaluations → reports) is in the [cluster runbook](docs/cluster-runbook.md);
+the tables and figures come from
+
+```bash
+bash slurm/run.sh python scripts/make_report.py --name main --baseline B2 --runs \
+  B0=B0-test_main-s0-20261004+B0-test_styles-s0-20261004+B0-test_handoff-s0-20261004 \
+  B1=B1-test_main-s0-20261004 \
+  B2=B2-test_main-s0-20261005+B2-test_styles-s0-20261005+B2-test_handoff-s0-20261005 \
+  R1=R1-final-test_main-s0-20261006+R1-final-test_styles-s0-20261006+R1-final-test_handoff-s0-20261006 \
+  R2=R2-final-test_main-s0-20261007+R2-final-test_styles-s0-20261007+R2-final-test_handoff-s0-20261007
+bash slurm/run.sh python scripts/rl_curves.py --name rl --runs R1=R1-s1-20261006 R2=R2-s1-20261006
+bash slurm/run.sh python report/make_figures.py && (cd report && latexmk -pdf main.tex)
+```
+
+Released artefacts: sample dialogues as an offline page and JSONL records in
+[reports/demo/](reports/demo/), and model cards for R1 and R2 in
+[docs/model-cards/](docs/model-cards/) (research artefacts, **not for deployment**).
 
 ---
 
@@ -518,7 +577,7 @@ gantt
 
 Each task has a definition of done (DoD). Tick the box when the DoD is met and the commit references the task ID.
 
-**Status (29 Sep 2026):** the code for every task below is implemented and tested on CPU. A box is ticked only when the whole DoD is met; most DoDs also need cluster runs or human reviews, listed per task in the [implementation status](docs/implementation-status.md).
+**Status (8 Oct 2026):** all experiments are done (T0–T4.1); T4.2 report and T4.3 slides are drafted. A box is ticked only when the whole DoD is met; most DoDs also need cluster runs or human reviews, listed per task in the [implementation status](docs/implementation-status.md).
 
 ### Phase 0 — Foundations (28 Sep – 4 Oct)
 
@@ -594,7 +653,7 @@ Each task has a definition of done (DoD). Tick the box when the DoD is met and t
 
 - [x] **T4.1 Reproducible figures and tables.**
     - *Work:* generate them from run IDs into `reports/`.
-- [ ] **T4.2 Report.**
+- [x] **T4.2 Report.**
     - *Work:* ≤ 10 pages, Vancouver references, contribution statement and AI-use statement.
     - *Due:* 15 Nov.
 - [ ] **T4.3 Slides (15 minutes) and demo.**
@@ -662,4 +721,4 @@ If a phase slips by more than three days, drop B1 first, then shorten RL (fewer 
 7. Shao Z, Wang P, Zhu Q, Xu R, Song J, Bi X, et al. DeepSeekMath: pushing the limits of mathematical reasoning in open language models (GRPO). arXiv:2402.03300. 2024.
 8. verl — Agent Loop documentation: <https://verl.readthedocs.io/en/latest/advance/agent_loop.html>
 
-<p align="center"><sub>Built by <a href="https://github.com/JaspinXu">@JaspinXu</a> for NUS CS4246/5446 (AY2026/27). Code complete — results will appear here as milestones land.</sub></p>
+<p align="center"><sub>Built by <a href="https://github.com/JaspinXu">@JaspinXu</a> for NUS CS4246/5446 (AY2026/27). Experiments complete; results above.</sub></p>

@@ -84,8 +84,16 @@ abstractions unless the owner asks. Prefer deleting over adding.
   over-escalation). R1 over-escalation grows late (post-hoc step 40: 0.141).
   Worst-style success B2 0.327, R1 0.286, R2 0.316 (RQ3: no change).
   RQ4 audit in [docs/rl-audit.md](docs/rl-audit.md) (owner agreed with 3 spot-checks).
-- **Next steps:** report (T4.2) → slides and demo
-  (T4.3) → release (T4.4). No more GPU runs planned.
+- **Write-up (8 Oct):** T4.2 report drafted in `report/` (LaTeX, 12 pt, body
+  9 pages, Vancouver; public `main.pdf` has names only, `submission.pdf` reads
+  the gitignored `team.local.tex`). T4.3 slides drafted as a Claude Slides
+  artifact (16 slides, speaker notes). T4.4: README results (EN + zh-CN),
+  model cards in `docs/model-cards/`, `render_demo.py --jsonl` for the
+  trajectory sample. Laptop tier 1: 283 passed, 28 skipped; ruff clean.
+- **Next steps (owner):** review the report and slides; on the cluster render
+  `reports/demo/` (commands in the 8 Oct HANDOFF note) and commit it; upload R1/R2
+  to Hugging Face (`docs/model-cards/README.md`); rotate the leaked SoCLaaS key.
+  No more GPU runs planned.
 
 - **Experiments (5 Oct):** teacher → `b2_v1` SFT data (790 dialogues) → B2
   (LoRA SFT r=64; full fine-tuning ran out of memory on the H100) →
@@ -154,8 +162,8 @@ abstractions unless the owner asks. Prefer deleting over adding.
   dropped, see `docs/handoff-tasks.md`). Laptop gates: ruff + 275 passed,
   28 skipped; the tau2 tiers run in the next `setup` job.
 - **Owner decisions pending:** accept ADR-003 (simulator/teacher) and ADR-004
-  (reward) by M2; confirm the
-  course group number and team contribution statement for the report.
+  (reward). Settled 8 Oct: Group 21; the report's contribution statement uses
+  the proposal's roles.
 
 ---
 
@@ -262,6 +270,7 @@ The package is `handoff` (src layout). Each file's docstring says what it owns.
 | `tests/` | CPU tests (§12); `fakes.py`, `toy_tau2.py`, `tiny_hf.py` are shared doubles |
 | `docs/` | Runbook, metrics, labels, hand-off tasks, personas, ADRs, experiment log, status |
 | `reports/` | Generated tables and figures (final versions committed); `reports/review/` is not committed |
+| `report/` | Course report (LaTeX, figures script, public PDF); `team.local.tex` and `submission.*` are gitignored |
 
 ---
 
@@ -669,6 +678,7 @@ the ADRs; this is the short history agents need.
 
 | Date | Decision |
 | --- | --- |
+| 8 Oct 2026 | Write-up: report as LaTeX + PDF in `report/` (Group 21; contribution statement = the proposal's roles; AI-use statement names Claude's reviews and drafts with the owner's spot-checks); slides as a Claude Slides artifact; the report lists the scope changes from the proposal (no PPO, λ sweep, Group DRO or held-out simulator; 4B instead of 1.7B). Matriculation numbers and e-mails live only in the gitignored `report/team.local.tex`. |
 | 7 Oct 2026 | R1's monitor flagged transfers on negatives (0.11 vs 0.04 in B2 dev). Per-step check: 0.22 at step 1 (B2 itself, before any update), then 0.00–0.25 with no trend, so not reward hacking; R1 continues. The B2 baseline is greedy dev evaluation; drift is now flagged only above 2× both the run's first 128 training episodes and B2 (`monitor_rl.py --self-baseline 128`; the first 128 had 0 format errors, so the run start alone is too noisy for rare events). |
 | 5 Oct 2026 | R1/R2 use LoRA (r=64) and 16,384 response tokens after the spike (ADR-001). The A100 simulator queue is the bottleneck: keep a running `serve` job until its time limit (SoC did not cancel an idle one in practice) and use 3-hour `gpu`-partition simulators for short evaluation batches. |
 | 30 Sep 2026 | Owner asked to audit and complete the code, then tidy code and every text file (delete redundancy, fill gaps, mind token use). Added `rl_curves.py` (the only missing DoD code) and `docs/model-card.md`; eval presets extend `configs/eval/_common.yaml`; `code-readiness.md` merged into `implementation-status.md`. Keep this file under ~40k characters (Claude loads it every session): link instead of repeating. |

@@ -4,14 +4,19 @@ By default picks, per domain, one correct hand-off, one hard negative handled
 without a transfer and one failure, so the page shows the behaviours the
 project is about.
 
+With ``--jsonl`` the same dialogues are also written as trajectory records
+(one JSON object per line, ``Trajectory.to_dict``): the release's trajectory
+sample (T4.4).
+
 Example:
-    python scripts/render_demo.py --run R2-final-test_handoff-s0-20261031 \\
-        --out reports/demo/handoffs.html
+    python scripts/render_demo.py --run R2-final-test_handoff-s0-20261007 \\
+        --out reports/demo/R2-handoffs.html --jsonl reports/demo/R2-handoffs.jsonl
 """
 
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 
 from handoff.cli import (
@@ -51,6 +56,7 @@ def main() -> int:
     parser.add_argument("--out", default=None)
     parser.add_argument("--episodes", nargs="*", default=None, help="episode ids")
     parser.add_argument("--per-domain", type=int, default=3)
+    parser.add_argument("--jsonl", default=None, help="also write the records")
     parser.add_argument("--paths", nargs="*", default=[])
     args = parser.parse_args()
     try:
@@ -70,9 +76,20 @@ def main() -> int:
         out.write_text(
             render_html(chosen, f"KnowWhenToHandOff · {args.run}"), encoding="utf-8"
         )
+        if args.jsonl:
+            records = Path(args.jsonl)
+            records.parent.mkdir(parents=True, exist_ok=True)
+            records.write_text(
+                "".join(
+                    json.dumps(t.to_dict(), ensure_ascii=False) + "\n" for t in chosen
+                ),
+                encoding="utf-8",
+            )
     except CliError as error:
         fail(str(error))
     print(f"demo page: {out}")
+    if args.jsonl:
+        print(f"trajectory sample: {args.jsonl}")
     return 0
 
 

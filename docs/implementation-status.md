@@ -1,6 +1,6 @@
 # Implementation status
 
-Updated: 5 October 2026. This file separates code verification from research
+Updated: 8 October 2026. This file separates code verification from research
 results. Real results come only from cluster runs (run IDs in
 [experiment-log.md](experiment-log.md)); CPU fakes and toy domains must never be
 cited as model results.
@@ -33,8 +33,9 @@ person still has to do for the README definition of done.
 | T3.5 | Reward-hacking monitor, review packet | Done 8 Oct: 40 dialogues annotated, owner spot-checked 3 ([rl-audit](rl-audit.md)) |
 | T3.6 | Test protocols, test ledger | Done 7 Oct: `reports/main/` |
 | T4.1 | Tables, figures and sources from run IDs | Done: `reports/m1`, `reports/main`, `reports/rl` |
-| T4.3 | HTML demo page and terminal demo | Slides, recorded demo |
-| T4.2, T4.4 | Model card template ([model card](model-card.md)) | Report, release |
+| T4.2 | Report source, figures script, public and submission builds ([report/](../report/README.md)) | Drafted 8 Oct (body 9 pages); owner review |
+| T4.3 | HTML demo page (`render_demo.py`, now also `--jsonl`), terminal demo; slides (Claude Slides artifact) | Slides drafted 8 Oct; owner renders `reports/demo/` on the cluster |
+| T4.4 | README results, [model cards](model-cards/README.md) for R1 and R2, reproduction commands | Owner: demo/trajectory sample, Hugging Face upload |
 
 ## Verification
 
@@ -45,7 +46,7 @@ job. Tiers are defined in [AGENTS.md §12](../AGENTS.md#12-testing).
 
 | Tier | What it covers | Last result |
 | --- | --- | --- |
-| 1 Laptop / CI | Every pure module; integration tests skip | 5 Oct: 281 passed, 28 skipped |
+| 1 Laptop / CI | Every pure module; integration tests skip | 8 Oct: 283 passed, 28 skipped |
 | 2 + tau2 v1.0.1 | Evaluation driver through tau2's batch runner, training driver through tau2's orchestrator, their parity (messages, rewards, violations, format errors, token counts on seven scripted conversations), and the CLI pipeline (task sets → evaluation → report, review packet, demo) on a toy domain | 29 Sep: 286 passed |
 | 3 + cluster lock on CPU | verl Hydra composition of the RL preset (full and LoRA), vLLM's CLI accepting every server command, Hermes parser parity with vLLM, a `Tau2AgentLoop` episode through verl's `AgentLoopBase`, tiny-model SFT (full and LoRA), the tokenization check, the RL dry run, teacher → SFT data → SFT | 29 Sep: 315 passed |
 

@@ -297,7 +297,8 @@ bash slurm/run.sh python scripts/make_report.py --name main --baseline B2 --runs
   R1=R1-final-$t-<date>+R1-final-$s-<date>+R1-final-$h-<date> \
   R2=R2-final-$t-<date>+R2-final-$s-<date>+R2-final-$h-<date>
 bash slurm/submit.sh cpu CMD="python scripts/sample_review.py audit --run <final test run> --n 20"
-bash slurm/submit.sh cpu CMD="python scripts/render_demo.py --run <test_handoff run>"
+bash slurm/run.sh python scripts/render_demo.py --run <test_handoff run> \
+  --episodes <episode ids> --out reports/demo/<name>.html --jsonl reports/demo/<name>.jsonl
 git add reports/main reports/rl reports/demo docs/experiment-log.md && git commit -m "T4.1: report tables"
 ```
 
