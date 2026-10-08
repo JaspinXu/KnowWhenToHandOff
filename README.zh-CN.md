@@ -164,6 +164,8 @@ B0/B1 → 教师 rollouts → SFT 数据 → SFT → R1/R2 → 最终评测 → 
 }
 ```
 
+DOI：数据集 [10.57967/hf/10822](https://doi.org/10.57967/hf/10822)（Kaggle 镜像 [10.34740/kaggle/dsv/20472451](https://doi.org/10.34740/kaggle/dsv/20472451)），R2 [10.57967/hf/10823](https://doi.org/10.57967/hf/10823)，R1 [10.57967/hf/10824](https://doi.org/10.57967/hf/10824)，SFT [10.57967/hf/10825](https://doi.org/10.57967/hf/10825)。
+
 ## 致谢
 
 基于 [τ²-bench](https://github.com/sierra-research/tau2-bench)（MIT）、[verl](https://github.com/volcengine/verl)、

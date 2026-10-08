@@ -240,6 +240,8 @@ KnowWhenToHandOff/
 }
 ```
 
+DOIs: dataset [10.57967/hf/10822](https://doi.org/10.57967/hf/10822) (Kaggle mirror [10.34740/kaggle/dsv/20472451](https://doi.org/10.34740/kaggle/dsv/20472451)), R2 [10.57967/hf/10823](https://doi.org/10.57967/hf/10823), R1 [10.57967/hf/10824](https://doi.org/10.57967/hf/10824), SFT [10.57967/hf/10825](https://doi.org/10.57967/hf/10825).
+
 ## Acknowledgements and references
 
 Built on [τ²-bench](https://github.com/sierra-research/tau2-bench) (MIT),

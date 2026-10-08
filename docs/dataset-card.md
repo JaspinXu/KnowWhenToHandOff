@@ -94,6 +94,22 @@ Under the task-only reward a transfer scores 1.0 whenever the reference
 solution makes no database change, so "transfer when unsure" becomes weakly
 dominant; R1's rollouts show it emerging in the last 20 steps.
 
+## Citation
+
+DOI: [10.57967/hf/10822](https://doi.org/10.57967/hf/10822) (Hugging Face);
+Kaggle mirror [10.34740/kaggle/dsv/20472451](https://doi.org/10.34740/kaggle/dsv/20472451).
+
+```bibtex
+@misc{knowwhentohandoff2026data,
+  title     = {KnowWhenToHandOff: hand-off tasks and run records},
+  author    = {{KnowWhenToHandOff contributors}},
+  year      = {2026},
+  publisher = {Hugging Face},
+  doi       = {10.57967/hf/10822},
+  url       = {https://huggingface.co/datasets/JaspinXu/KnowWhenToHandOff-data}
+}
+```
+
 ## Licence and attribution
 
 MIT. The tasks are derived from [τ²-bench](https://github.com/sierra-research/tau2-bench)
