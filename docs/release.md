@@ -68,9 +68,14 @@ stays primary. Your Kaggle *handle* is the last part of your profile URL
    GPU environment's pinned packages):
 
    ```bash
-   bash slurm/run.sh uv venv "$HANDOFF_SCRATCH/kaggle-venv"
-   bash slurm/run.sh uv pip install --python "$HANDOFF_SCRATCH/kaggle-venv/bin/python" "kaggle==2.2.4"
+   source slurm/cluster.env
+   "$HANDOFF_VENV/bin/python" -m venv "$HANDOFF_SCRATCH/kaggle-venv"
+   "$HANDOFF_SCRATCH/kaggle-venv/bin/python" -m pip install --quiet "kaggle==2.2.4"
+   "$HANDOFF_SCRATCH/kaggle-venv/bin/kaggle" --version
    ```
+
+   (The CLI needs Python 3.11 or newer, so the venv is built from the project's
+   Python 3.12; `uv` is not on the login node's `PATH`.)
 
 3. After the Hugging Face steps above (the dataset folder must exist), check
    the staging and metadata, then upload privately from a CPU node:
