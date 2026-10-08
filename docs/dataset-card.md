@@ -35,8 +35,12 @@ variants). Code: <https://github.com/JaspinXu/KnowWhenToHandOff>. Models:
 Kaggle mirror: <https://www.kaggle.com/datasets/zhaobinxu/knowwhentohandoff-data>.
 
 > **Synthetic data only.** All users are simulated (Qwen3-30B-A3B-Instruct-2507)
-> on τ²-bench's synthetic airline and retail databases; names, IDs and
-> e-mail addresses (`@example.com`) are fictional. No real customer data.
+> on τ²-bench's synthetic airline and retail databases. Names, user and order
+> IDs, addresses, payment details and e-mail addresses come from those
+> databases and are fictional, even where they use real-looking domains such as
+> `gmail.com`; agent replies sometimes invent generic support addresses or URLs.
+> Machine names and absolute paths from the compute cluster are replaced by
+> `<host>`, `<scratch>`, `<repo>` and `~`. No real customer data.
 
 ## Contents
 
@@ -74,8 +78,7 @@ the [code repository](https://github.com/JaspinXu/KnowWhenToHandOff).
 Run IDs: `B0` prompted Qwen3-4B, `B1` prompted Qwen3-30B-A3B, `B2` SFT,
 `R1` GRPO with the task reward, `R2` GRPO with the Responsible-AI reward;
 `*-test_main-*`, `*-test_styles-*`, `*-test_handoff-*` and `*-dev-*` are the
-evaluation protocols. Absolute cluster paths are replaced by `<scratch>`,
-`<repo>` and `~`.
+evaluation protocols.
 
 ## Headline results (test)
 

@@ -102,8 +102,11 @@ def plan(
             if (run_dir / name).is_file():
                 items.append(Item(run_dir / name, f"runs/{run_dir.name}/{name}"))
         for sub in RUN_DIRS:
-            for path in sorted((run_dir / sub).glob("*.jsonl")):
-                items.append(Item(path, f"runs/{run_dir.name}/{sub}/{path.name}"))
+            # Rollout files are named <host>-<pid>.jsonl; publish them as parts.
+            for k, path in enumerate(sorted((run_dir / sub).glob("*.jsonl"))):
+                items.append(
+                    Item(path, f"runs/{run_dir.name}/{sub}/part-{k:03d}.jsonl")
+                )
     for name in sft_datasets:
         for file_name in SFT_FILES:
             path = datasets_dir / name / file_name
@@ -112,10 +115,38 @@ def plan(
     return items
 
 
+def hostnames(items: Sequence[Item]) -> set[str]:
+    """Machine names recorded in the released runs (provenance, rollout files)."""
+    found: set[str] = set()
+
+    def visit(node: object) -> None:
+        if isinstance(node, dict):
+            for key, value in node.items():
+                if key == "hostname" and isinstance(value, str) and value:
+                    found.add(value)
+                visit(value)
+        elif isinstance(node, list):
+            for value in node:
+                visit(value)
+
+    for item in items:
+        if item.source.name == "provenance.json":
+            visit(_json(item.source))
+        elif item.source.parent.name in RUN_DIRS and "-" in item.source.stem:
+            found.add(item.source.stem.rsplit("-", 1)[0])
+    return {name for name in found if len(name) >= 3}
+
+
 def write(
-    items: Sequence[Item], out: Path, replacements: Sequence[tuple[str, str]]
+    items: Sequence[Item],
+    out: Path,
+    replacements: Sequence[tuple[str, str]],
+    extra: dict[str, str] | None = None,
 ) -> dict[str, str]:
-    """Copy (and scrub) the items under ``out``; return SHA-256 per target."""
+    """Copy (and scrub) the items, plus ``extra`` text files, under ``out``.
+
+    Returns SHA-256 per target; ``SHA256SUMS`` covers every written file.
+    """
     digests: dict[str, str] = {}
     for item in items:
         target = out / item.target
@@ -126,6 +157,10 @@ def write(
         else:
             shutil.copyfile(item.source, target)
         digests[item.target] = hashlib.sha256(target.read_bytes()).hexdigest()
+    for name, text in (extra or {}).items():
+        target = out / name
+        target.write_text(scrub(text, replacements), encoding="utf-8", newline="\n")
+        digests[name] = hashlib.sha256(target.read_bytes()).hexdigest()
     lines = [f"{digest}  {name}\n" for name, digest in sorted(digests.items())]
     (out / "SHA256SUMS").write_text("".join(lines), encoding="utf-8", newline="\n")
     return digests

@@ -40,7 +40,7 @@ WEIGHTS = {".safetensors", ".bin", ".pt", ".pth", ".ckpt", ".gguf", ".npy", ".np
 PATTERNS = {
     "absolute path": r"(?:/home/|/Users/|/scratch/|/hpctmp/|/mnt/|[A-Za-z]:\\\\)[^\s\"']*",
     "cluster host": r"\bxlogin\d*\b|\bxcn[a-z]*\d+\b|\bxgp[a-z]\d+\b|comp\.nus\.edu\.sg|\bnus\.edu\.sg",
-    "personal name": r"(?i)zhaobin|徐肇斌",
+    "personal name": r"(?i)zhaobin(?!xu/knowwhentohandoff)|徐肇斌",  # the public Kaggle handle is expected
     "student id": r"\b[Ee]0\d{6}\b|\bA0\d{6}[A-Z]\b",
     "course marker": r"(?i)\bCS ?4246\b|\bCS ?5446\b|\bgroup ?21\b|course project|课程",
     "e-mail (non-example)": r"[A-Za-z0-9._%+-]+@(?!example\.(?:com|org|net)\b)[A-Za-z0-9.-]+\.[A-Za-z]{2,}",

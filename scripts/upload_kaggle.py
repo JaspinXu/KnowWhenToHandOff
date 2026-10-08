@@ -46,6 +46,11 @@ def main() -> int:
         "--dry-run", action="store_true", help="stage and print metadata only"
     )
     parser.add_argument(
+        "--delete-old-versions",
+        action="store_true",
+        help="with --version: delete the dataset's earlier versions on Kaggle",
+    )
+    parser.add_argument(
         "--metadata-only",
         action="store_true",
         help="update title, description and cover image of the existing dataset",
@@ -74,9 +79,12 @@ def main() -> int:
         raise SystemExit(f"missing {data}; run scripts/export_release.py first")
     if stage.exists():
         shutil.rmtree(stage)
-    shutil.copytree(
-        data, stage, copy_function=os.link, ignore=shutil.ignore_patterns("README.md")
-    )
+
+    def top_card(folder: str, names: list[str]) -> list[str]:
+        # Only the top-level Hugging Face card; keep README.md files in sub-folders.
+        return ["README.md"] if Path(folder) == data else []
+
+    shutil.copytree(data, stage, copy_function=os.link, ignore=top_card)
     meta = kaggle_metadata(args.user, card)
     if COVER.is_file():  # picked up automatically on create, not uploaded as data
         shutil.copyfile(COVER, stage / "dataset-cover-image.png")
@@ -100,6 +108,7 @@ def main() -> int:
             "-r",
             "zip",
             "-t",
+            *(["-d"] if args.delete_old_versions else []),
         ]
     else:
         command = [

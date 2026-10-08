@@ -36,6 +36,11 @@ def main() -> int:
         "their history (repairs uploads made before they were excluded)",
     )
     parser.add_argument(
+        "--squash",
+        action="store_true",
+        help="after uploading, squash each repository's history to one commit",
+    )
+    parser.add_argument(
         "--cards-only",
         action="store_true",
         help="re-upload only the cards (README.md) of the selected repositories",
@@ -96,6 +101,8 @@ def main() -> int:
         api.upload_file(
             path_or_fileobj=ROOT / card, path_in_repo="README.md", repo_id=repo
         )
+        if args.squash:
+            api.super_squash_history(repo_id=repo, repo_type="model")
         print(f"https://huggingface.co/{repo}")
     if "data" in args.only:
         data = scratch / "release" / "data"
@@ -103,13 +110,20 @@ def main() -> int:
             raise SystemExit(f"missing {data}; run scripts/export_release.py first")
         repo = f"{args.user}/KnowWhenToHandOff-data"
         api.create_repo(repo, repo_type="dataset", private=True, exist_ok=True)
-        api.upload_folder(repo_id=repo, folder_path=data, repo_type="dataset")
+        api.upload_folder(  # also deletes remote data files no longer in the export
+            repo_id=repo,
+            folder_path=data,
+            repo_type="dataset",
+            delete_patterns=["runs/**", "tasks/**", "sft/**", "*.jsonl", "SHA256SUMS"],
+        )
         api.upload_file(
             path_or_fileobj=ROOT / "docs/dataset-card.md",
             path_in_repo="README.md",
             repo_id=repo,
             repo_type="dataset",
         )
+        if args.squash:
+            api.super_squash_history(repo_id=repo, repo_type="dataset")
         print(f"https://huggingface.co/datasets/{repo}")
     return 0
 

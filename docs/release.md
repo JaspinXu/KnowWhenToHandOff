@@ -114,3 +114,12 @@ bash slurm/submit.sh cpu CMD="python scripts/upload_kaggle.py --user zhaobinxu -
 
 Model repositories carry no bookkeeping files (`upload_release.py` skips them;
 `--clean` removes them from an earlier upload and squashes the history).
+
+To replace the dataset after an export change (old files removed, history
+squashed on Hugging Face, earlier versions deleted on Kaggle):
+
+```bash
+bash slurm/submit.sh cpu CMD="rm -rf \$HANDOFF_SCRATCH/release/data && python scripts/export_release.py --out \$HANDOFF_SCRATCH/release/data && cp docs/dataset-card.md \$HANDOFF_SCRATCH/release/data/README.md"
+bash slurm/submit.sh cpu CMD="python scripts/upload_release.py --user JaspinXu --only data --squash"
+bash slurm/submit.sh cpu CMD="python scripts/upload_kaggle.py --user zhaobinxu --kaggle \$HANDOFF_SCRATCH/kaggle-venv/bin/kaggle --version 'Hostnames removed, nested READMEs restored' --delete-old-versions"
+```

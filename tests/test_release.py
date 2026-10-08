@@ -2,13 +2,14 @@
 
 import json
 
-from handoff.release import plan, release_runs, run_index, scrub, write
+from handoff.release import hostnames, plan, release_runs, run_index, scrub, write
 
 
 def _run(runs, run_id, kind="real", status="completed", rollouts=False):
     run_dir = runs / run_id
     run_dir.mkdir(parents=True)
-    (run_dir / "provenance.json").write_text(json.dumps({"execution_kind": kind}))
+    provenance = {"execution_kind": kind, "hardware": {"hostname": "xnode7"}}
+    (run_dir / "provenance.json").write_text(json.dumps(provenance))
     if status is not None:
         (run_dir / "completion.json").write_text(json.dumps({"status": status}))
     metrics = {"overall": {"success": {"point": 0.5}, "handoff_f1": {"point": 0.8}}}
@@ -18,7 +19,7 @@ def _run(runs, run_id, kind="real", status="completed", rollouts=False):
     (run_dir / "checkpoints" / "model.safetensors").write_bytes(b"weights")
     if rollouts:
         (run_dir / "rollouts").mkdir()
-        (run_dir / "rollouts" / "step_1.jsonl").write_text("{}\n")
+        (run_dir / "rollouts" / "xnode7-4242.jsonl").write_text('{"host": "xnode7"}\n')
     return run_dir
 
 
@@ -49,18 +50,22 @@ def test_plan_skips_weights_and_write_scrubs_paths(tmp_path):
     targets = [item.target for item in items]
     assert "tasks/v1/airline_tasks.json" in targets
     assert "tasks/manifests/splits_v1.json" in targets
-    assert "runs/R1-s1-20261006/rollouts/step_1.jsonl" in targets
+    assert "runs/R1-s1-20261006/rollouts/part-000.jsonl" in targets
     assert "sft/b2_v1/manifest.json" in targets
     assert not any("checkpoints" in t or "records.jsonl" in t for t in targets)
 
     out = tmp_path / "out"
-    digests = write(items, out, [(str(tmp_path / "scratch"), "<scratch>")])
+    assert hostnames(items) == {"xnode7"}
+    replacements = [(str(tmp_path / "scratch"), "<scratch>"), ("xnode7", "<host>")]
+    digests = write(items, out, replacements, extra={"runs.jsonl": "{}\n"})
     config = (out / "runs/R1-s1-20261006/config.json").read_text()
     assert "<scratch>" in config
     assert str(tmp_path) not in config
     assert json.dumps(str(tmp_path))[1:-1] not in config
-    assert set(digests) == set(targets)
-    assert (out / "SHA256SUMS").read_text().count("\n") == len(targets)
+    assert set(digests) == set(targets) | {"runs.jsonl"}
+    assert (out / "SHA256SUMS").read_text().count("\n") == len(targets) + 1
+    published = "".join(p.read_text() for p in out.rglob("*") if p.is_file())
+    assert "xnode7" not in published
     rows = run_index(items)
     assert rows == [
         {"run_id": "R1-s1-20261006", "files": 4, "success": 0.5, "handoff_f1": 0.8}

@@ -16,7 +16,7 @@ import json
 from pathlib import Path
 
 from handoff.cli import CliError, compose_config, fail, repo_root, require_scratch
-from handoff.release import plan, run_index, write
+from handoff.release import hostnames, plan, run_index, write
 
 ROOT = repo_root(__file__)
 
@@ -53,11 +53,10 @@ def main() -> int:
             (str(scratch), "<scratch>"),
             (str(ROOT), "<repo>"),
             (str(Path.home()), "~"),
+            *((host, "<host>") for host in sorted(hostnames(items))),
         ]
-        write(items, out, replacements)
-        (out / "runs.jsonl").write_text(
-            "".join(json.dumps(row) + "\n" for row in runs), encoding="utf-8"
-        )
+        index = "".join(json.dumps(row) + "\n" for row in runs)
+        write(items, out, replacements, extra={"runs.jsonl": index})
     except CliError as error:
         fail(str(error))
     print(f"release folder: {args.out}")
