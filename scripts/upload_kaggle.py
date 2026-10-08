@@ -15,6 +15,8 @@ Example:
         --kaggle "$HANDOFF_SCRATCH/kaggle-venv/bin/kaggle"
     python scripts/upload_kaggle.py --user <kaggle-handle> --version "Fix run index"
     python scripts/upload_kaggle.py --user <kaggle-handle> --metadata-only
+    python scripts/upload_kaggle.py --user <kaggle-handle> --notebook --dry-run
+    python scripts/upload_kaggle.py --user <kaggle-handle> --notebook
 """
 
 from __future__ import annotations
@@ -26,10 +28,28 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from handoff.release import KAGGLE_SLUG, kaggle_metadata
+from handoff.release import (
+    KAGGLE_NOTEBOOK,
+    KAGGLE_SLUG,
+    kaggle_kernel_metadata,
+    kaggle_metadata,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 COVER = ROOT / "docs" / "assets" / "kaggle-cover.png"
+NOTEBOOK = ROOT / "notebooks" / "kaggle_quickstart.ipynb"
+
+
+def run_notebook(path: Path, data: Path) -> None:
+    """Execute the notebook's code cells in order (headless) on ``data``."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    os.environ["HANDOFF_RELEASE"] = str(data)
+    namespace: dict[str, object] = {}
+    for cell in json.loads(path.read_text(encoding="utf-8"))["cells"]:
+        if cell["cell_type"] == "code":
+            exec(compile("".join(cell["source"]), path.name, "exec"), namespace)
 
 
 def main() -> int:
@@ -55,9 +75,32 @@ def main() -> int:
         action="store_true",
         help="update title, description and cover image of the existing dataset",
     )
+    parser.add_argument(
+        "--notebook",
+        action="store_true",
+        help="push the example notebook (private) attached to the dataset; Kaggle "
+        "runs it and keeps the outputs (with --dry-run: run it here instead)",
+    )
     args = parser.parse_args()
 
     release = Path(os.environ["HANDOFF_SCRATCH"]) / "release"
+    if args.notebook:
+        kernel_dir = release / "kaggle-notebook"
+        kernel_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(NOTEBOOK, kernel_dir / NOTEBOOK.name)
+        (kernel_dir / "kernel-metadata.json").write_text(
+            json.dumps(kaggle_kernel_metadata(args.user, NOTEBOOK.name), indent=2),
+            encoding="utf-8",
+        )
+        if args.dry_run:  # run the cells here against the local export instead
+            run_notebook(NOTEBOOK, release / "data")
+            print("notebook ran cleanly on the local export")
+            return 0
+        subprocess.run(
+            [args.kaggle, "kernels", "push", "-p", str(kernel_dir)], check=True
+        )
+        print(f"https://www.kaggle.com/code/{args.user}/{KAGGLE_NOTEBOOK}")
+        return 0
     card = (ROOT / "docs" / "dataset-card.md").read_text(encoding="utf-8")
     if args.metadata_only:
         meta_dir = release / "kaggle-metadata"

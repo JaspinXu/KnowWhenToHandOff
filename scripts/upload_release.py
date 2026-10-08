@@ -5,6 +5,8 @@ Needs ``hf auth login`` once (your own write token) and the dataset folder from
 
 Example:
     python scripts/upload_release.py --user JaspinXu
+    python scripts/upload_release.py --user JaspinXu --collection
+    python scripts/upload_release.py --user JaspinXu --publish   # release day
 """
 
 from __future__ import annotations
@@ -22,6 +24,29 @@ MODELS = {  # repository suffix: (folder under runs/, card)
 # Local bookkeeping next to the weights; the export and SFT records hold cluster
 # paths.
 BOOKKEEPING = [".handoff_fingerprint.json", "handoff_export.json", "handoff_sft.json"]
+COLLECTION = "KnowWhenToHandOff"
+COLLECTION_ABOUT = (
+    "When should a tool-using customer-service agent hand off to a human? "
+    "Qwen3-4B SFT and GRPO models with all data."
+)
+NOTES = {  # collection item notes, in display order
+    "R2": "Recommended. GRPO with the Responsible-AI reward: hand-off F1 0.812, "
+    "over-escalation 0.103.",
+    "R1": "GRPO with the task reward only. Learns to over-escalate (0.462); kept "
+    "for comparison.",
+    "SFT": "Imitation of Qwen3-30B-A3B teacher dialogues; the starting point of "
+    "R1 and R2.",
+    "data": "Hand-off task set, every evaluation conversation and every GRPO "
+    "training episode.",
+}
+
+
+def repo_ids(user: str) -> list[tuple[str, str, str]]:
+    """(key, repository ID, type) of every release repository."""
+    models = [
+        (name, f"{user}/KnowWhenToHandOff-Qwen3-4B-{name}", "model") for name in MODELS
+    ]
+    return [*models, ("data", f"{user}/KnowWhenToHandOff-data", "dataset")]
 
 
 def main() -> int:
@@ -45,11 +70,43 @@ def main() -> int:
         action="store_true",
         help="re-upload only the cards (README.md) of the selected repositories",
     )
+    parser.add_argument(
+        "--collection",
+        action="store_true",
+        help=f"create (or refresh) the private collection {COLLECTION!r} holding "
+        "the four repositories",
+    )
+    parser.add_argument(
+        "--publish",
+        action="store_true",
+        help="make the four repositories and the collection public",
+    )
     args = parser.parse_args()
     from huggingface_hub import HfApi
 
-    scratch = Path(os.environ["HANDOFF_SCRATCH"])
     api = HfApi()
+    if args.collection or args.publish:
+        collection = api.create_collection(
+            title=COLLECTION,
+            namespace=args.user,
+            description=COLLECTION_ABOUT,
+            private=not args.publish,
+            exists_ok=True,
+        )
+        present = {item.item_id for item in collection.items}
+        for key, repo, kind in repo_ids(args.user):
+            if args.publish:
+                api.update_repo_settings(repo, private=False, repo_type=kind)
+                print(f"public {repo}")
+            if repo not in present:
+                api.add_collection_item(
+                    collection.slug, repo, kind, note=NOTES[key], exists_ok=True
+                )
+        if args.publish:
+            api.update_collection_metadata(collection.slug, private=False)
+        print(f"https://huggingface.co/collections/{collection.slug}")
+        return 0
+    scratch = Path(os.environ["HANDOFF_SCRATCH"])
     if args.clean:
         for name in MODELS:
             if name not in args.only:

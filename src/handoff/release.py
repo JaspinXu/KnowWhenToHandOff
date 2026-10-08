@@ -290,3 +290,27 @@ def kaggle_metadata(user: str, card: str) -> dict[str, object]:
     if not 6 <= len(KAGGLE_TITLE) <= 50 or not 20 <= len(KAGGLE_SUBTITLE) <= 80:
         raise ValueError("Kaggle title must be 6-50 and subtitle 20-80 characters")
     return meta
+
+
+KAGGLE_NOTEBOOK = "knowwhentohandoff-quickstart"
+KAGGLE_NOTEBOOK_TITLE = "KnowWhenToHandOff quickstart"  # Kaggle derives the slug
+
+
+def kaggle_kernel_metadata(user: str, code_file: str) -> dict[str, object]:
+    """``kernel-metadata.json`` for the example notebook (private, CPU, offline)."""
+    return {
+        "id": f"{user}/{KAGGLE_NOTEBOOK}",
+        "title": KAGGLE_NOTEBOOK_TITLE,
+        "code_file": code_file,
+        "language": "python",
+        "kernel_type": "notebook",
+        "is_private": True,
+        "enable_gpu": False,
+        "enable_tpu": False,
+        "enable_internet": False,
+        "keywords": [],
+        "dataset_sources": [f"{user}/{KAGGLE_SLUG}"],
+        "competition_sources": [],
+        "kernel_sources": [],
+        "model_sources": [],
+    }

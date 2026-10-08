@@ -93,6 +93,50 @@ stays primary. Your Kaggle *handle* is the last part of your profile URL
 4. Check the dataset page, then make it public from its Settings together with
    the rest.
 
+5. Example notebook (`notebooks/kaggle_quickstart.ipynb`, no GPU): a tour of the
+   run index, the task set, where each model transfers, and the R1 loophole in
+   the training rollouts. Run it on the local export first, then push it as a
+   private Kaggle notebook attached to the dataset (Kaggle runs it and shows it
+   under the dataset's *Code* tab; a worked example raises the usability score):
+
+   ```bash
+   bash slurm/submit.sh cpu CMD="python scripts/upload_kaggle.py --user zhaobinxu --notebook --dry-run"
+   bash slurm/submit.sh cpu CMD="python scripts/upload_kaggle.py --user zhaobinxu --notebook --kaggle \$HANDOFF_SCRATCH/kaggle-venv/bin/kaggle"
+   ```
+
+## Hugging Face collection
+
+One page linking the four repositories, R2 first, each with a one-line note
+(private until release day):
+
+```bash
+bash slurm/submit.sh cpu CMD="python scripts/upload_release.py --user JaspinXu --collection"
+```
+
+## Release day
+
+Make everything public together, in this order:
+
+1. GitHub: decide whether to squash the history first (older commits carry
+   earlier README and report drafts), then make the repository public.
+2. Hugging Face, the four repositories and the collection in one go:
+
+   ```bash
+   bash slurm/submit.sh cpu CMD="python scripts/upload_release.py --user JaspinXu --publish"
+   ```
+
+3. Kaggle: dataset *Settings → Visibility → Public*; the notebook's *Share →
+   Public*. Re-run the notebook from its page if the run ID list changed.
+4. Check the Hugging Face dataset viewer: the `runs`, `airline_tasks` and
+   `retail_tasks` configurations must each show a table (private repositories
+   have no viewer without PRO).
+5. DOI: on each Hugging Face repository, *Settings → Generate DOI* (public
+   repositories only; a DOI cannot be deleted afterwards). Add the dataset and
+   R2 DOIs to the citation blocks in `docs/dataset-card.md`,
+   `docs/model-cards/*.md` and the READMEs, then push the cards with
+   `--cards-only` and the Kaggle metadata with `--metadata-only`.
+6. Run the audit once more (below).
+
 ## Audit and refresh (after any upload)
 
 Check what is published, without downloading weights: file lists, model

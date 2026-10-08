@@ -102,8 +102,14 @@ on its own terms; write-ups (reports, venue papers) live outside it
   deleted); `scripts/audit_release.py` then found no paths, host names, personal
   or course identifiers, student IDs or tokens on either platform (only
   τ²-bench's fictional e-mails and model-invented generic URLs).
-- **Next steps (owner):** make the GitHub repository, the four Hugging Face
-  repositories and the Kaggle dataset public together. No more GPU runs.
+- **Release pages (9 Oct):** `upload_release.py --collection` builds the private
+  Hugging Face collection *KnowWhenToHandOff* (R2, R1, SFT, data, with notes);
+  `upload_kaggle.py --notebook` pushes `notebooks/kaggle_quickstart.ipynb`
+  (CPU tour of the data, `--dry-run` runs it on the local export) as a private
+  Kaggle notebook attached to the dataset.
+- **Next steps (owner):** release day as in `docs/release.md` (GitHub, then
+  `upload_release.py --publish`, Kaggle visibility, dataset viewer check,
+  DOIs into the citation blocks). No more GPU runs.
 
 - **Experiments (5 Oct):** teacher → `b2_v1` SFT data (790 dialogues) → B2
   (LoRA SFT r=64; full fine-tuning ran out of memory on the H100) →
