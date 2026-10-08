@@ -78,7 +78,8 @@ stays primary. Your Kaggle *handle* is the last part of your profile URL
    Python 3.12; `uv` is not on the login node's `PATH`.)
 
 3. After the Hugging Face steps above (the dataset folder must exist), check
-   the staging and metadata, then upload privately from a CPU node:
+   the staging and metadata, then upload from a CPU node (Kaggle's CLI 2.2.4
+   created the dataset **public**; a public dataset cannot be made private):
 
    ```bash
    bash slurm/submit.sh cpu CMD="python scripts/upload_kaggle.py --user <handle> --dry-run"
@@ -131,7 +132,8 @@ Make everything public together, in this order:
    `retail_tasks` configurations must each show a table (private repositories
    have no viewer without PRO).
 5. DOI: on each Hugging Face repository, *Settings → Generate DOI* (public
-   repositories only; a DOI cannot be deleted afterwards). Add the dataset and
+   repositories only). Irreversible: afterwards the repository can no longer
+   be deleted, renamed, transferred or made private. Add the dataset and
    R2 DOIs to the citation blocks in `docs/dataset-card.md`,
    `docs/model-cards/*.md` and the READMEs, then push the cards with
    `--cards-only` and the Kaggle metadata with `--metadata-only`.

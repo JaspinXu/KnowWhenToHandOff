@@ -1,4 +1,4 @@
-"""Mirror the dataset release to Kaggle as a private dataset (docs/release.md).
+"""Mirror the dataset release to Kaggle (docs/release.md).
 
 Kaggle hosts the dataset only; model weights stay on Hugging Face. Needs the
 Kaggle CLI (its own small environment, see docs/release.md), your API token in
@@ -167,7 +167,7 @@ def main() -> int:
         ]
     subprocess.run(command, check=True)
     url = f"https://www.kaggle.com/datasets/{args.user}/{KAGGLE_SLUG}"
-    print(f"{url} (private until you make it public)")
+    print(f"{url} (check Settings -> Visibility; public datasets stay public)")
     return 0
 
 

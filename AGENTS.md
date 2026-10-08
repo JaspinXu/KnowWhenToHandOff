@@ -94,7 +94,7 @@ on its own terms; write-ups (reports, venue papers) live outside it
   `docs/assets/`, PNG in EN and ZH from `scripts/readme_figures.py`; the old execution plan,
   risk register and compute plan were removed); `scripts/export_release.py` packages the task set, run
   records, SFT data and RL rollouts for Hugging Face (`docs/release.md`); Hugging Face account `JaspinXu`, and `scripts/upload_kaggle.py` mirrors the dataset (not the weights) to Kaggle.
-- **Uploads (8 Oct, all private):** Hugging Face `JaspinXu/KnowWhenToHandOff-Qwen3-4B-{R2,R1,SFT}`
+- **Uploads (8 Oct; public since 9 Oct):** Hugging Face `JaspinXu/KnowWhenToHandOff-Qwen3-4B-{R2,R1,SFT}`
   (14 files each; bookkeeping files with cluster paths removed and history squashed) and `JaspinXu/KnowWhenToHandOff-data` (160 files: 22 runs, 124.9 MB);
   Kaggle `zhaobinxu/knowwhentohandoff-data` (dataset only; sub-folders as zip).
   Re-exported the same day with machine names scrubbed to `<host>` and rollout
@@ -102,7 +102,7 @@ on its own terms; write-ups (reports, venue papers) live outside it
   deleted); `scripts/audit_release.py` then found no paths, host names, personal
   or course identifiers, student IDs or tokens on either platform (only
   τ²-bench's fictional e-mails and model-invented generic URLs).
-- **Release pages (9 Oct, done in the browser, all private):** Hugging Face
+- **Release pages (9 Oct, done in the browser):** Hugging Face
   collection `JaspinXu/knowwhentohandoff` (R2, R1, SFT, data, with notes);
   Kaggle notebook `zhaobinxu/knowwhentohandoff-quickstart` (version 1 of
   `notebooks/kaggle_quickstart.ipynb`, ran in 22 s on the real data); Kaggle
@@ -112,9 +112,15 @@ on its own terms; write-ups (reports, venue papers) live outside it
   `upload_kaggle.py --notebook` (`--dry-run` runs it on the local export) and
   `--metadata-only`. Kaggle mounts the dataset at
   `/kaggle/input/datasets/<owner>/knowwhentohandoff-data/`.
-- **Next steps (owner):** release day as in `docs/release.md` (GitHub, then
-  `upload_release.py --publish`, Kaggle visibility, dataset viewer check,
-  DOIs into the citation blocks). No more GPU runs.
+- **Public (9 Oct, owner's go-ahead):** the four Hugging Face repositories,
+  the collection and the Kaggle notebook were made public in the browser
+  (anonymous API check: `private=False`, 14/14/14/160 files); the Kaggle
+  dataset had been public since its upload. The Hugging Face dataset viewer
+  shows `runs`, `airline_tasks` and `retail_tasks`. The GitHub repository is
+  still private, so the cards' code links do not open for visitors yet.
+- **Next steps (owner):** make the GitHub repository public (decide on the
+  history squash first); DOIs are optional (see `docs/release.md`). No more GPU
+  runs.
 
 - **Experiments (5 Oct):** teacher → `b2_v1` SFT data (790 dialogues) → B2
   (LoRA SFT r=64; full fine-tuning ran out of memory on the H100) →
