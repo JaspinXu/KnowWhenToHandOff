@@ -19,8 +19,9 @@ MODELS = {  # repository suffix: (folder under runs/, card)
     "R1": ("R1-s1-20261006/export/global_step_60", "docs/model-cards/R1.md"),
     "SFT": ("B2-s0-20261005/final", "docs/model-cards/B2.md"),
 }
-# Local bookkeeping next to the weights; the export record holds a cluster path.
-BOOKKEEPING = [".handoff_fingerprint.json", "handoff_export.json"]
+# Local bookkeeping next to the weights; the export and SFT records hold cluster
+# paths.
+BOOKKEEPING = [".handoff_fingerprint.json", "handoff_export.json", "handoff_sft.json"]
 
 
 def main() -> int:
