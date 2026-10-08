@@ -39,6 +39,11 @@ properties on every conversation: policy violations, hand-off precision and
 recall, success across six user communication styles, and whether refusals and
 hand-offs cite the policy.
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/stats-en-dark.png">
+  <img src="docs/assets/stats-en-light.png" alt="At a glance: hand-off F1 0.812, over-escalation 46% to 10%, success vs SFT +0.015 (not significant), 461 hand-off tasks, 3,840 RL dialogues per run" width="100%">
+</picture>
+
 ## Key findings
 
 | | Finding | Evidence |
@@ -50,7 +55,10 @@ hand-offs cite the policy.
 
 ## Results
 
-![Task success with 95% CIs (left) and hand-off operating points (right)](docs/assets/results.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/results-en-dark.png">
+  <img src="docs/assets/results-en-light.png" alt="Task success with 95% CIs (left) and hand-off operating points (right)" width="100%">
+</picture>
 
 | System | Success (pass^1) | pass^4 | Δ success vs B2 | Hand-off F1 | Over-escalation | Worst-style success |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -73,15 +81,10 @@ RL did improve the hand-off-heavy distribution it was trained on
 
 ## Why outcome-only RL over-escalates
 
-![Dev success and dev transfer rate during GRPO](docs/assets/dev_curves.png)
-
-The same held-out conversation (airline task 6, a **hard negative**: the user
-demands travel insurance after booking, which the policy forbids):
-
-| | What the agent does | τ²-bench task reward | Counted as |
-| --- | --- | --- | --- |
-| **R1** (task reward) | Looks up the booking, then calls `transfer_to_human_agents` | **1.0** | over-escalation |
-| **R2** (Responsible-AI reward) | *"The system does not allow adding insurance after the initial booking … This is a policy restriction, not a system error."* | **1.0** | correct, cited refusal |
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/loophole-en-dark.png">
+  <img src="docs/assets/loophole-en-light.png" alt="The reward loophole: a transfer scores 1.0 whenever the correct outcome changes nothing; R2 prices hand-off errors" width="100%">
+</picture>
 
 τ²-bench checks the final database. When the correct outcome is a refusal, a
 transfer leaves the database unchanged too, so it earns full reward; on
@@ -92,7 +95,13 @@ and R1 found that strategy: it hands off right after an account lookup, often
 after guessing a user ID, and without telling the user why (citation rate
 0.06). Pricing unnecessary transfers (R2) removes the loophole; R2's remaining
 error is the opposite one, sometimes refusing out-of-scope requests instead of
-handing them off.
+handing them off. The training curves show when it happened: R1's transfer
+rate stays flat for 30 steps, then climbs while dev success stops improving.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dynamics-en-dark.png">
+  <img src="docs/assets/dynamics-en-light.png" alt="Dev success and transfer rate during GRPO: R1's transfer rate climbs after step 30" width="100%">
+</picture>
 
 Browse the dialogues offline: [`reports/demo/R2-handoffs.html`](reports/demo/R2-handoffs.html)
 and [`reports/demo/R1-over-escalation.html`](reports/demo/R1-over-escalation.html)
@@ -100,20 +109,10 @@ and [`reports/demo/R1-over-escalation.html`](reports/demo/R1-over-escalation.htm
 
 ## Method
 
-```mermaid
-flowchart LR
-  T["τ²-bench airline + retail<br/>official splits"] --> B0["B0 · prompted Qwen3-4B<br/>B1 · prompted Qwen3-30B-A3B"]
-  H["Hand-off task set<br/>461 tasks, y labels"] --> TE
-  S["6 communication styles"] --> TE
-  T --> TE["Teacher rollouts<br/>Qwen3-30B-A3B, train split"]
-  TE -->|"790 filtered dialogues"| B2["B2 · SFT (LoRA)"]
-  B2 -->|"GRPO, task reward"| R1["R1"]
-  B2 -->|"GRPO, Responsible-AI reward"| R2["R2"]
-  B0 --> E["Evaluation, once per checkpoint<br/>test_main · test_styles · test_handoff"]
-  B2 --> E
-  R1 --> E
-  R2 --> E
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/pipeline-en-dark.png">
+  <img src="docs/assets/pipeline-en-light.png" alt="System overview: tasks, SFT warm start, multi-turn GRPO rollouts, reward terms for R1 and R2, held-out evaluation" width="100%">
+</picture>
 
 **Problem.** Each conversation is a POMDP episode. Hidden: the user's goal,
 private details and communication style, and the database. Observed: the
@@ -146,10 +145,14 @@ each upstream task yields labelled variants that inherit its split:
 | Hard negative | no | The source task with a frustrated, hurried or sceptical but cooperative user | 92 |
 
 Details: [docs/handoff-tasks.md](docs/handoff-tasks.md),
-[docs/labels.md](docs/labels.md). **Communication styles:** neutral, terse,
-verbose, impatient, non-native, low-tech-literacy — injected into the
-simulated user's persona without touching task facts; they describe how people
-write, not who they are ([docs/personas.md](docs/personas.md)).
+[docs/labels.md](docs/labels.md).
+
+**Communication styles** ([docs/personas.md](docs/personas.md)):
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/styles-en-dark.png">
+  <img src="docs/assets/styles-en-light.png" alt="Six simulated-user communication styles: neutral, terse, verbose, impatient, non-native, low-tech-literacy" width="100%">
+</picture>
 
 **Training.** B2: LoRA SFT (rank 64, merged) on 790 teacher dialogues that
 succeeded with no violation, no format error and the correct hand-off
@@ -203,7 +206,7 @@ bash slurm/run.sh python scripts/make_report.py --name main --baseline B2 --runs
   R1=R1-final-test_main-s0-20261006+R1-final-test_styles-s0-20261006+R1-final-test_handoff-s0-20261006 \
   R2=R2-final-test_main-s0-20261007+R2-final-test_styles-s0-20261007+R2-final-test_handoff-s0-20261007
 bash slurm/run.sh python scripts/rl_curves.py --name rl --runs R1=R1-s1-20261006 R2=R2-s1-20261006
-bash slurm/run.sh python scripts/readme_figures.py
+python scripts/readme_figures.py   # README figures; needs Playwright with Chromium, any machine
 ```
 
 Every run records its resolved config, git SHA, τ²-bench commit, model

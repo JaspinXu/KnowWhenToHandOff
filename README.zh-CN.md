@@ -36,6 +36,11 @@
 Responsible-AI 指标：违反政策、转人工的精确率与召回率、六种用户沟通风格下的成功率、
 拒绝和转人工时是否说明政策依据。
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/stats-zh-dark.png">
+  <img src="docs/assets/stats-zh-light.png" alt="一览：转人工 F1 0.812，过度转人工 46% 降到 10%，相对 SFT 成功率 +0.015（不显著），461 个转人工任务，每次 RL 3,840 段对话" width="100%">
+</picture>
+
 ## 主要发现
 
 | | 发现 | 证据 |
@@ -47,7 +52,10 @@ Responsible-AI 指标：违反政策、转人工的精确率与召回率、六�
 
 ## 结果
 
-![左：任务成功率及 95% 置信区间；右：转人工的工作点](docs/assets/results.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/results-zh-dark.png">
+  <img src="docs/assets/results-zh-light.png" alt="左：任务成功率及 95% 置信区间；右：转人工的工作点" width="100%">
+</picture>
 
 | 系统 | 成功率（pass^1） | pass^4 | 相对 B2 的 Δ | 转人工 F1 | 过度转人工 | 最差风格成功率 |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -67,39 +75,30 @@ RL 确实提升了它训练时占多数的转人工任务（`test_handoff` 成�
 
 ## 为什么只看结果的 RL 会过度转人工
 
-![GRPO 训练中的 dev 成功率和转人工率](docs/assets/dev_curves.png)
-
-同一段留出测试对话（航空任务 6，**困难负例**：用户要求在订票后补买保险，政策不允许）：
-
-| | 模型的做法 | τ²-bench 任务奖励 | 计为 |
-| --- | --- | --- | --- |
-| **R1**（任务奖励） | 查完订单就调用 `transfer_to_human_agents` | **1.0** | 过度转人工 |
-| **R2**（Responsible-AI 奖励） | *"系统不允许在初次预订后添加保险……这是政策限制，不是系统错误。"* | **1.0** | 正确且说明依据的拒绝 |
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/loophole-zh-dark.png">
+  <img src="docs/assets/loophole-zh-light.png" alt="奖励漏洞：正确结果不改数据库时，转人工也得 1.0 分；R2 给转人工错误定价" width="100%">
+</picture>
 
 τ²-bench 检查的是最终数据库。正确结果是拒绝时，转人工同样不改数据库，因此也拿满分；在转人工任务上转人工本来就对。
 其余情况下尝试解决只有一定概率成功，转人工得 0 分。所以在任务奖励下，拿不准时转人工永远不比尝试差，R1 找到了这个策略：
 查完账户就转，经常是猜了一个用户 ID 报错后就转，也不告诉用户原因（引用率 0.06）。给不必要的转人工定价（R2）消除了这个漏洞；
-R2 剩下的错误方向相反：有时对超出范围的请求直接拒绝，而不是转人工。
+R2 剩下的错误方向相反：有时对超出范围的请求直接拒绝，而不是转人工。训练曲线显示了它发生的时间：R1 的转人工率前 30 步持平，之后快速上升，而 dev 成功率不再提高。
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dynamics-zh-dark.png">
+  <img src="docs/assets/dynamics-zh-light.png" alt="GRPO 训练中的 dev 成功率和转人工率：R1 的转人工率在第 30 步后上升" width="100%">
+</picture>
 
 离线浏览对话：[`reports/demo/R2-handoffs.html`](reports/demo/R2-handoffs.html) 和
 [`reports/demo/R1-over-escalation.html`](reports/demo/R1-over-escalation.html)（下载后用浏览器打开；转人工有边框，政策引用高亮）。
 
 ## 方法
 
-```mermaid
-flowchart LR
-  T["τ²-bench 航空 + 零售<br/>官方划分"] --> B0["B0 · 提示词 Qwen3-4B<br/>B1 · 提示词 Qwen3-30B-A3B"]
-  H["转人工任务集<br/>461 个任务，带 y 标签"] --> TE
-  S["6 种沟通风格"] --> TE
-  T --> TE["教师 rollouts<br/>Qwen3-30B-A3B，训练集"]
-  TE -->|"筛出 790 段对话"| B2["B2 · SFT（LoRA）"]
-  B2 -->|"GRPO，任务奖励"| R1["R1"]
-  B2 -->|"GRPO，Responsible-AI 奖励"| R2["R2"]
-  B0 --> E["评测，每个检查点一次<br/>test_main · test_styles · test_handoff"]
-  B2 --> E
-  R1 --> E
-  R2 --> E
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/pipeline-zh-dark.png">
+  <img src="docs/assets/pipeline-zh-light.png" alt="系统总览：任务、SFT 起点、多轮 GRPO 采样、R1 与 R2 的奖励项、留出评测" width="100%">
+</picture>
 
 **问题建模。** 每段对话是一个 POMDP 回合。隐藏状态：用户的目标、私有信息、沟通风格和数据库。
 观测：领域政策、对话和工具结果。动作：回复、调用工具，或 `transfer_to_human_agents`（结束回合）。
@@ -125,8 +124,13 @@ $R_{\text{task}} \in \{0,1\}$ 来自 τ²-bench 自带评估器；$N_{\text{viol
 | 困难负例 | 否 | 源任务加上一个着急、怀疑但配合的用户 | 92 |
 
 详见 [docs/handoff-tasks.md](docs/handoff-tasks.md) 和 [docs/labels.md](docs/labels.md)。
-**沟通风格：** 中性、简短、啰嗦、不耐烦、非母语、不熟悉技术，注入模拟用户的人设而不改任务事实；
-风格描述的是怎么说话，不代表任何人群（[docs/personas.md](docs/personas.md)）。
+
+**沟通风格**（[docs/personas.md](docs/personas.md)）：
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/styles-zh-dark.png">
+  <img src="docs/assets/styles-zh-light.png" alt="模拟用户的六种沟通风格：中性、简短、啰嗦、不耐烦、非母语、不熟悉技术" width="100%">
+</picture>
 
 **训练。** B2：在 790 段成功、无违规、无格式错误且转人工判断正确的教师对话上做 LoRA SFT（秩 64，已合并）。
 R1/R2：从 B2 出发，用 verl 0.8 和 vLLM 0.12 做 GRPO；每步 8 个任务 × 8 条 rollout，共 60 步，组内归一化优势，
