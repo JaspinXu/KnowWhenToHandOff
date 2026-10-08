@@ -24,10 +24,7 @@
 
 </div>
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/hero-zh-dark.png">
-  <img src="docs/assets/hero-zh-light.png" alt="AI 客服把对话转交给人工客服。转人工 F1 0.812（R2，最高）；过度转人工从 46% 降到 10%（R1 到 R2）；相对 SFT 成功率 +0.015（不显著）；新增 461 个转人工任务" width="100%">
-</picture>
+<p align="center"><img src="docs/assets/hero-zh.png" alt="AI 客服把对话转交给人工客服。转人工 F1 0.812（R2，最高）；过度转人工从 46% 降到 10%（R1 到 R2）；相对 SFT 成功率 +0.015（不显著）；新增 461 个转人工任务" width="100%"></p>
 
 > "帮我转人工。"
 > 最好的客服不是从不转人工的那个，而是在该转的时候转、并且说清楚为什么的那个。
@@ -50,10 +47,7 @@ Responsible-AI 指标：违反政策、转人工的精确率与召回率、六�
 
 ## 结果
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/results-zh-dark.png">
-  <img src="docs/assets/results-zh-light.png" alt="左：B0、B1、B2、R1、R2 的任务成功率、95% 区间和相对 SFT 的配对差。右：转人工召回率与过度转人工率及等 F1 曲线；B2 走向 R1（召回高、46% 过度转人工）或 R2（F1 最高）" width="100%">
-</picture>
+<p align="center"><img src="docs/assets/results-zh.png" alt="左：B0、B1、B2、R1、R2 的任务成功率、95% 区间和相对 SFT 的配对差。右：转人工召回率与过度转人工率及等 F1 曲线；B2 走向 R1（召回高、46% 过度转人工）或 R2（F1 最高）" width="100%"></p>
 
 | 系统 | 成功率（pass^1） | pass^4 | 相对 B2 的 Δ | 转人工 F1 | 过度转人工 | 最差风格成功率 |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -73,10 +67,7 @@ RL 确实提升了它训练时占多数的转人工任务（`test_handoff` 成�
 
 ## 为什么只看结果的 RL 会过度转人工
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/loophole-zh-dark.png">
-  <img src="docs/assets/loophole-zh-light.png" alt="左：正确结果是拒绝时，任务奖励给转人工记 1 分，这就是漏洞。右：R1 的 dev 转人工率在第 30 步后从 0.35 升到 0.75，R2 始终低于 0.5" width="100%">
-</picture>
+<p align="center"><img src="docs/assets/loophole-zh.png" alt="左：正确结果是拒绝时，任务奖励给转人工记 1 分，这就是漏洞。右：R1 的 dev 转人工率在第 30 步后从 0.35 升到 0.75，R2 始终低于 0.5" width="100%"></p>
 
 τ²-bench 检查的是最终数据库。正确结果是拒绝时，转人工同样不改数据库，因此也拿满分；在转人工任务上转人工本来就对。
 其余情况下尝试解决只有一定概率成功，转人工得 0 分。所以在任务奖励下，拿不准时转人工永远不比尝试差，R1 找到了这个策略：
@@ -88,10 +79,7 @@ R2 剩下的错误方向相反：有时对超出范围的请求直接拒绝，�
 
 ## 方法
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/method-zh-dark.png">
-  <img src="docs/assets/method-zh-light.png" alt="方法：任务、SFT 起点（B2）、带模拟用户的多轮 GRPO（R1 任务奖励，R2 加惩罚项）、留出评测" width="100%">
-</picture>
+<p align="center"><img src="docs/assets/method-zh.png" alt="方法：任务、SFT 起点（B2）、带模拟用户的多轮 GRPO（R1 任务奖励，R2 加惩罚项）、留出评测" width="100%"></p>
 
 **问题建模。** 每段对话是一个 POMDP 回合。隐藏状态：用户的目标、私有信息、沟通风格和数据库。
 观测：领域政策、对话和工具结果。动作：回复、调用工具，或 `transfer_to_human_agents`（结束回合）。

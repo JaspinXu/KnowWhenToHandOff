@@ -24,10 +24,7 @@
 
 </div>
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/hero-en-dark.png">
-  <img src="docs/assets/hero-en-light.png" alt="An AI support agent hands a conversation to a human agent. Hand-off F1 0.812 (R2, best); over-escalation 46% to 10% (R1 to R2); task success vs SFT +0.015 (not significant); 461 new hand-off tasks" width="100%">
-</picture>
+<p align="center"><img src="docs/assets/hero-en.png" alt="An AI support agent hands a conversation to a human agent. Hand-off F1 0.812 (R2, best); over-escalation 46% to 10% (R1 to R2); task success vs SFT +0.015 (not significant); 461 new hand-off tasks" width="100%"></p>
 
 > "Transfer me to a human."
 > The best support agent is not the one that never hands off. It is the one that hands off at the right moment, and says why.
@@ -53,10 +50,7 @@ hand-offs cite the policy.
 
 ## Results
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/results-en-dark.png">
-  <img src="docs/assets/results-en-light.png" alt="Left: task success with 95% CIs and paired difference vs SFT for B0, B1, B2, R1, R2. Right: hand-off recall vs over-escalation with equal-F1 curves; B2 moves to R1 (high recall, 46% over-escalation) or to R2 (best F1)" width="100%">
-</picture>
+<p align="center"><img src="docs/assets/results-en.png" alt="Left: task success with 95% CIs and paired difference vs SFT for B0, B1, B2, R1, R2. Right: hand-off recall vs over-escalation with equal-F1 curves; B2 moves to R1 (high recall, 46% over-escalation) or to R2 (best F1)" width="100%"></p>
 
 | System | Success (pass^1) | pass^4 | Δ success vs B2 | Hand-off F1 | Over-escalation | Worst-style success |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -79,10 +73,7 @@ RL did improve the hand-off-heavy distribution it was trained on
 
 ## Why outcome-only RL over-escalates
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/loophole-en-dark.png">
-  <img src="docs/assets/loophole-en-light.png" alt="Left: the task reward pays 1 for a transfer whenever the correct outcome is a refusal, the loophole. Right: R1's dev transfer rate climbs from 0.35 to 0.75 after step 30 while R2 stays below 0.5" width="100%">
-</picture>
+<p align="center"><img src="docs/assets/loophole-en.png" alt="Left: the task reward pays 1 for a transfer whenever the correct outcome is a refusal, the loophole. Right: R1's dev transfer rate climbs from 0.35 to 0.75 after step 30 while R2 stays below 0.5" width="100%"></p>
 
 τ²-bench checks the final database. When the correct outcome is a refusal, a
 transfer leaves the database unchanged too, so it earns full reward; on
@@ -102,10 +93,7 @@ and [`reports/demo/R1-over-escalation.html`](reports/demo/R1-over-escalation.htm
 
 ## Method
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/method-en-dark.png">
-  <img src="docs/assets/method-en-light.png" alt="Method: tasks, SFT warm start (B2), multi-turn GRPO with a simulated user (R1 task reward, R2 with penalties), held-out evaluation" width="100%">
-</picture>
+<p align="center"><img src="docs/assets/method-en.png" alt="Method: tasks, SFT warm start (B2), multi-turn GRPO with a simulated user (R1 task reward, R2 with penalties), held-out evaluation" width="100%"></p>
 
 **Problem.** Each conversation is a POMDP episode. Hidden: the user's goal,
 private details and communication style, and the database. Observed: the
@@ -194,7 +182,7 @@ bash slurm/run.sh python scripts/make_report.py --name main --baseline B2 --runs
   R1=R1-final-test_main-s0-20261006+R1-final-test_styles-s0-20261006+R1-final-test_handoff-s0-20261006 \
   R2=R2-final-test_main-s0-20261007+R2-final-test_styles-s0-20261007+R2-final-test_handoff-s0-20261007
 bash slurm/run.sh python scripts/rl_curves.py --name rl --runs R1=R1-s1-20261006 R2=R2-s1-20261006
-python scripts/readme_figures.py   # README figures (PNG, light + dark): needs Playwright with Chromium, any machine
+python scripts/readme_figures.py   # README figures (PNG): needs Playwright with Chromium, any machine
 ```
 
 Every run records its resolved config, git SHA, τ²-bench commit, model
