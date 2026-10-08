@@ -41,7 +41,7 @@ PATTERNS = {
     "absolute path": r"(?:/home/|/Users/|/scratch/|/hpctmp/|/mnt/|[A-Za-z]:\\\\)[^\s\"']*",
     "cluster host": r"\bxlogin\d*\b|\bxcn[a-z]*\d+\b|\bxgp[a-z]\d+\b|comp\.nus\.edu\.sg|\bnus\.edu\.sg",
     "personal name": r"(?i)zhaobin(?!xu/knowwhentohandoff)|徐肇斌",  # the public Kaggle handle is expected
-    "student id": r"\b[Ee]0\d{6}\b|\bA0\d{6}[A-Z]\b",
+    "student id": r"\b[Ee]0\d{6}\b(?!-[0-9a-f]{4}-)|\bA0\d{6}[A-Z]\b",  # not a UUID prefix
     "course marker": r"(?i)\bCS ?4246\b|\bCS ?5446\b|\bgroup ?21\b|course project|课程",
     "e-mail (non-example)": r"[A-Za-z0-9._%+-]+@(?!example\.(?:com|org|net)\b)[A-Za-z0-9.-]+\.[A-Za-z]{2,}",
     "token or key": r"(?i)\bhf_[A-Za-z0-9]{30,}|\bsk-[A-Za-z0-9_-]{20,}|\bKGAT_[A-Za-z0-9]+|api[_-]?key\s*[\"']?\s*[:=]\s*[\"']?[A-Za-z0-9_-]{8,}|bearer\s+[A-Za-z0-9._-]{20,}",
