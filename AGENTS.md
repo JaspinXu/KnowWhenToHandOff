@@ -5,7 +5,7 @@ and every human who works on **KnowWhenToHandOff**. The owner switches between
 agents, so this file is the shared memory of the project: read all of it before
 you change anything, and update it before you stop (§16).
 
-- Design and research plan: [README.md](README.md) (Chinese mirror:
+- Overview, method and results: [README.md](README.md) (Chinese mirror:
   [README.zh-CN.md](README.zh-CN.md)).
 - Cluster commands, step by step: [docs/cluster-runbook.md](docs/cluster-runbook.md).
 - Claude reads this file through [CLAUDE.md](CLAUDE.md); Codex reads it directly.
@@ -40,8 +40,7 @@ you change anything, and update it before you stop (§16).
 
 ## 1. The project in brief
 
-A solo-built course project for NUS CS4246/5446 (*Reinforcement Learning and
-Sequential Decision Making*, AY2026/27 Semester 1). We train
+A small research project on hand-off-aware customer-service agents. We train
 **Qwen3-4B-Instruct-2507** with multi-turn reinforcement learning (GRPO, verl) on
 **τ²-bench v1.0.1** (airline and retail domains) to act as a customer-service
 agent that:
@@ -56,15 +55,14 @@ agent that:
 **Pipeline:** baseline audit (B0, B1) → imitation warm start (B2, SFT) → GRPO
 with the task reward only (R1) and with Responsible-AI reward terms (R2).
 
-**Scope — keep it small.** It is a course project with a hard deadline, not a
-research paper. The owner asked (29 Sep) for simple code and a minimal
+**Scope — keep it small.** The owner asked (29 Sep) for simple code and a minimal
 experiment set: five runs, one seed each, no hyper-parameter sweeps, no
 ablations, no extra algorithms. Do not add experiments, models, frameworks or
 abstractions unless the owner asks. Prefer deleting over adding.
 
-**Dates:** M1 baseline audit 11 Oct · M2 SFT 18 Oct · M3 RL + experiment freeze
-1 Nov · presentation week of 10 Nov · report due 15 Nov 2026 23:59
-(≤ 10 pages, Vancouver references, contribution and AI-use statements).
+**Repository policy (owner, 8 Oct):** the repository describes the project
+on its own terms; write-ups (reports, venue papers) live outside it
+(`report/` and `paper/` are gitignored).
 
 ---
 
@@ -84,20 +82,21 @@ abstractions unless the owner asks. Prefer deleting over adding.
   over-escalation). R1 over-escalation grows late (post-hoc step 40: 0.141).
   Worst-style success B2 0.327, R1 0.286, R2 0.316 (RQ3: no change).
   RQ4 audit in [docs/rl-audit.md](docs/rl-audit.md) (owner agreed with 3 spot-checks).
-- **Write-up (8 Oct):** T4.2 report drafted in `report/` (LaTeX, 12 pt, body
-  9 pages, Vancouver; public `main.pdf` has names only, `submission.pdf` reads
-  the gitignored `team.local.tex`). T4.3 slides drafted as a Claude Slides
-  artifact (16 slides, speaker notes). T4.4: README results (EN + zh-CN),
-  model cards in `docs/model-cards/`, `render_demo.py --jsonl` for the
-  trajectory sample. Laptop tier 1: 283 passed, 28 skipped; ruff clean.
+- **Write-up (8 Oct):** T4.2 write-up done outside the repository (`report/`
+  is gitignored). T4.4: model cards in `docs/model-cards/`, `render_demo.py
+  --jsonl` for the trajectory sample. Laptop tier 1: 283 passed, 28 skipped;
+  ruff clean.
 - **Demo (8 Oct, `6e9f5de`):** `reports/demo/R2-handoffs.*` and
   `R1-over-escalation.*` (HTML + JSONL) rendered on a CPU node; tier-2
   `tests/test_cli_pipeline.py` 6 passed on a CPU node (the login node's memory
-  cap breaks it: run tests with `submit.sh cpu`, never `run.sh`). Owner
-  approved the report and slides.
-- **Next steps (owner):** upload R1/R2 to Hugging Face
-  (`docs/model-cards/README.md`) after the report; present in the week of
-  10 Nov; upload `report/submission.pdf` to Canvas by 15 Nov. No more GPU runs.
+  cap breaks it: run tests with `submit.sh cpu`, never `run.sh`).
+- **Release (8 Oct):** README rewritten (results first, figures in
+  `docs/assets/` from `scripts/readme_figures.py`; the old execution plan,
+  risk register and compute plan were removed); `scripts/export_release.py` packages the task set, run
+  records, SFT data and RL rollouts for Hugging Face (`docs/release.md`).
+- **Next steps (owner):** run the release export on the cluster and upload to
+  Hugging Face (private first); make the GitHub repository public later. No more
+  GPU runs.
 
 - **Experiments (5 Oct):** teacher → `b2_v1` SFT data (790 dialogues) → B2
   (LoRA SFT r=64; full fine-tuning ran out of memory on the H100) →
@@ -166,8 +165,7 @@ abstractions unless the owner asks. Prefer deleting over adding.
   dropped, see `docs/handoff-tasks.md`). Laptop gates: ruff + 275 passed,
   28 skipped; the tau2 tiers run in the next `setup` job.
 - **Owner decisions pending:** accept ADR-003 (simulator/teacher) and ADR-004
-  (reward). Settled 8 Oct: Group 21; the report's contribution statement uses
-  the proposal's roles.
+  (reward).
 
 ---
 
@@ -203,8 +201,8 @@ Non-negotiable. If a task seems to need breaking one, stop and ask the owner.
 7. **No large artefacts in git.** Checkpoints, trajectories, datasets, HF
    caches and review packets stay on cluster scratch (or gitignored folders).
    Git holds code, configs, small manifests and final report assets.
-8. **No result without provenance.** Every number in the README, report or
-   slides traces to a run ID with its config, git SHA, τ²-bench commit, model
+8. **No result without provenance.** Every number in the README or any
+   write-up traces to a run ID with its config, git SHA, τ²-bench commit, model
    revisions and seeds (`reports/<name>/sources.json`, `docs/experiment-log.md`).
 9. **Real runs only from a clean, committed checkout.** Provenance refuses
    dirty code, configs or data (changes under `docs/` and `reports/` are
@@ -274,7 +272,6 @@ The package is `handoff` (src layout). Each file's docstring says what it owns.
 | `tests/` | CPU tests (§12); `fakes.py`, `toy_tau2.py`, `tiny_hf.py` are shared doubles |
 | `docs/` | Runbook, metrics, labels, hand-off tasks, personas, ADRs, experiment log, status |
 | `reports/` | Generated tables and figures (final versions committed); `reports/review/` is not committed |
-| `report/` | Course report (LaTeX, figures script, public PDF); `team.local.tex` and `submission.*` are gitignored |
 
 ---
 
@@ -565,12 +562,12 @@ formatting code the library uses (backslashes get quoted in Hydra overrides).
 | Anything in `README.md` | `README.zh-CN.md` in the same commit (or a `TODO(zh-CN)` note at its top) |
 | Commands, jobs, env vars or script flags | §9 here, `docs/cluster-runbook.md`, `slurm/README.md` |
 | Config groups or presets | §8 here, `configs/README.md` |
-| Experiments or scope | README experiment matrix + zh-CN, §10 here, runbook §7/§9, `docs/implementation-status.md` |
+| Experiments or scope | README method + zh-CN, §10 here, runbook §7/§9, `docs/implementation-status.md` |
 | A metric, split, trial count or simulator | ADR-005, `docs/metrics.md` (after M1: a new ADR) |
-| Reward terms or λ | ADR-004, README problem formulation, §7 here |
+| Reward terms or λ | ADR-004, README method (reward), §7 here |
 | Labels, rules or format errors | `docs/labels.md`, §7 here |
 | A shared contract (§7) | every caller, its tests, §7 here |
-| Task completion | the README checkbox (only when the whole DoD is met), `docs/implementation-status.md` |
+| Task completion | `docs/implementation-status.md` (only when the whole DoD is met) |
 | Anything at session end | §2 status board and §17 decision log here |
 
 The claude.ai Project "KnowWhenToHandOff" keeps copies (`claude/README.md`,
@@ -682,20 +679,20 @@ the ADRs; this is the short history agents need.
 
 | Date | Decision |
 | --- | --- |
-| 8 Oct 2026 | Write-up: report as LaTeX + PDF in `report/` (Group 21; contribution statement = the proposal's roles; AI-use statement names Claude's reviews and drafts with the owner's spot-checks); slides as a Claude Slides artifact; the report lists the scope changes from the proposal (no PPO, λ sweep, Group DRO or held-out simulator; 4B instead of 1.7B). Matriculation numbers and e-mails live only in the gitignored `report/team.local.tex`. |
+| 8 Oct 2026 | The repository describes the project on its own terms; write-ups (`report/`, `paper/`) stay outside git. Release everything reusable on Hugging Face: R1, R2 and B2 weights, the hand-off task set and splits, all evaluation and training records. The GitHub repository goes public later. |
 | 7 Oct 2026 | R1's monitor flagged transfers on negatives (0.11 vs 0.04 in B2 dev). Per-step check: 0.22 at step 1 (B2 itself, before any update), then 0.00–0.25 with no trend, so not reward hacking; R1 continues. The B2 baseline is greedy dev evaluation; drift is now flagged only above 2× both the run's first 128 training episodes and B2 (`monitor_rl.py --self-baseline 128`; the first 128 had 0 format errors, so the run start alone is too noisy for rare events). |
 | 5 Oct 2026 | R1/R2 use LoRA (r=64) and 16,384 response tokens after the spike (ADR-001). The A100 simulator queue is the bottleneck: keep a running `serve` job until its time limit (SoC did not cancel an idle one in practice) and use 3-hour `gpu`-partition simulators for short evaluation batches. |
 | 30 Sep 2026 | Owner asked to audit and complete the code, then tidy code and every text file (delete redundancy, fill gaps, mind token use). Added `rl_curves.py` (the only missing DoD code) and `docs/model-card.md`; eval presets extend `configs/eval/_common.yaml`; `code-readiness.md` merged into `implementation-status.md`. Keep this file under ~40k characters (Claude loads it every session): link instead of repeating. |
 | 29 Sep 2026 | Owner switches between Claude and Codex; AGENTS.md must be kept comprehensive and updated every session (§16). `CLAUDE.md` imports this file. |
-| 29 Sep 2026 | Course-sized scope: runs B0, B1 (optional), B2, R1, R2 with one seed; removed λ grid, R3 fairness sampler, P1 PPO, A1/A2 ablations, held-out simulator, the 1.7B/1.5B smoke models, the LLM citation judge, reward shaping, and the pre-pipeline tools (server planner, completion parser, offline SFT export). Human audit 50 → 20 dialogues. |
+| 29 Sep 2026 | Small scope: runs B0, B1 (optional), B2, R1, R2 with one seed; removed λ grid, R3 fairness sampler, P1 PPO, A1/A2 ablations, held-out simulator, the 1.7B/1.5B smoke models, the LLM citation judge, reward shaping, and the pre-pipeline tools (server planner, completion parser, offline SFT export). Human audit 50 → 20 dialogues. |
 | 29 Sep 2026 | Complete the whole pipeline so it can be cloned and run on the cluster with Slurm; never download datasets or models on the laptop. ADR-001 accepted; ADR-002 to ADR-005 proposed for M1. The deferred ADR-006/007 points were settled by ADR-001 to ADR-005. |
 | 4 Oct 2026 | ADR-002 (Qwen3-4B-Instruct-2507) and ADR-005 (protocol) accepted early, after B0; style cards v1 kept despite mild effect (review in `docs/personas.md`). |
 | 3 Oct 2026 | Retail tasks whose reward needs tau2's LLM judge (40 of 114) are excluded from every split; retail results are on a 74-task subset (ADR-005). |
-| 3 Oct 2026 | T1.3: the owner delegates the hand-off task review to Claude. Claude pre-reviewed the templates against the tau2 policies and dropped `oos_price_adjustment` (retail) before the first generation; after the `tasks` job, Claude checks the 40-task packet and the owner spot-checks 5; the record goes into `docs/handoff-tasks.md` and the report's AI-use statement says so. |
+| 3 Oct 2026 | T1.3: the owner delegates the hand-off task review to Claude. Claude pre-reviewed the templates against the tau2 policies and dropped `oos_price_adjustment` (retail) before the first generation; after the `tasks` job, Claude checks the 40-task packet and the owner spot-checks 5; the record goes into `docs/handoff-tasks.md` and write-ups disclose it. |
 | 3 Oct 2026 | Hardware follows the SoC QoS: A100 80 GB for the simulator, H100 96 GB (the H200 is limited to 3-hour jobs) for evaluation, SFT and RL. The owner's earlier LatentMAS project is finished; its files on the cluster are removed. |
 | 29 Sep 2026 | Hardware: one A100 80 GB for the simulator, one H200 for everything else. |
 | 27 Sep 2026 | Implement and CPU-test code before cluster access; independent infrastructure first. |
-| 27 Sep 2026 | Top-level design (README, README.zh-CN, AGENTS) pushed; proposal due 28 Sep. |
+| 27 Sep 2026 | Top-level design (README, README.zh-CN, AGENTS) pushed. |
 
 ---
 
@@ -738,4 +735,4 @@ the ADRs; this is the short history agents need.
 | Test ledger | Scratch file that enforces one test evaluation per checkpoint and simulator |
 | Complete run | An evaluation with no lost episodes (or an explicitly accepted share) |
 | Finishing point | A milestone (M1, M2) whose result stands on its own if later stages fail |
-| Task IDs | T0.x–T4.x in the README execution plan; commit prefixes |
+| Task IDs | T0.x–T4.x in `docs/implementation-status.md`; commit prefixes |

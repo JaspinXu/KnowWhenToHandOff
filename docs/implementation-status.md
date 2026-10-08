@@ -9,7 +9,7 @@ Owner decisions and scope changes are in [AGENTS.md §17](../AGENTS.md#17-decisi
 ## Task status
 
 "Code" means implemented and tested on CPU; "Run" is what the cluster or a
-person still has to do for the README definition of done.
+person still had to do for the definition of done (only the Hugging Face upload is open).
 
 | Task | Code | Run / review still needed |
 | --- | --- | --- |
@@ -33,9 +33,9 @@ person still has to do for the README definition of done.
 | T3.5 | Reward-hacking monitor, review packet | Done 8 Oct: 40 dialogues annotated, owner spot-checked 3 ([rl-audit](rl-audit.md)) |
 | T3.6 | Test protocols, test ledger | Done 7 Oct: `reports/main/` |
 | T4.1 | Tables, figures and sources from run IDs | Done: `reports/m1`, `reports/main`, `reports/rl` |
-| T4.2 | Report source, figures script, public and submission builds ([report/](../report/README.md)) | Drafted 8 Oct (body 9 pages); owner review |
-| T4.3 | HTML demo page (`render_demo.py`, now also `--jsonl`), terminal demo; slides (Claude Slides artifact) | Done 8 Oct: slides; `reports/demo/` (R2 hand-offs, R1 over-escalation; HTML + JSONL) |
-| T4.4 | README results, [model cards](model-cards/README.md) for R1 and R2, reproduction commands | Trajectory sample done (`reports/demo/*.jsonl`); owner: Hugging Face upload |
+| T4.2 | Write-up (kept outside the repository) | Done 8 Oct |
+| T4.3 | HTML demo page (`render_demo.py`, also `--jsonl`), terminal demo | Done 8 Oct: `reports/demo/` (R2 hand-offs, R1 over-escalation; HTML + JSONL) |
+| T4.4 | README, [model cards](model-cards/README.md), [release export](release.md) | Trajectory sample done (`reports/demo/*.jsonl`); owner: Hugging Face upload |
 
 ## Verification
 

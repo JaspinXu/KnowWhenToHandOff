@@ -70,7 +70,7 @@ Design within verl:
 | verl 0.9.x | CUDA 13 wheels need driver >= 580, unknown on the cluster |
 | ART (LoRA GRPO) | LoRA-only; a possible fallback |
 | TRL `GRPOTrainer` | Multi-turn environment rollouts with token masks were immature for this use |
-| slime | Megatron-based; heavier setup than a one-person course project can afford |
+| slime | Megatron-based; heavier setup than a one-person project can afford |
 
 ## Verification
 

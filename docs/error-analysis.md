@@ -9,7 +9,7 @@ python scripts/sample_review.py failures --run B2-dev-s0-20261005 --n 10
 ```
 
 Annotation: Claude pre-annotated all 10 failures (5 Oct 2026); the owner
-spot-checked 3 and agreed with all of them (record below). The report's AI-use statement says so.
+spot-checked 3 and agreed with all of them (record below). Write-ups disclose it.
 
 ## Per-task changes (dev, B2 vs B0)
 

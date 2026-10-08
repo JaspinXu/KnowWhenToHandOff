@@ -50,13 +50,6 @@ logs/
 # Default output of ad-hoc `sbatch --wrap` jobs submitted from the checkout.
 slurm-*.out
 
-# Report build (report/): LaTeX intermediates, and the Canvas copy with team
-# details (matriculation numbers, e-mails), which must never be committed.
-report/*.aux
-report/*.log
-report/*.out
-report/*.fls
-report/*.fdb_latexmk
-report/*.synctex.gz
-report/submission.*
-report/team.local.tex
+# Write-ups (reports, venue papers) stay outside the repository.
+report/
+paper/

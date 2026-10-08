@@ -52,7 +52,7 @@ alone make "transfer everything" safe (README).
 
 ## No λ sweep
 
-This is a course project, so R2 uses the one setting above, chosen from the
+To keep the study small, R2 uses the one setting above, chosen from the
 rationale rather than tuned; there is no grid and no reward ablation. If R2
 clearly over- or under-escalates on dev (hand-off F1 and over-escalation rate
 against R1), one adjusted setting may be tried, recorded here with its reason

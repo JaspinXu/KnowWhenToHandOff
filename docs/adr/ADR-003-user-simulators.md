@@ -31,7 +31,7 @@
 - Using the same 30B model as teacher, B1 and simulator means the teacher has
   "met" this simulator. A second, held-out simulator would measure that
   overfitting, but it needs another model and a second test campaign; it is out
-  of scope for the course project and stated as a limitation.
+  of scope for this project and stated as a limitation.
 
 ## Consequences
 
