@@ -97,6 +97,11 @@ on its own terms; write-ups (reports, venue papers) live outside it
 - **Uploads (8 Oct, all private):** Hugging Face `JaspinXu/KnowWhenToHandOff-Qwen3-4B-{R2,R1,SFT}`
   (14 files each; bookkeeping files with cluster paths removed and history squashed) and `JaspinXu/KnowWhenToHandOff-data` (160 files: 22 runs, 124.9 MB);
   Kaggle `zhaobinxu/knowwhentohandoff-data` (dataset only; sub-folders as zip).
+  Re-exported the same day with machine names scrubbed to `<host>` and rollout
+  files renamed `part-NNN.jsonl` (HF history squashed, old Kaggle versions
+  deleted); `scripts/audit_release.py` then found no paths, host names, personal
+  or course identifiers, student IDs or tokens on either platform (only
+  τ²-bench's fictional e-mails and model-invented generic URLs).
 - **Next steps (owner):** make the GitHub repository, the four Hugging Face
   repositories and the Kaggle dataset public together. No more GPU runs.
 
