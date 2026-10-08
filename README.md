@@ -24,7 +24,10 @@
 
 </div>
 
-<p align="center"><img src="docs/assets/hero-en.svg" alt="KnowWhenToHandOff: an AI support agent passes a conversation to a human agent. Hand-off F1 0.812; over-escalation 46% to 10%; success vs SFT +0.015 (not significant); 461 hand-off tasks" width="100%"></p>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/hero-en-dark.png">
+  <img src="docs/assets/hero-en-light.png" alt="An AI support agent hands a conversation to a human agent. Hand-off F1 0.812 (R2, best); over-escalation 46% to 10% (R1 to R2); task success vs SFT +0.015 (not significant); 461 new hand-off tasks" width="100%">
+</picture>
 
 > "Transfer me to a human."
 > The best support agent is not the one that never hands off. It is the one that hands off at the right moment, and says why.
@@ -50,7 +53,10 @@ hand-offs cite the policy.
 
 ## Results
 
-<p align="center"><img src="docs/assets/results-en.svg" alt="Task success with 95% CIs and paired differences vs SFT (left), hand-off operating points with iso-F1 curves (right), and side effects: policy citation, violation rate, worst-style success (bottom)" width="100%"></p>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/results-en-dark.png">
+  <img src="docs/assets/results-en-light.png" alt="Left: task success with 95% CIs and paired difference vs SFT for B0, B1, B2, R1, R2. Right: hand-off recall vs over-escalation with equal-F1 curves; B2 moves to R1 (high recall, 46% over-escalation) or to R2 (best F1)" width="100%">
+</picture>
 
 | System | Success (pass^1) | pass^4 | Δ success vs B2 | Hand-off F1 | Over-escalation | Worst-style success |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -73,7 +79,10 @@ RL did improve the hand-off-heavy distribution it was trained on
 
 ## Why outcome-only RL over-escalates
 
-<p align="center"><img src="docs/assets/loophole-en.svg" alt="The reward loophole: a transfer scores 1.0 whenever the correct outcome changes nothing; R2 prices hand-off errors" width="100%"></p>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/loophole-en-dark.png">
+  <img src="docs/assets/loophole-en-light.png" alt="Left: the task reward pays 1 for a transfer whenever the correct outcome is a refusal, the loophole. Right: R1's dev transfer rate climbs from 0.35 to 0.75 after step 30 while R2 stays below 0.5" width="100%">
+</picture>
 
 τ²-bench checks the final database. When the correct outcome is a refusal, a
 transfer leaves the database unchanged too, so it earns full reward; on
@@ -84,10 +93,8 @@ and R1 found that strategy: it hands off right after an account lookup, often
 after guessing a user ID, and without telling the user why (citation rate
 0.06). Pricing unnecessary transfers (R2) removes the loophole; R2's remaining
 error is the opposite one, sometimes refusing out-of-scope requests instead of
-handing them off. The training curves show when it happened: R1's transfer
+handing them off. The right panel shows when it happened: R1's transfer
 rate stays flat for 30 steps, then climbs while dev success stops improving.
-
-<p align="center"><img src="docs/assets/dynamics-en.svg" alt="Dev success and transfer rate during GRPO: R1's transfer rate climbs after step 30" width="100%"></p>
 
 Browse the dialogues offline: [`reports/demo/R2-handoffs.html`](reports/demo/R2-handoffs.html)
 and [`reports/demo/R1-over-escalation.html`](reports/demo/R1-over-escalation.html)
@@ -95,7 +102,10 @@ and [`reports/demo/R1-over-escalation.html`](reports/demo/R1-over-escalation.htm
 
 ## Method
 
-<p align="center"><img src="docs/assets/pipeline-en.svg" alt="System overview: tasks, SFT warm start, multi-turn GRPO rollouts, reward terms for R1 and R2, held-out evaluation" width="100%"></p>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/method-en-dark.png">
+  <img src="docs/assets/method-en-light.png" alt="Method: tasks, SFT warm start (B2), multi-turn GRPO with a simulated user (R1 task reward, R2 with penalties), held-out evaluation" width="100%">
+</picture>
 
 **Problem.** Each conversation is a POMDP episode. Hidden: the user's goal,
 private details and communication style, and the database. Observed: the
@@ -130,9 +140,7 @@ each upstream task yields labelled variants that inherit its split:
 Details: [docs/handoff-tasks.md](docs/handoff-tasks.md),
 [docs/labels.md](docs/labels.md).
 
-**Communication styles** ([docs/personas.md](docs/personas.md)):
-
-<p align="center"><img src="docs/assets/styles-en.svg" alt="Six simulated-user communication styles: neutral, terse, verbose, impatient, non-native, low-tech-literacy" width="100%"></p>
+**Communication styles.** Six style cards change how the simulated user writes, never the task facts: neutral, terse, verbose, impatient, non-native and low-tech-literacy ([docs/personas.md](docs/personas.md)).
 
 **Training.** B2: LoRA SFT (rank 64, merged) on 790 teacher dialogues that
 succeeded with no violation, no format error and the correct hand-off
@@ -186,7 +194,7 @@ bash slurm/run.sh python scripts/make_report.py --name main --baseline B2 --runs
   R1=R1-final-test_main-s0-20261006+R1-final-test_styles-s0-20261006+R1-final-test_handoff-s0-20261006 \
   R2=R2-final-test_main-s0-20261007+R2-final-test_styles-s0-20261007+R2-final-test_handoff-s0-20261007
 bash slurm/run.sh python scripts/rl_curves.py --name rl --runs R1=R1-s1-20261006 R2=R2-s1-20261006
-python scripts/readme_figures.py   # README figures (SVG): Playwright + Chromium, poppler's pdftocairo; any machine
+python scripts/readme_figures.py   # README figures (PNG, light + dark): needs Playwright with Chromium, any machine
 ```
 
 Every run records its resolved config, git SHA, τ²-bench commit, model
