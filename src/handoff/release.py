@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import shutil
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
@@ -203,9 +204,53 @@ def strip_front_matter(text: str) -> str:
     return text
 
 
+_BLOCK = re.compile(r"(#|\||[-*] |\d+\. |```)")
+
+
+def kaggle_markdown(text: str) -> str:
+    """Adapt card Markdown to Kaggle's renderer.
+
+    Kaggle drops everything after an ``<https://...>`` autolink (it is sanitised
+    as an HTML tag; entities are decoded and stripped the same way, while
+    placeholders such as ``<host>`` inside code spans survive) and keeps soft
+    line breaks. So autolinks become plain links, the self-link to the Kaggle
+    mirror goes, and wrapped paragraphs, list items and quotes are joined into
+    single lines. Code spans, code blocks and tables stay as they are.
+    """
+    text = re.sub(r"\s*Kaggle mirror: <[^>]+>\.", "", text)
+    text = re.sub(r"<(https?://[^>\s]+)>", r"[\1](\1)", text)
+    out: list[str] = []
+    code = False
+    for line in text.split("\n"):
+        if line.startswith("```"):
+            code = not code
+            out.append(line)
+            continue
+        previous = out[-1] if out else ""
+        joinable = (
+            not code
+            and line.strip()
+            and previous.strip()
+            and not previous.startswith(("#", "|", "```"))
+        )
+        if joinable and line.startswith(">") and previous.startswith(">"):
+            out[-1] = previous.rstrip() + " " + line.lstrip("> ").strip()
+        elif joinable and not line.startswith(">") and not previous.startswith(">"):
+            if _BLOCK.match(line.lstrip()):
+                out.append(line)
+            else:
+                out[-1] = previous.rstrip() + " " + line.strip()
+        else:
+            out.append(line)
+    return "\n".join(out)
+
+
 KAGGLE_LOADING = """## Loading
 
-On Kaggle the files are under `/kaggle/input/knowwhentohandoff-data/`:
+In a Kaggle notebook (*Add Input* → this dataset) the files are mounted under
+`/kaggle/input/`, at present as
+`/kaggle/input/datasets/<owner>/knowwhentohandoff-data/`; the worked example
+linked at the end walks through all of them.
 
 ```python
 import json
@@ -213,7 +258,7 @@ from pathlib import Path
 
 import pandas as pd
 
-root = Path("/kaggle/input/knowwhentohandoff-data")
+root = next(Path("/kaggle/input").rglob("runs.jsonl")).parent    # mount point
 runs = pd.read_json(root / "runs.jsonl", lines=True)            # run index
 airline = json.loads((root / "tasks/v1/airline_tasks.json").read_text())
 run = root / "runs" / "R2-final-test_handoff-s0-20261007"
@@ -270,8 +315,10 @@ def kaggle_metadata(user: str, card: str) -> dict[str, object]:
         head, rest = body.split("## Loading", 1)
         tail = rest[rest.find("\n## ") + 1 :] if "\n## " in rest else ""
         body = head + KAGGLE_LOADING + "\n" + tail
-    description = body.rstrip() + (
-        f"\n\nPrimary copy and model weights: {HF_DATASET_URL}. "
+    description = kaggle_markdown(body).rstrip() + (
+        f"\n\nWorked example: [{KAGGLE_NOTEBOOK_TITLE}]"
+        f"(https://www.kaggle.com/code/{user}/{KAGGLE_NOTEBOOK}). "
+        f"Primary copy and model weights: [Hugging Face]({HF_DATASET_URL}). "
         "Licence: MIT (see *Licence and attribution* above).\n"
     )
     meta: dict[str, object] = {

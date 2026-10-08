@@ -90,7 +90,7 @@ def test_kaggle_metadata_strips_card_front_matter():
     assert meta["licenses"] == [{"name": "other"}]
     description = str(meta["description"])
     assert description.startswith("Body text.")
-    assert "/kaggle/input/knowwhentohandoff-data" in description
+    assert 'Path("/kaggle/input").rglob("runs.jsonl")' in description
     assert "load_dataset" not in description and "## Licence" in description
     assert meta["expectedUpdateFrequency"] == "never"
     assert "license: mit" not in str(meta["description"])
@@ -128,8 +128,10 @@ def _release_fixture(root):
         (root / target / Path(source).name).write_bytes((repo / source).read_bytes())
     rows = []
     message = {"role": "assistant", "content": None, "tool_calls": [{"name": "x"}]}
-    for model in ["B2", "R1", "R2"]:
-        run_id = f"{model}-final-test_handoff-s0-20261007"
+    for model in ["B2", "R1", "R2", "R1-step40"]:  # step40: an intermediate checkpoint
+        run_id = f"{model}-final-test_handoff-s0-20261007".replace(
+            "step40-final", "step40"
+        )
         (root / "runs" / run_id).mkdir(parents=True)
         lines = [
             {
@@ -181,6 +183,7 @@ def test_kaggle_notebook_runs_on_the_release_layout(tmp_path, monkeypatch):
         if cell["cell_type"] == "code":
             exec(compile("".join(cell["source"]), path.name, "exec"), namespace)
     assert set(namespace["evals"]) == {"B2", "R1", "R2"}
+    assert len(namespace["evals"]["R1"]) == 3  # the step-40 run is left out
 
 
 def test_kaggle_notebook_is_clean():
@@ -193,3 +196,20 @@ def test_kaggle_notebook_is_clean():
         assert cell.get("outputs", []) == []  # Kaggle runs it; no stale outputs
         if cell["cell_type"] == "code":
             ast.parse("".join(cell["source"]))
+
+
+def test_kaggle_markdown_avoids_autolinks_and_soft_breaks():
+    from handoff.release import kaggle_markdown
+
+    card = (
+        "Code: <https://example.org/x>. Kaggle mirror: <https://kaggle.com/y>.\n"
+        "Second line\nof a paragraph.\n\n> quote\n> continued\n\n"
+        "- item\n  continued\n- next\n\n| a |\n| b |\n\n```python\nx = 1\ny = 2\n```\n"
+    )
+    out = kaggle_markdown(card)
+    assert "<https" not in out and "kaggle.com/y" not in out
+    assert "[https://example.org/x](https://example.org/x). Second line of a" in out
+    assert "> quote continued" in out
+    assert "- item continued\n- next" in out
+    assert "| a |\n| b |" in out and "x = 1\ny = 2" in out
+    assert kaggle_markdown("see `<host>`") == "see `<host>`"
