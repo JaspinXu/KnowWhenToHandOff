@@ -45,6 +45,11 @@ properties on every conversation: policy violations, hand-off precision and
 recall, success across six user communication styles, and whether refusals and
 hand-offs cite the policy.
 
+**Five systems, one seed each:** **B0** prompted Qwen3-4B · **B1** prompted
+Qwen3-30B-A3B (reference) · **B2** SFT warm start · **R1** GRPO with τ²-bench's
+task reward · **R2** GRPO with the Responsible-AI reward. How they are built:
+[Method](#method).
+
 ## Key findings
 
 | | Finding | Evidence |
@@ -53,10 +58,11 @@ hand-offs cite the policy.
 | **RQ2** | The reward decides which way hand-offs move: outcome-only RL **over-escalates**, the Responsible-AI reward gives the **best-calibrated** agent at no success cost. | Hand-off F1 0.768 → 0.812; over-escalation 0.016 → 0.462 (R1) vs 0.103 (R2) |
 | **RQ3** | No effect of the user's communication style beyond noise, before or after RL. | Worst-style success 0.29–0.33 for every model |
 | **RQ4** | **Reward loophole:** τ²-bench scores a transfer 1.0 whenever the correct outcome changes nothing in the database, so "transfer when unsure" is weakly dominant under the task reward. R1 learned it in its last 20 steps. | Over-escalation 0.141 at step 40, 0.462 at step 60; [audit of 40 dialogues](docs/rl-audit.md) |
+| **Also** | Neither RL run learned to explain itself: both cite the policy less often than SFT. Citations were measured, never rewarded. | Citation rate B2 0.653 → R2 0.318 → R1 0.064 |
 
 ## Results
 
-<p align="center"><img src="docs/assets/results-en.png" alt="Left: task success with 95% CIs and paired difference vs SFT for B0, B1, B2, R1, R2. Right: hand-off recall vs over-escalation with equal-F1 curves; B2 moves to R1 (high recall, 46% over-escalation) or to R2 (best F1)" width="100%"></p>
+<p align="center"><img src="docs/assets/results-en.png" alt="Four panels. Top left: task success with 95% CIs and paired difference vs SFT for B0, B1, B2, R1, R2. Top right: hand-off recall vs over-escalation with equal-F1 curves; B2 moves to R1 (high recall, 46% over-escalation) or to R2 (best F1). Bottom left: success in each of six user styles against the neutral style's 95% CI; worst style 0.306, 0.327, 0.286, 0.316 for B0, B2, R1, R2. Bottom right: violation rate and citation rate with CIs; R1 has the fewest violations (0.33) and the lowest citation rate (0.06), B2 the highest citation rate (0.65)" width="100%"></p>
 
 | System | Success (pass^1) | pass^4 | Δ success vs B2 | Hand-off F1 | Over-escalation | Worst-style success |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -87,6 +93,27 @@ RL did improve the hand-off-heavy distribution it was trained on
   share handed off anyway. Read it next to F1: R1 and R2 have almost the same
   F1, but R1 gets there by handing off almost everything (recall 0.96,
   precision 0.69).
+
+**Bottom row: the other two Responsible-AI properties.**
+
+- **User style (RQ3).** Every model's six per-style success rates lie within or
+  at the edge of its neutral-style interval; the largest gaps (0.112, B2 and R2)
+  come from styles doing *better* than neutral (impatient, verbose). No style
+  falls clearly behind, before or after RL.
+- **Rule violations.** The share of `test_main` dialogues with at least one of
+  the five rule violations. Most of them are writes outside the reference
+  solution, a rule that also fires for valid alternative solutions
+  ([docs/labels.md](docs/labels.md)). R1 has the fewest (0.33 vs 0.47 for B2),
+  which fits its habit of handing off before attempting a write
+  ([audit](docs/rl-audit.md)).
+- **Policy citations.** The share of refusals and hand-offs whose text names
+  the policy (a keyword rule, [docs/metrics.md](docs/metrics.md)). SFT on
+  teacher dialogues gives the most (0.65); RL lowers it, a lot under the task
+  reward (0.06) and by half under the Responsible-AI reward (0.32), which does
+  not reward explanations.
+
+Full tables with intervals: [`reports/main/`](reports/main/) (`main_table`,
+`styles`, `paired_differences`).
 
 ## Why outcome-only RL over-escalates
 
@@ -137,7 +164,7 @@ labels: [docs/labels.md](docs/labels.md).
 
 ## Method
 
-<p align="center"><img src="docs/assets/method-en.png" alt="Method: tasks, SFT warm start (B2), multi-turn GRPO with a simulated user (R1 task reward, R2 with penalties), held-out evaluation" width="100%"></p>
+<p align="center"><img src="docs/assets/method-en.png" alt="Method. Top: pipeline from tasks to prompted baselines B0/B1, SFT (B2), GRPO (R1, R2) and one test evaluation. Middle: one episode, where the simulated user and the agent exchange messages, the agent calls τ²-bench tools on a hidden database, and transfer_to_human_agents ends the episode; τ²-bench then scores the final database. Bottom left: reward terms, R1 uses only the task reward, R2 adds penalties for violations (0.25), unneeded hand-off (0.5), missed hand-off (1.0) and format errors (0.1). Bottom right: GRPO compares 8 rollouts of a task against their group mean" width="100%"></p>
 
 **Problem.** Each conversation is a POMDP episode. Hidden: the user's goal,
 private details and communication style, and the database. Observed: the
@@ -159,8 +186,6 @@ write outside the reference solution). **R1** uses $R_{\text{task}}$ only;
 $\lambda_{\text{FN}}{=}1.0$, $\lambda_f{=}0.1$ (a missed hand-off is judged
 worse than an unnecessary one). Policy citations are measured, not rewarded:
 a keyword reward would be easy to game.
-
-**Hand-off task set.** See [above](#the-hand-off-task-set).
 
 **Communication styles.** Six style cards change how the simulated user writes, never the task facts: neutral, terse, verbose, impatient, non-native and low-tech-literacy ([docs/personas.md](docs/personas.md)).
 
@@ -223,10 +248,20 @@ uv sync --locked
 uv run --locked ruff check . && uv run --locked pytest -q
 ```
 
-Everything heavy runs on a Slurm cluster, one command per stage
-([cluster runbook](docs/cluster-runbook.md)): environment setup → task sets →
-model servers → B0/B1 → teacher rollouts → SFT data → SFT → R1/R2 → final
-evaluations → reports. The tables and figures above come from
+Everything heavy runs on a Slurm cluster, one `bash slurm/submit.sh <job>`
+per stage ([cluster runbook](docs/cluster-runbook.md)). One A100 80 GB keeps
+the user simulator up; one H100 96 GB runs evaluation, SFT and RL in turn.
+
+| Stage | Jobs | Produces |
+| --- | --- | --- |
+| Environment and data | `setup`, `download`, `tasks` | pinned stack, model snapshots, splits and hand-off tasks (`data/`) |
+| User simulator | `serve` | Qwen3-30B-A3B endpoint shared by every later job |
+| Baselines | `eval` with the `dev`, `test_main`, `test_styles` and `test_handoff` presets | B0, B1 run records |
+| Warm start | `teacher` → `sft-data` → `sft` | 790-dialogue SFT set, B2 checkpoint |
+| RL | `rl REWARD=task_only` (R1), `rl REWARD=r2` (R2) | GRPO checkpoints, rollouts, dev curves |
+| Final tests | `eval`, once per frozen checkpoint (a test ledger enforces it) | test run records |
+
+The tables and figures above come from
 
 ```bash
 bash slurm/run.sh python scripts/make_report.py --name main --baseline B2 --runs \

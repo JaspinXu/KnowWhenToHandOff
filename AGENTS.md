@@ -71,8 +71,14 @@ on its own terms; write-ups (reports, venue papers) live outside it
 > Update this section at the end of every session (§16). Newest first; keep it
 > short and factual. Code verification is not a research result.
 
-**As of 8 Oct 2026** (audits in §17):
+**As of 9 Oct 2026** (audits in §17):
 
+- **README pass (9 Oct):** results figure now has four panels (adds success per
+  user style and violation/citation rates from `reports/main/`); method figure
+  redrawn as pipeline + one episode + reward terms + GRPO group update; README
+  adds a five-systems line, an "Also" finding (RL lowers policy citations:
+  B2 0.653, R2 0.318, R1 0.064), a bottom-row explanation (violation rate is
+  mostly `off_reference_write`) and a reproduce stage table. EN and ZH in sync.
 - **All runs done (6–7 Oct; `reports/main/`):** test_main success B0 0.306,
   B1 0.398, B2 0.327, R1 0.347, R2 0.342; paired Δ vs B2: R1 +0.020
   [−0.066, 0.107], R2 +0.015 [−0.056, 0.082] (RQ1: RL does not beat SFT on

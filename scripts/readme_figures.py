@@ -2,10 +2,13 @@
 """Render the README figures: docs/assets/<name>-<lang>.png.
 
 Six figures (hero, results, loophole, dialogue, method, tasks), each in English
-and Chinese.
+and Chinese. The results figure has four panels (success, hand-off operating
+points, success per user style, violation and citation rates); the method
+figure shows the pipeline, one episode, the reward terms and the GRPO update
+(its bars are a schematic, not data).
 Every figure is an HTML/SVG page screenshotted by Chromium at 2x on a light,
 softly tinted canvas with transparent rounded corners. Numbers come from
-committed report tables (``reports/main/*.csv``, ``reports/rl/dev_curves.csv``)
+committed report tables (``reports/main/*.csv`` incl. ``styles.csv``, ``reports/rl/dev_curves.csv``)
 or, for the test_handoff precision/recall, from the runs' ``metrics.json`` values
 in ``HANDOFF`` below (also in the model cards). The dialogue figure quotes the two
 committed demo conversations of airline task 6__hn1 (``reports/demo/*.jsonl``;
@@ -173,45 +176,61 @@ T: dict[str, dict] = {
         "dlg.fp": "unneeded hand-off",
         "dlg.r1.note": "Full task reward for giving up: the loophole.",
         "dlg.r2.note": "Explains the policy, refuses, offers a human only if wanted.",
-        "m": [
+        "res.c": "Success by user style",
+        "res.c.sub": "six styles · dots: one style each · band: neutral 95% CI",
+        "res.c.cols": ["worst", "gap"],
+        "res.d": "Rule violations and policy citations",
+        "res.d.sub": "violations include writes outside the reference solution · citations are measured, not rewarded",
+        "res.d.cols": ["violation rate ↓", "citation rate ↑"],
+        "m.pipe": [
             (
                 "Tasks",
-                [
-                    "τ²-bench airline + retail",
-                    "+ 461 hand-off variants",
-                    "6 user styles",
-                ],
-                None,
+                "τ²-bench airline + retail, 461 hand-off tasks, 6 user styles",
+                [],
             ),
-            (
-                "SFT",
-                [
-                    "teacher: Qwen3-30B",
-                    "keep 790 clean dialogues",
-                    "LoRA fine-tune Qwen3-4B",
-                ],
-                ["B2"],
-            ),
-            (
-                "Multi-turn GRPO",
-                [
-                    "policy ⇄ simulated user",
-                    "8 tasks × 8 rollouts × 60 steps",
-                    "R1: task reward only",
-                    "R2: + penalty terms",
-                ],
-                ["R1", "R2"],
-            ),
-            (
-                "Evaluate",
-                [
-                    "frozen checkpoints",
-                    "1,066 test dialogues",
-                    "paired bootstrap vs SFT",
-                ],
-                None,
-            ),
+            ("Prompt", "4B and 30B-A3B, domain policy as system prompt", ["B0", "B1"]),
+            ("SFT", "LoRA on 790 clean dialogues of the 30B teacher", ["B2"]),
+            ("GRPO", "60 steps from B2, one run per reward", ["R1", "R2"]),
+            ("Test once", "frozen checkpoints, paired bootstrap vs B2", []),
         ],
+        "m.a": "One episode",
+        "m.a.sub": "a POMDP: the agent sees the policy, the dialogue and tool results",
+        "m.user": "Simulated user",
+        "m.user.l": [
+            "Qwen3-30B-A3B, temperature 0.7",
+            "knows the hidden goal and facts",
+            "writes in one of 6 styles",
+        ],
+        "m.agent": "Agent (policy)",
+        "m.agent.l": [
+            "Qwen3-4B-Instruct-2507",
+            "system prompt: the domain policy",
+            "only its tokens get gradient",
+        ],
+        "m.env": "τ²-bench domain",
+        "m.env.l": [
+            "airline or retail tools",
+            "a hidden database",
+            "up to 200 steps per episode",
+        ],
+        "m.msg": "messages",
+        "m.call": "tool calls",
+        "m.res": "results",
+        "m.xfer": "transfer_to_human_agents",
+        "m.xfer.l": "ends the episode, a human takes over",
+        "m.end": "at the end, τ²-bench compares the final database (and required actions) with the reference: R<sub>task</sub> ∈ {0, 1}",
+        "m.b": "Reward",
+        "m.b.sub": "y = should-transfer label of the task",
+        "m.terms": [
+            ("R<sub>task</sub>", "τ²-bench's own evaluator", "+1 / 0", True),
+            ("λ<sub>v</sub> = 0.25", "per broken rule (5 rules)", "−", False),
+            ("λ<sub>FP</sub> = 0.5", "transfer although y = 0", "−", False),
+            ("λ<sub>FN</sub> = 1.0", "no transfer although y = 1", "−", False),
+            ("λ<sub>f</sub> = 0.1", "per format error", "−", False),
+        ],
+        "m.group": "Group-relative update",
+        "m.group.sub": "8 tasks × 8 rollouts per step · LoRA r = 64 · no KL",
+        "m.adv": "advantage = (r − group mean) / group std: better-than-average rollouts are reinforced",
     },
     "zh": {
         "title": ["该转人工时", "才转人工"],
@@ -298,29 +317,53 @@ T: dict[str, dict] = {
         "dlg.fp": "不必要的转人工",
         "dlg.r1.note": "放弃也拿满分：这就是漏洞。",
         "dlg.r2.note": "讲清政策、拒绝，并只在用户需要时才提出转人工。",
-        "m": [
-            (
-                "任务",
-                ["τ²-bench 航空 + 零售", "+ 461 个转人工变体", "6 种用户沟通风格"],
-                None,
-            ),
-            (
-                "SFT",
-                ["教师：Qwen3-30B", "保留 790 段干净对话", "LoRA 微调 Qwen3-4B"],
-                ["B2"],
-            ),
-            (
-                "多轮 GRPO",
-                [
-                    "策略 ⇄ 模拟用户",
-                    "8 任务 × 8 rollouts × 60 步",
-                    "R1：只用任务奖励",
-                    "R2：再加惩罚项",
-                ],
-                ["R1", "R2"],
-            ),
-            ("评测", ["冻结检查点", "1,066 段测试对话", "与 SFT 配对自助法比较"], None),
+        "res.c": "不同沟通风格下的成功率",
+        "res.c.sub": "六种风格 · 每个点是一种风格 · 色带：neutral 的 95% 区间",
+        "res.c.cols": ["最差", "差距"],
+        "res.d": "违规与政策引用",
+        "res.d.sub": "违规包含超出参考答案的写入 · 引用率只测量，不进奖励",
+        "res.d.cols": ["违规率 ↓", "引用率 ↑"],
+        "m.pipe": [
+            ("任务", "τ²-bench 航空 + 零售，461 个转人工任务，6 种用户风格", []),
+            ("提示词", "4B 与 30B-A3B，系统提示为领域政策", ["B0", "B1"]),
+            ("SFT", "在 30B 教师的 790 段干净对话上做 LoRA", ["B2"]),
+            ("GRPO", "从 B2 出发 60 步，每种奖励一次", ["R1", "R2"]),
+            ("测试一次", "冻结检查点，与 B2 配对自助法比较", []),
         ],
+        "m.a": "一个 episode",
+        "m.a.sub": "POMDP：agent 只看得到政策、对话和工具返回",
+        "m.user": "模拟用户",
+        "m.user.l": [
+            "Qwen3-30B-A3B，温度 0.7",
+            "知道隐藏的目标与信息",
+            "用 6 种风格之一说话",
+        ],
+        "m.agent": "Agent（策略）",
+        "m.agent.l": [
+            "Qwen3-4B-Instruct-2507",
+            "系统提示：领域政策",
+            "只有它的 token 有梯度",
+        ],
+        "m.env": "τ²-bench 领域",
+        "m.env.l": ["航空或零售工具", "隐藏的数据库", "每个 episode 最多 200 步"],
+        "m.msg": "对话",
+        "m.call": "工具调用",
+        "m.res": "返回",
+        "m.xfer": "transfer_to_human_agents",
+        "m.xfer.l": "结束 episode，交给人工",
+        "m.end": "结束时，τ²-bench 把最终数据库（和必需动作）与参考答案对比：R<sub>task</sub> ∈ {0, 1}",
+        "m.b": "奖励",
+        "m.b.sub": "y = 任务的“是否应转人工”标签",
+        "m.terms": [
+            ("R<sub>task</sub>", "τ²-bench 自带的判分", "+1 / 0", True),
+            ("λ<sub>v</sub> = 0.25", "每违反一条规则（共 5 条）", "−", False),
+            ("λ<sub>FP</sub> = 0.5", "y = 0 却转了人工", "−", False),
+            ("λ<sub>FN</sub> = 1.0", "y = 1 却没转人工", "−", False),
+            ("λ<sub>f</sub> = 0.1", "每个格式错误", "−", False),
+        ],
+        "m.group": "组内相对更新",
+        "m.group.sub": "每步 8 个任务 × 8 条 rollout · LoRA r = 64 · 无 KL",
+        "m.adv": "优势 = (r − 组均值) / 组标准差：比同组平均好的 rollout 被强化",
     },
 }
 
@@ -586,8 +629,86 @@ def fig_results(t: dict) -> str:
     return (
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">'
         f'<div class="card">{head(t["res.a"], t["res.a.sub"])}<div style="margin-top:14px">{left}</div></div>'
-        f'<div class="card">{head(t["res.b"], t["res.b.sub"])}<div style="margin-top:14px">{mid}</div></div></div>'
+        f'<div class="card">{head(t["res.b"], t["res.b.sub"])}<div style="margin-top:14px">{mid}</div></div>'
+        f'<div class="card">{head(t["res.c"], t["res.c.sub"])}<div style="margin-top:14px">{_styles_panel(t)}</div></div>'
+        f'<div class="card">{head(t["res.d"], t["res.d.sub"])}<div style="margin-top:14px">{_rai_panel(t, main)}</div></div></div>'
     )
+
+
+def _styles_panel(t: dict) -> str:
+    """Per-style success of each model against the neutral style's 95% CI."""
+    rows = {r["Run"]: r for r in _rows("reports/main/styles.csv")}
+    styles = [
+        k for k in next(iter(rows.values())) if k not in ("Run", "Gap", "Worst style")
+    ]
+    order = [run for run in ("B0", "B2", "R1", "R2") if run in rows]
+    w, rowh, top, x0, x1 = 420, 52, 26, 140, 284
+    h = top + rowh * len(order) + 22
+    lo_v, hi_v = 0.2, 0.5
+
+    def sx(v):
+        return x0 + (x1 - x0) * (v - lo_v) / (hi_v - lo_v)
+
+    svg = defs()
+    for v in (0.2, 0.3, 0.4, 0.5):
+        svg += f'<line x1="{sx(v):.1f}" x2="{sx(v):.1f}" y1="{top - 6}" y2="{h - 20}" stroke="var(--line)"/>'
+        svg += tx(sx(v), h - 4, f"{v:.1f}", 11.5, "middle", family="JB")
+    svg += tx(350, 12, t["res.c.cols"][0], 12, "end", weight=500, family="JB")
+    svg += tx(w, 12, t["res.c.cols"][1], 12, "end", weight=500, family="JB")
+    for i, run in enumerate(order):
+        y = top + rowh * i + rowh / 2
+        mark, _, ink = MODEL[run]
+        row = rows[run]
+        _, nlo, nhi = _interval(row["neutral"])
+        svg += tx(0, y - 3, run, 14, "start", ink, 700, "JB")
+        svg += tx(0, y + 14, t["names"][run], 12, "start", "var(--ink2)")
+        svg += f'<rect x="{sx(nlo):.1f}" y="{y - 12:.1f}" width="{sx(nhi) - sx(nlo):.1f}" height="24" rx="8" fill="{mark}" opacity=".12"/>'
+        values = sorted(_interval(row[st])[0] for st in styles)
+        worst = values[0]
+        seen: dict[float, int] = {}
+        for v in values:
+            n = seen[v] = seen.get(v, 0) + 1
+            dy = 0 if values.count(v) == 1 else (-5 if n == 1 else 5)
+            base = run == "B0"
+            fill = "#fff" if base else f"url(#g{run})"
+            svg += f'<circle cx="{sx(v):.1f}" cy="{y + dy:.1f}" r="4.6" fill="{fill}" stroke="{mark if base else "#fff"}" stroke-width="{2 if base else 1.2}" opacity=".95"/>'
+        svg += tx(350, y + 4.5, f"{worst:.3f}", 13.5, "end", "var(--ink)", 500, "JB")
+        gap = _interval(row["Gap"])[0]
+        svg += f'<rect x="{w - 56}" y="{y - 11:.1f}" width="56" height="22" rx="11" fill="#F1F5F9"/>'
+        svg += tx(w - 28, y + 4.3, f"{gap:.3f}", 12, "middle", "var(--ink2)", 500, "JB")
+    return f'<svg class="fit" viewBox="0 0 {w} {h}">{svg}</svg>'
+
+
+def _rai_panel(t: dict, main: dict) -> str:
+    """Violation and citation rates with 95% CIs, one row per model."""
+    order = ["B0", "B1", "B2", "R1", "R2"]
+    w, rowh, top = 420, 41, 26
+    h = top + rowh * len(order) + 22
+    cols = [("Violation rate", 146, 256), ("Citation rate", 292, 402)]
+
+    svg = defs()
+    for (_, a, b), label in zip(cols, t["res.d.cols"], strict=True):
+        svg += tx((a + b) / 2, 12, label, 12, "middle", "var(--ink2)", 500, "JB")
+        for v in (0.0, 0.5, 1.0):
+            x = a + (b - a) * v
+            svg += f'<line x1="{x:.1f}" x2="{x:.1f}" y1="{top - 6}" y2="{h - 20}" stroke="var(--line)"/>'
+            svg += tx(x, h - 4, f"{v:.1f}", 11.5, "middle", family="JB")
+    for i, run in enumerate(order):
+        y = top + rowh * i + rowh / 2
+        mark, _, ink = MODEL[run]
+        base = run in ("B0", "B1")
+        svg += tx(0, y - 2, run, 14, "start", ink, 700, "JB")
+        svg += tx(0, y + 14, t["names"][run], 11.5, "start", "var(--ink2)")
+        for key, a, b in cols:
+            p, lo, hi = _interval(main[run][key])
+
+            def sx(v: float, a: float = a, b: float = b) -> float:
+                return a + (b - a) * v
+
+            svg += f'<rect x="{sx(lo):.1f}" y="{y - 4:.1f}" width="{sx(hi) - sx(lo):.1f}" height="8" rx="4" fill="url(#g{run})" opacity=".35"/>'
+            fill = "#fff" if base else f"url(#g{run})"
+            svg += f'<circle cx="{sx(p):.1f}" cy="{y:.1f}" r="6" fill="{fill}" stroke="{mark}" stroke-width="{2.2 if base else 0}" filter="url(#glow)"/>'
+    return f'<svg class="fit" viewBox="0 0 {w} {h}">{svg}</svg>'
 
 
 def fig_loophole(t: dict) -> str:
@@ -672,42 +793,125 @@ def fig_loophole(t: dict) -> str:
     )
 
 
+def _pills(runs: list[str], size: float = 11.5) -> str:
+    return "".join(
+        f'<span class="pill jb" style="font-size:{size}px;color:#fff;background:linear-gradient(90deg,{MODEL[r][0]},{MODEL[r][1]})">{r}</span>'
+        for r in runs
+    )
+
+
+def _arrow(color: str, flip: bool = False, length: int = 56) -> str:
+    """A horizontal arrow drawn in SVG; ``flip`` points it left."""
+    a, b = (length - 3, 3) if flip else (3, length - 3)
+    head = -6 if not flip else 6
+    return (
+        f'<svg width="{length}" height="12" viewBox="0 0 {length} 12" style="display:block">'
+        f'<path d="M{a} 6H{b}m{head} -4.5L{b} 6l{head} 4.5" stroke="{color}" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    )
+
+
 def fig_method(t: dict) -> str:
-    look = [
-        ("tasks", "#7C3AED", "#C084FC"),
-        ("sft", "#2563EB", "#60A5FA"),
-        ("rl", "#EA580C", "#FB7185"),
-        ("eval", "#059669", "#34D399"),
-    ]
-    boxes = ""
-    for k, ((title, lines, chips), (ic, c1, c2)) in enumerate(
-        zip(t["m"], look, strict=True)
+    # pipeline strip
+    look = ["#7C3AED", "#64748B", "#2563EB", "#EA580C", "#059669"]
+    steps = ""
+    for k, ((name, desc, runs), color) in enumerate(
+        zip(t["m.pipe"], look, strict=True)
     ):
+        steps += (
+            '<div style="display:flex;flex-direction:column;gap:5px;min-width:0">'
+            f'<div style="display:flex;align-items:center;gap:7px"><span class="jb" style="width:20px;height:20px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;background:{color}">{k + 1}</span>'
+            f'<span class="sg" style="font-size:15px;font-weight:600">{e(name)}</span><span style="display:flex;gap:4px;margin-left:2px">{_pills(runs, 11)}</span></div>'
+            f'<div style="font-size:12px;color:var(--ink2);line-height:1.4">{e(desc)}</div></div>'
+        )
+        if k < len(t["m.pipe"]) - 1:
+            steps += (
+                f'<div style="padding-top:4px">{_arrow("#CBD5E1", length=22)}</div>'
+            )
+    pipe = (
+        '<div class="card" style="display:grid;grid-template-columns:1fr 22px 1.1fr 22px 1fr 22px 1fr 22px 1fr;gap:0 8px;padding:16px 18px">'
+        f"{steps}</div>"
+    )
+
+    # (a) one episode
+    def node(title: str, lines: list[str], c1: str, c2: str) -> str:
         body = "".join(
-            f'<div style="font-size:13px;color:var(--ink2);margin-top:6px">{e(x)}</div>'
+            f'<div style="font-size:12px;color:var(--ink2);margin-top:3px">{e(x)}</div>'
             for x in lines
         )
-        tag = ""
-        if chips:
-            tag = (
-                '<div style="margin-top:12px;display:flex;gap:6px">'
-                + "".join(
-                    f'<span class="pill jb" style="font-size:12px;color:#fff;background:linear-gradient(90deg,{MODEL[c][0]},{MODEL[c][1]})">{c}</span>'
-                    for c in chips
-                )
-                + "</div>"
-            )
-        boxes += (
-            f'<div class="card" style="padding:16px 14px 18px">'
-            f'<div style="display:flex;align-items:center;gap:10px">{icon(ic, c1, c2)}<span class="sg" style="font-size:17px;font-weight:600">{e(title)}</span></div>'
-            f'<div style="margin-top:8px">{body}</div>{tag}</div>'
+        return (
+            f'<div style="border-radius:14px;padding:11px 12px;background:#fff;border:1px solid {c1}33;box-shadow:0 10px 22px -16px {c1}">'
+            f'<div style="height:4px;width:34px;border-radius:4px;background:linear-gradient(90deg,{c1},{c2});margin-bottom:8px"></div>'
+            f'<div class="sg" style="font-size:14.5px;font-weight:600">{e(title)}</div>{body}</div>'
         )
-        if k < 3:
-            boxes += (
-                '<div style="display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 20 20">'
-                f'<path d="M3 10h12m-4.5-4.5L15 10l-4.5 4.5" stroke="{c2}" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'
+
+    def link(top: str, bottom: str, color: str) -> str:
+        return (
+            '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px">'
+            f'<span style="font-size:11px;color:{color};font-weight:600">{e(top)}</span>{_arrow(color, length=76)}'
+            f'{_arrow(color, flip=True, length=76)}<span style="font-size:11px;color:{color};font-weight:600">{e(bottom)}</span></div>'
+        )
+
+    user, agent, env = (
+        ("#64748B", "#94A3B8"),
+        ("#4F46E5", "#818CF8"),
+        ("#0891B2", "#22D3EE"),
+    )
+    loop = (
+        '<div style="display:grid;grid-template-columns:1fr 92px 1fr 92px 1fr;align-items:center;margin-top:14px">'
+        f"{node(t['m.user'], t['m.user.l'], *user)}{link(t['m.msg'], t['m.msg'], '#64748B')}"
+        f"{node(t['m.agent'], t['m.agent.l'], *agent)}{link(t['m.call'], t['m.res'], '#0891B2')}"
+        f"{node(t['m.env'], t['m.env.l'], *env)}</div>"
+        '<div style="display:grid;grid-template-columns:1fr 92px 1fr 92px 1fr">'
+        '<span></span><span></span><div style="display:flex;flex-direction:column;align-items:center">'
+        '<svg width="12" height="26" viewBox="0 0 12 26"><path d="M6 2v20m-4.5-6L6 22l4.5-6" stroke="#E11D48" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+        f'<span class="pill jb" style="font-size:11.5px;font-weight:500;color:#fff;background:linear-gradient(90deg,#E11D48,#FB7185);box-shadow:0 8px 18px -10px #E11D48">{e(t["m.xfer"])}</span>'
+        f'<span style="font-size:11.5px;color:#BE123C;margin-top:4px;text-align:center">{e(t["m.xfer.l"])}</span></div></div>'
+        f'<div style="margin-top:14px;padding:9px 12px;border-radius:12px;background:#F1F5F9;font-size:12.5px;color:var(--ink2);text-align:center">{t["m.end"]}</div>'
+    )
+    left = f'<div class="card">{head(t["m.a"], t["m.a.sub"])}{loop}</div>'
+
+    # (b) reward terms and the group update
+    rows = "<span></span><span></span>" + "".join(
+        f'<span style="text-align:center">{_pills([r], 11)}</span>'
+        for r in ("R1", "R2")
+    )
+    tick = '<span style="text-align:center;font-weight:700;color:{c}">{m}</span>'
+    for formula, desc, sign, both in t["m.terms"]:
+        base = sign != "−"
+        rows += (
+            f'<span class="jb" style="font-size:12.5px;padding:3px 9px;border-radius:9px;white-space:nowrap;'
+            f'{"background:#ECFDF5;color:#047857" if base else "background:#FFF1F2;color:#BE123C"}">{"" if base else "− "}{formula}</span>'
+            f'<span style="font-size:12.5px;color:var(--ink2)">{e(desc)}</span>'
+            + tick.format(
+                c=MODEL["R1"][0] if both else "#CBD5E1", m="✓" if both else "–"
             )
-    return f'<div style="display:grid;grid-template-columns:1fr 16px 1fr 16px 1.1fr 16px 1fr;gap:0 4px;align-items:stretch">{boxes}</div>'
+            + tick.format(c=MODEL["R2"][0], m="✓")
+        )
+    terms = f'<div style="display:grid;grid-template-columns:auto 1fr 34px 34px;gap:8px 8px;align-items:center;margin-top:12px">{rows}</div>'
+
+    heights = [0.9, 0.35, 0.7, 0.2, 0.95, 0.5, 0.15, 0.8]  # schematic, no data
+    mean = sum(heights) / len(heights)
+    w, h, bw = 300, 92, 26
+    gap = (w - bw * len(heights)) / (len(heights) - 1)
+    bars = ""
+    for i, v in enumerate(heights):
+        x = i * (bw + gap)
+        up = v >= mean
+        color = "#059669" if up else "#EA580C"
+        bars += f'<rect x="{x:.1f}" y="{h - 6 - v * (h - 12):.1f}" width="{bw}" height="{v * (h - 12):.1f}" rx="5" fill="{color}" opacity="{0.85 if up else 0.55}"/>'
+    my = h - 6 - mean * (h - 12)
+    bars += f'<line x1="0" x2="{w}" y1="{my:.1f}" y2="{my:.1f}" stroke="#0F172A" stroke-opacity=".45" stroke-dasharray="4 4"/>'
+    bars += f'<line x1="0" x2="{w}" y1="{h - 6}" y2="{h - 6}" stroke="var(--line)"/>'
+    group = (
+        f'<div class="card">{head(t["m.group"], t["m.group.sub"])}'
+        f'<svg class="fit" viewBox="0 0 {w} {h}" style="margin-top:16px">{bars}</svg>'
+        f'<div style="font-size:12.5px;color:var(--ink2);margin-top:10px">{e(t["m.adv"])}</div></div>'
+    )
+    right = f'<div class="card">{head(t["m.b"], t["m.b.sub"])}{terms}</div>'
+    return (
+        f'{pipe}<div style="margin-top:14px">{left}</div>'
+        f'<div style="display:grid;grid-template-columns:1.3fr 1fr;gap:14px;margin-top:14px">{right}{group}</div>'
+    )
 
 
 def _task(domain: str, task_id: str) -> dict:
