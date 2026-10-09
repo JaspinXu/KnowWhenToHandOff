@@ -1,6 +1,7 @@
 # ADR-003: User simulators, teacher and the B1 reference
 
-- Status: **Proposed** — confirm at M1 (11 Oct 2026)
+- Status: **Accepted** (in force for every evaluation and training run since
+  4 Oct 2026; confirmed by the owner on 9 Oct 2026)
 - Related tasks: T0.3, T0.5, T1.6, T2.1, T3.6
 
 ## Decision

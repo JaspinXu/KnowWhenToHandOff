@@ -1,6 +1,7 @@
 # ADR-004: Reward composition
 
-- Status: **Proposed** — confirm before the R2 run (18 Oct 2026)
+- Status: **Accepted** (used by R1 and R2 since 6 Oct 2026; confirmed by the
+  owner on 9 Oct 2026)
 - Related tasks: T3.2–T3.4; definitions of labels and rules in
   [labels.md](../labels.md), metrics in [metrics.md](../metrics.md)
 

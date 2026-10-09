@@ -99,9 +99,7 @@ on its own terms; write-ups (reports, venue papers) live outside it
   green; tiers 2–3 last passed on the cluster.
 - **Next steps (owner):** make the GitHub repository public (decide on a
   history squash first); until then the code links in the published cards do
-  not open for visitors. ADR-003 (simulator) and ADR-004 (reward) still say
-  *Proposed* although every run used them; the owner has not formally
-  accepted them.
+  not open for visitors.
 
 ---
 
@@ -618,6 +616,7 @@ the ADRs; this is the short history agents need.
 
 | Date | Decision |
 | --- | --- |
+| 9 Oct 2026 | ADR-003 and ADR-004 accepted. Owner rule: a design the runs already use counts as accepted by the owner; do not list it as a pending decision. |
 | 9 Oct 2026 | Owner: keep the repository free of process files; every reproduction step must still map to a file. Removed `docs/implementation-status.md`, the model-card template, the interim `reports/m1/`, the withdrawn ADR-007, and the release upload and audit scripts (`upload_release.py`, `upload_kaggle.py`, `audit_release.py`, the Kaggle helpers in `release.py`, the Kaggle cover). Publishing is now done by hand; `export_release.py` still builds the dataset folder. |
 | 8 Oct 2026 | The repository describes the project on its own terms; write-ups (`report/`, `paper/`) stay outside git. Release everything reusable on Hugging Face: R1, R2 and B2 weights, the hand-off task set and splits, all evaluation and training records. The GitHub repository goes public later. |
 | 7 Oct 2026 | R1's monitor flagged transfers on negatives (0.11 vs 0.04 in B2 dev). Per-step check: 0.22 at step 1 (B2 itself, before any update), then 0.00–0.25 with no trend, so not reward hacking; R1 continues. The B2 baseline is greedy dev evaluation; drift is now flagged only above 2× both the run's first 128 training episodes and B2 (`monitor_rl.py --self-baseline 128`; the first 128 had 0 format errors, so the run start alone is too noisy for rare events). |
