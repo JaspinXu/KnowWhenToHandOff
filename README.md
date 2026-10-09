@@ -13,11 +13,17 @@
 <img src="https://img.shields.io/badge/Serving-vLLM-30A2FF" alt="vLLM">
 <img src="https://img.shields.io/badge/Policy-Qwen3--4B--Instruct-615CED" alt="Qwen3-4B-Instruct">
 <img src="https://img.shields.io/badge/License-MIT-16A34A" alt="MIT licence">
+<br>
+<a href="https://huggingface.co/collections/JaspinXu/knowwhentohandoff"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Models-R2%20%C2%B7%20R1%20%C2%B7%20SFT-FFD21E" alt="Models on Hugging Face"></a>
+<a href="https://huggingface.co/datasets/JaspinXu/KnowWhenToHandOff-data"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Dataset-461%20tasks%20%2B%20all%20runs-FFD21E" alt="Dataset on Hugging Face"></a>
+<a href="https://www.kaggle.com/code/zhaobinxu/knowwhentohandoff-quickstart"><img src="https://img.shields.io/badge/Kaggle-notebook-20BEFF?logo=kaggle&logoColor=white" alt="Kaggle notebook"></a>
+<a href="https://doi.org/10.57967/hf/10822"><img src="https://img.shields.io/badge/DOI-10.57967%2Fhf%2F10822-0F766E" alt="Dataset DOI"></a>
 </p>
 
 <a href="#key-findings">Key findings</a> ·
 <a href="#results">Results</a> ·
 <a href="#why-outcome-only-rl-over-escalates">The reward loophole</a> ·
+<a href="#the-hand-off-task-set">Task set</a> ·
 <a href="#method">Method</a> ·
 <a href="#models-and-data">Models and data</a> ·
 <a href="#reproduce">Reproduce</a>
@@ -71,6 +77,17 @@ communication styles. Every number traces to a run ID in
 RL did improve the hand-off-heavy distribution it was trained on
 (`test_handoff` success B2 0.47 → R1 0.63, R2 0.55), but not the official tasks.
 
+**Reading the hand-off columns.** A hand-off is a call to
+`transfer_to_human_agents`; "should transfer" is the task's label.
+
+- **Recall**: of the conversations that need a human, the share handed off.
+- **Precision**: of the hand-offs made, the share that were needed.
+- **Hand-off F1**: their harmonic mean, so it is high only when both are.
+- **Over-escalation**: of the conversations that do **not** need a human, the
+  share handed off anyway. Read it next to F1: R1 and R2 have almost the same
+  F1, but R1 gets there by handing off almost everything (recall 0.96,
+  precision 0.69).
+
 ## Why outcome-only RL over-escalates
 
 <p align="center"><img src="docs/assets/loophole-en.png" alt="Left: the task reward pays 1 for a transfer whenever the correct outcome is a refusal, the loophole. Right: R1's dev transfer rate climbs from 0.35 to 0.75 after step 30 while R2 stays below 0.5" width="100%"></p>
@@ -87,9 +104,36 @@ error is the opposite one, sometimes refusing out-of-scope requests instead of
 handing them off. The right panel shows when it happened: R1's transfer
 rate stays flat for 30 steps, then climbs while dev success stops improving.
 
-Browse the dialogues offline: [`reports/demo/R2-handoffs.html`](reports/demo/R2-handoffs.html)
+One test conversation shows the difference. The user is in a hurry, refuses
+any transfer, and asks for something the policy forbids; τ²-bench gives both
+agents full marks, the Responsible-AI reward does not:
+
+<p align="center"><img src="docs/assets/dialogue-en.png" alt="Airline task 6__hn1: a hurried user asks to add insurance after booking. R1 looks up the reservation and the user, then transfers to a human without a word (task reward 1.0, RAI reward 0.5). R2 explains that insurance cannot be added after booking, refuses, and offers a human only if wanted (task reward 1.0, RAI reward 1.0)" width="100%"></p>
+
+Browse more dialogues offline: [`reports/demo/R2-handoffs.html`](reports/demo/R2-handoffs.html)
 and [`reports/demo/R1-over-escalation.html`](reports/demo/R1-over-escalation.html)
 (download and open in a browser; hand-offs are outlined, policy citations highlighted).
+
+## The hand-off task set
+
+<p align="center"><img src="docs/assets/tasks-en.png" alt="τ²-bench has 1 of 50 airline and 4 of 114 retail tasks whose reference solution hands off; the project adds 461 labelled tasks in three kinds: explicit request (y = 1), out of scope (y = 1) and hard negative (y = 0), with 60/84/82 train, 15/15/15 dev and 49/49/92 test tasks" width="100%"></p>
+
+Hand-offs are rare in τ²-bench, so they can neither be trained nor measured
+there. Each upstream task therefore yields labelled variants: the user asks for
+a human, asks for a service that no tool or policy clause covers, or stays
+difficult but solvable. A variant keeps its source task's identity, facts and
+split, so no source task leaks from training into test. Generator, templates
+and the 40-task hand-check: [docs/handoff-tasks.md](docs/handoff-tasks.md);
+labels: [docs/labels.md](docs/labels.md).
+
+| | τ²-bench (airline, retail) | This project adds |
+| --- | --- | --- |
+| Tasks | 50 + 114, almost all "get it done" | 461 hand-off tasks: 272 should-transfer, 189 hard negatives |
+| Labels | none for hand-offs | should-transfer label and rule for every task |
+| Splits | official train / test | dev carved from train; variants inherit their source's split |
+| Scoring | final database + required actions, 0 or 1 | the same, plus 5 policy-rule checks and format checks |
+| Metrics | pass^k | hand-off precision, recall, F1, over-escalation, violations, citation rate, success per user style |
+| Users | one default simulated user | six communication styles; frustrated, hurried and sceptical users in hard negatives |
 
 ## Method
 
@@ -116,17 +160,7 @@ $\lambda_{\text{FN}}{=}1.0$, $\lambda_f{=}0.1$ (a missed hand-off is judged
 worse than an unnecessary one). Policy citations are measured, not rewarded:
 a keyword reward would be easy to game.
 
-**Hand-off task set.** Only 1 of 50 upstream airline tasks needs a transfer, so
-each upstream task yields labelled variants that inherit its split:
-
-| Kind | Should transfer | What changes | Test tasks |
-| --- | --- | --- | --- |
-| Explicit request | yes | The user asks for a human and declines help | 49 |
-| Out of scope | yes | A service no tool or policy clause covers (wheelchair, special meal, warranty repair, paper invoice, …) | 49 |
-| Hard negative | no | The source task with a frustrated, hurried or sceptical but cooperative user | 92 |
-
-Details: [docs/handoff-tasks.md](docs/handoff-tasks.md),
-[docs/labels.md](docs/labels.md).
+**Hand-off task set.** See [above](#the-hand-off-task-set).
 
 **Communication styles.** Six style cards change how the simulated user writes, never the task facts: neutral, terse, verbose, impatient, non-native and low-tech-literacy ([docs/personas.md](docs/personas.md)).
 
@@ -157,9 +191,28 @@ upload steps in [docs/release.md](docs/release.md).
 | [`KnowWhenToHandOff-Qwen3-4B-SFT`](https://huggingface.co/JaspinXu/KnowWhenToHandOff-Qwen3-4B-SFT) | The SFT warm start (B2) | [B2](docs/model-cards/B2.md) |
 | [`KnowWhenToHandOff-data`](https://huggingface.co/datasets/JaspinXu/KnowWhenToHandOff-data) | Hand-off task set and splits, every run's trajectories and metrics, GRPO training rollouts, SFT selection | [dataset card](docs/dataset-card.md) |
 
-The task set and manifests are also in this repository
-([`data/`](data/)); a dialogue sample is in [`reports/demo/`](reports/demo/). The dataset is
-mirrored on [Kaggle](https://www.kaggle.com/datasets/zhaobinxu/knowwhentohandoff-data).
+All four are in one [Hugging Face collection](https://huggingface.co/collections/JaspinXu/knowwhentohandoff).
+The task set and manifests are also in this repository ([`data/`](data/)); a
+dialogue sample is in [`reports/demo/`](reports/demo/). The dataset is mirrored
+on [Kaggle](https://www.kaggle.com/datasets/zhaobinxu/knowwhentohandoff-data),
+with a CPU-only [walk-through notebook](https://www.kaggle.com/code/zhaobinxu/knowwhentohandoff-quickstart)
+(run index, task kinds, where each model hands off, R1's loophole curve).
+
+```bash
+# serve R2 with an OpenAI-compatible API (tool calls parsed)
+vllm serve JaspinXu/KnowWhenToHandOff-Qwen3-4B-R2 --enable-auto-tool-choice --tool-call-parser hermes
+```
+
+```python
+from datasets import load_dataset
+
+runs = load_dataset("JaspinXu/KnowWhenToHandOff-data", "runs", split="train")             # one row per run
+airline = load_dataset("JaspinXu/KnowWhenToHandOff-data", "airline_tasks", split="train")  # τ²-bench task schema
+```
+
+For faithful behaviour run the models inside this repository's evaluation
+harness: they were trained with the τ²-bench domain policy as the system prompt
+and the domain's tools.
 
 ## Reproduce
 
@@ -183,7 +236,7 @@ bash slurm/run.sh python scripts/make_report.py --name main --baseline B2 --runs
   R1=R1-final-test_main-s0-20261006+R1-final-test_styles-s0-20261006+R1-final-test_handoff-s0-20261006 \
   R2=R2-final-test_main-s0-20261007+R2-final-test_styles-s0-20261007+R2-final-test_handoff-s0-20261007
 bash slurm/run.sh python scripts/rl_curves.py --name rl --runs R1=R1-s1-20261006 R2=R2-s1-20261006
-python scripts/readme_figures.py   # README figures (PNG): needs Playwright with Chromium, any machine
+python scripts/readme_figures.py   # README figures (PNG) from the committed reports, demo dialogues and task files; needs Playwright with Chromium
 ```
 
 Every run records its resolved config, git SHA, τ²-bench commit, model

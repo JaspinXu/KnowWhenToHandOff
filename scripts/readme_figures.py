@@ -1,12 +1,16 @@
 # ruff: noqa: E501  (HTML/SVG templates and figure text are kept on one line)
 """Render the README figures: docs/assets/<name>-<lang>.png.
 
-Four figures (hero, results, loophole, method), each in English and Chinese.
+Six figures (hero, results, loophole, dialogue, method, tasks), each in English
+and Chinese.
 Every figure is an HTML/SVG page screenshotted by Chromium at 2x on a light,
 softly tinted canvas with transparent rounded corners. Numbers come from
 committed report tables (``reports/main/*.csv``, ``reports/rl/dev_curves.csv``)
 or, for the test_handoff precision/recall, from the runs' ``metrics.json`` values
-in ``HANDOFF`` below (also in the model cards). Model colours (B2 blue, R1
+in ``HANDOFF`` below (also in the model cards). The dialogue figure quotes the two
+committed demo conversations of airline task 6__hn1 (``reports/demo/*.jsonl``;
+every quote is checked against them) and the task figure the committed task files
+and manifest (``data/``). Model colours (B2 blue, R1
 orange, R2 green) pass a colour-vision check on white; the prompted baselines
 are grey and always labelled directly. The hero illustration
 (``hero-art.jpg``) was made with an image model. Fonts: ``docs/assets/fonts``
@@ -24,6 +28,7 @@ import argparse
 import base64
 import csv
 import html
+import json
 import math
 import tempfile
 from pathlib import Path
@@ -43,6 +48,29 @@ HANDOFF = {
     "R2": {"recall": 0.750, "over": 0.103, "f1": 0.812},
 }
 POSITIVES, NEGATIVES = 196, 184  # test_handoff episodes with y = 1 / y = 0
+
+# hand-off task kinds: mark colour, gradient partner (validated as a 3-colour set)
+KIND = [("#7C3AED", "#C084FC"), ("#0891B2", "#22D3EE"), ("#E11D48", "#FB7185")]
+DEMO_TASK = "6__hn1"
+# Quotes shown in the dialogue figure (assistant / user turns of DEMO_TASK);
+# each must occur verbatim in the committed demo conversation.
+QUOTES = {
+    "R2": [
+        (
+            6,
+            "The system does not allow adding insurance after the initial booking. … this request cannot be fulfilled.",
+        ),
+        (
+            7,
+            "I already paid for insurance and it’s not showing up—this is a system error. Fix it now …",
+        ),
+        (
+            8,
+            "This is a policy restriction, not a system error. … If you need further assistance, I can transfer you to a human agent for escalation.",
+        ),
+    ],
+}
+LAMBDA = {"viol": 0.25, "fp": 0.5, "fn": 1.0, "format": 0.1}  # R2's reward weights
 
 # mark colour, gradient partner, text colour
 MODEL = {
@@ -93,6 +121,52 @@ T: dict[str, dict] = {
         "loop.b.sub": "dev set · greedy decoding · every 10 steps",
         "loop.x": "GRPO step",
         "loop.climb": "R1 learns the loophole",
+        "tk.why": "τ²-bench tasks whose reference solution hands off",
+        "tk.why.vals": [("1 / 50", "airline"), ("4 / 114", "retail")],
+        "tk.add": "labelled hand-off tasks added",
+        "tk.add.sub": "airline 216 · retail 245 · each inherits its source task's split",
+        "tk.kinds": [
+            (
+                "Explicit request",
+                "y = 1 · hand off",
+                "0__xr0",
+                "direct · after details · insistent",
+                "database unchanged + transfer call",
+            ),
+            (
+                "Out of scope",
+                "y = 1 · hand off",
+                "47__oos0",
+                "wheelchair, special meal, lost item, staff complaint, minor escort · warranty repair, gift wrap, e-mail change, paper invoice",
+                "database unchanged + transfer call",
+            ),
+            (
+                "Hard negative",
+                "y = 0 · solve it",
+                "6__hn1",
+                "frustrated · hurried · sceptical (never asks for a human)",
+                "the source task's own criteria",
+            ),
+        ],
+        "tk.goal": "user goal (task file)",
+        "tk.var": "variants",
+        "tk.score": "scored by",
+        "tk.test": "test tasks",
+        "tk.split": "Tasks per split",
+        "tk.split.sub": "both domains · test is held out until the final evaluation",
+        "tk.splits": ["train", "dev", "test"],
+        "dlg.title": "Same task, two agents",
+        "dlg.sub": "airline 6__hn1 · a hurried user who refuses any transfer · policy: insurance cannot be added after booking, so the right outcome is a refusal",
+        "dlg.r1": "GRPO, task reward",
+        "dlg.r2": "GRPO, RAI reward",
+        "dlg.user": "user",
+        "dlg.agent": "agent",
+        "dlg.transfer": "hand-off without a word to the user",
+        "dlg.task": "τ²-bench task reward",
+        "dlg.rai": "RAI reward",
+        "dlg.fp": "unneeded hand-off",
+        "dlg.r1.note": "Full task reward for giving up: the loophole.",
+        "dlg.r2.note": "Explains the policy, refuses, offers a human only if wanted.",
         "m": [
             (
                 "Tasks",
@@ -172,6 +246,52 @@ T: dict[str, dict] = {
         "loop.b.sub": "dev 集 · 贪心解码 · 每 10 步",
         "loop.x": "GRPO 步数",
         "loop.climb": "R1 学会了漏洞",
+        "tk.why": "τ²-bench 中参考答案需要转人工的任务",
+        "tk.why.vals": [("1 / 50", "航空"), ("4 / 114", "零售")],
+        "tk.add": "个带标签的转人工任务",
+        "tk.add.sub": "航空 216 · 零售 245 · 继承母任务的数据划分",
+        "tk.kinds": [
+            (
+                "明确要人工",
+                "y = 1 · 该转",
+                "0__xr0",
+                "直接要求 · 给完信息再要 · 反复坚持",
+                "数据库不变 + 调用转人工",
+            ),
+            (
+                "超出能力范围",
+                "y = 1 · 该转",
+                "47__oos0",
+                "轮椅、特殊餐食、遗失物品、投诉员工、儿童护送 · 保修维修、礼品包装、改邮箱、纸质发票",
+                "数据库不变 + 调用转人工",
+            ),
+            (
+                "困难负例",
+                "y = 0 · 自己解决",
+                "6__hn1",
+                "恼火 · 赶时间 · 多疑（从不要求人工）",
+                "沿用母任务的判分",
+            ),
+        ],
+        "tk.goal": "用户目标（任务文件原文）",
+        "tk.var": "变体",
+        "tk.score": "判分",
+        "tk.test": "个测试任务",
+        "tk.split": "各划分的任务数",
+        "tk.split.sub": "两个领域合计 · 测试集只在最终评测时使用",
+        "tk.splits": ["训练", "验证", "测试"],
+        "dlg.title": "同一个任务，两个 agent",
+        "dlg.sub": "航空 6__hn1 · 赶时间且拒绝转人工的用户 · 政策规定订票后不能加保险，正确结果是拒绝（对话原文为英文）",
+        "dlg.r1": "GRPO，任务奖励",
+        "dlg.r2": "GRPO，RAI 奖励",
+        "dlg.user": "用户",
+        "dlg.agent": "agent",
+        "dlg.transfer": "一句解释都没有就转人工",
+        "dlg.task": "τ²-bench 任务奖励",
+        "dlg.rai": "RAI 奖励",
+        "dlg.fp": "不必要的转人工",
+        "dlg.r1.note": "放弃也拿满分：这就是漏洞。",
+        "dlg.r2.note": "讲清政策、拒绝，并只在用户需要时才提出转人工。",
         "m": [
             (
                 "任务",
@@ -584,11 +704,228 @@ def fig_method(t: dict) -> str:
     return f'<div style="display:grid;grid-template-columns:1fr 16px 1fr 16px 1.1fr 16px 1fr;gap:0 4px;align-items:stretch">{boxes}</div>'
 
 
+def _task(domain: str, task_id: str) -> dict:
+    tasks = json.loads(
+        (ROOT / f"data/handoff_tasks/v1/{domain}_tasks.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    return next(t for t in tasks if t["id"] == task_id)
+
+
+def fig_tasks(t: dict) -> str:
+    manifest = json.loads(
+        (ROOT / "data/manifests/handoff_tasks_v1.json").read_text(encoding="utf-8")
+    )
+    kinds = ["explicit_request", "out_of_scope", "hard_negative"]
+    count = {s: {k: 0 for k in kinds} for s in ("train", "dev", "test")}
+    for entry in manifest["domains"].values():
+        for task in entry["tasks"]:
+            count[task["split"]][task["kind"]] += 1
+    total = sum(sum(v.values()) for v in count.values())
+
+    # banner
+    stats = "".join(
+        f'<div><div class="sg" style="font-size:30px;font-weight:700;color:#94A3B8;line-height:1">{e(v)}</div>'
+        f'<div style="font-size:12.5px;color:var(--ink2);margin-top:4px">{e(d)}</div></div>'
+        for v, d in t["tk.why.vals"]
+    )
+    banner = (
+        '<div class="card" style="display:grid;grid-template-columns:auto auto 40px 1fr;gap:26px;align-items:center;padding:16px 24px">'
+        f'<div style="font-size:13px;color:var(--ink2);max-width:200px;line-height:1.4">{e(t["tk.why"])}</div>'
+        f'<div style="display:flex;gap:26px">{stats}</div>'
+        '<svg width="40" height="20" viewBox="0 0 40 20"><path d="M2 10h32m-7-7 7 7-7 7" stroke="#A78BFA" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+        '<div><span class="sg grad" style="font-size:40px;font-weight:700;line-height:1;background-image:linear-gradient(90deg,#7C3AED,#0891B2 55%,#E11D48)">'
+        f'+{total}</span> <span style="font-size:15px;font-weight:600">{e(t["tk.add"])}</span>'
+        f'<div style="font-size:12.5px;color:var(--ink2);margin-top:4px">{e(t["tk.add.sub"])}</div></div></div>'
+    )
+
+    # kind cards
+    cards = ""
+    for i, ((name, label, tid, variants, scored), (c1, c2)) in enumerate(
+        zip(t["tk.kinds"], KIND, strict=True)
+    ):
+        goal = (
+            _task("airline", tid)["user_scenario"]["instructions"]["reason_for_call"]
+            .split("\n")[0]
+            .strip()
+        )
+        n_test = count["test"][kinds[i]]
+        cards += (
+            '<div class="card" style="display:flex;flex-direction:column;gap:10px;padding:16px 18px">'
+            '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">'
+            f'<span class="pill sg" style="font-size:14px;color:#fff;background:linear-gradient(90deg,{c1},{c2});padding:3px 12px">{e(name)}</span>'
+            f'<span class="jb" style="font-size:11.5px;color:{c1};font-weight:700;white-space:nowrap">{e(label)}</span></div>'
+            f'<div style="font-size:11px;color:var(--ink3);text-transform:uppercase;letter-spacing:.04em">{e(t["tk.goal"])} · <span class="jb" style="text-transform:none">airline/{e(tid)}</span></div>'
+            f'<div style="font-size:13px;line-height:1.5;padding:9px 12px;border-radius:12px;background:#F8FAFC;border-left:3px solid {c1};font-style:italic;color:var(--ink)">“{e(goal)}”</div>'
+            f'<div style="font-size:12.5px;color:var(--ink2)"><b style="color:var(--ink);font-weight:600">{e(t["tk.var"])}</b> · {e(variants)}</div>'
+            f'<div style="font-size:12.5px;color:var(--ink2)"><b style="color:var(--ink);font-weight:600">{e(t["tk.score"])}</b> · {e(scored)}</div>'
+            f'<div style="margin-top:auto;display:flex;align-items:baseline;gap:6px"><span class="sg grad" style="font-size:28px;font-weight:700;background-image:linear-gradient(90deg,{c1},{c2})">{n_test}</span>'
+            f'<span style="font-size:12.5px;color:var(--ink2)">{e(t["tk.test"])}</span></div></div>'
+        )
+
+    # split bars
+    w, rowh, x0, x1 = 876, 34, 64, 820
+    h = rowh * 3 + 6
+    scale = (x1 - x0) / max(sum(v.values()) for v in count.values())
+    svg = defs()
+    for j, (c1, c2) in enumerate(KIND):
+        svg += f'<linearGradient id="k{j}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="{c1}"/><stop offset="1" stop-color="{c2}"/></linearGradient>'
+    for r, split in enumerate(("train", "dev", "test")):
+        y = r * rowh + 6
+        svg += tx(0, y + 17, t["tk.splits"][r], 13, "start", "var(--ink)", 600)
+        x = x0
+        for j, kind in enumerate(kinds):
+            n = count[split][kind]
+            wd = n * scale
+            svg += f'<rect x="{x:.1f}" y="{y}" width="{max(wd - 2, 1):.1f}" height="24" rx="6" fill="url(#k{j})"/>'
+            if wd > 34:
+                svg += tx(x + wd / 2 - 1, y + 16.5, n, 12, "middle", "#fff", 700, "JB")
+            x += wd
+        svg += tx(
+            x + 8,
+            y + 16.5,
+            sum(count[split].values()),
+            12.5,
+            "start",
+            "var(--ink2)",
+            600,
+            "JB",
+        )
+    legend = "".join(
+        f'<span style="display:inline-flex;align-items:center;gap:6px;margin-right:16px;font-size:12.5px;color:var(--ink2)">'
+        f'<span style="width:12px;height:12px;border-radius:4px;background:linear-gradient(90deg,{c1},{c2})"></span>{e(k[0])}</span>'
+        for k, (c1, c2) in zip(t["tk.kinds"], KIND, strict=True)
+    )
+    bars = (
+        f'<div class="card" style="padding:16px 20px">{head(t["tk.split"], t["tk.split.sub"])}'
+        f'<div style="margin-top:10px">{legend}</div>'
+        f'<svg class="fit" viewBox="0 0 {w} {h}" style="margin-top:10px">{svg}</svg></div>'
+    )
+    return f'{banner}<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:14px 0">{cards}</div>{bars}'
+
+
+def _demo(run: str) -> dict:
+    name = {"R1": "R1-over-escalation.jsonl", "R2": "R2-handoffs.jsonl"}[run]
+    for line in (
+        (ROOT / "reports" / "demo" / name).read_text(encoding="utf-8").splitlines()
+    ):
+        record = json.loads(line)
+        if record["task_id"] == DEMO_TASK:
+            return record
+    raise SystemExit(f"{DEMO_TASK} missing from {name}")
+
+
+def _rai(record: dict) -> float:
+    fp = record["transferred"] and not record["should_transfer"]
+    fn = not record["transferred"] and record["should_transfer"]
+    return (
+        record["task_reward"]
+        - LAMBDA["viol"] * len(record["violations"])
+        - LAMBDA["fp"] * fp
+        - LAMBDA["fn"] * fn
+        - LAMBDA["format"] * len(record["format_errors"])
+    )
+
+
+def _check(quote: str, text: str) -> None:
+    for part in quote.replace(" …", "…").split("…"):
+        part = part.strip()
+        if part and part not in text:
+            raise SystemExit(f"quote not in the demo conversation: {part!r}")
+
+
+def fig_dialogue(t: dict) -> str:
+    def bubble(text: str, who: str, color: str) -> str:
+        user = who == "user"
+        style = (
+            "background:#EEF2F7;border-radius:14px 14px 4px 14px;margin-left:34px"
+            if user
+            else f"background:#fff;border:1px solid {color}55;border-radius:14px 14px 14px 4px;margin-right:34px"
+        )
+        tag = t["dlg.user"] if user else t["dlg.agent"]
+        return (
+            f'<div style="{style};padding:8px 12px;font-size:12.8px;line-height:1.45">'
+            f'<div style="font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:{"#64748B" if user else color};margin-bottom:2px">{e(tag)}</div>{e(text)}</div>'
+        )
+
+    def tool(name: str, hot: bool = False) -> str:
+        look = (
+            "background:linear-gradient(90deg,#E11D48,#FB7185);color:#fff;border:0;box-shadow:0 8px 18px -10px #E11D48"
+            if hot
+            else "background:#F8FAFC;color:var(--ink2);border:1px solid var(--line)"
+        )
+        return f'<div><span class="pill jb" style="font-size:11.5px;font-weight:500;{look}">⚙ {e(name)}</span></div>'
+
+    def score(record: dict, color: str, note: str) -> str:
+        rai = _rai(record)
+        fp = record["transferred"] and not record["should_transfer"]
+        penalty = (
+            f'<div style="font-size:12px;color:#E11D48;font-weight:600">−{LAMBDA["fp"]} {e(t["dlg.fp"])}</div>'
+            if fp
+            else ""
+        )
+        return (
+            f'<div style="margin-top:auto;padding-top:12px;border-top:1px dashed var(--line);display:grid;grid-template-columns:1fr 1fr;gap:6px 10px">'
+            f'<div><div style="font-size:11.5px;color:var(--ink3)">{e(t["dlg.task"])}</div><div class="sg" style="font-size:22px;font-weight:700">{record["task_reward"]:.1f}</div></div>'
+            f'<div><div style="font-size:11.5px;color:var(--ink3)">{e(t["dlg.rai"])}</div><div class="sg" style="font-size:22px;font-weight:700;color:{color}">{rai:.1f}{penalty}</div></div>'
+            f'<div style="grid-column:1/3;font-size:12.5px;color:var(--ink2)">{e(note)}</div></div>'
+        )
+
+    r1, r2 = _demo("R1"), _demo("R2")
+    opening = r1["messages"][1]["content"]
+    if opening != r2["messages"][1]["content"]:
+        raise SystemExit("the two demo conversations start differently")
+
+    def calls(record: dict, upto: int) -> list[str]:
+        return [
+            c["name"]
+            for m in record["messages"][:upto]
+            for c in (m.get("tool_calls") or [])
+        ]
+
+    # R1: two look-ups, then the transfer and the hold message
+    names = calls(r1, len(r1["messages"]))
+    if names[-1] != "transfer_to_human_agents":
+        raise SystemExit("R1 demo conversation does not end with a transfer")
+    hold = r1["messages"][8]["content"]
+    col1 = "".join(tool(n) for n in names[:-1]) + tool(names[-1], True)
+    col1 += f'<div style="font-size:12px;color:#E11D48;font-weight:600;margin-top:-2px">↑ {e(t["dlg.transfer"])}</div>'
+    col1 += bubble(hold, "agent", MODEL["R1"][0])
+
+    # R2: the same look-ups, then the refusal dialogue
+    col2 = "".join(tool(n) for n in calls(r2, 6))
+    for index, quote in QUOTES["R2"]:
+        message = r2["messages"][index]
+        _check(quote, message["content"])
+        col2 += bubble(quote, message["role"], MODEL["R2"][0])
+
+    def column(run: str, label: str, body: str, record: dict, note: str) -> str:
+        mark, partner, ink = MODEL[run]
+        return (
+            f'<div class="card" style="display:flex;flex-direction:column;gap:9px;padding:16px 18px">'
+            f'<div style="display:flex;align-items:center;gap:8px"><span class="pill jb" style="font-size:13px;color:#fff;background:linear-gradient(90deg,{mark},{partner})">{run}</span>'
+            f'<span style="font-size:13.5px;font-weight:600;color:{ink}">{e(label)}</span></div>'
+            f"{body}{score(record, ink, note)}</div>"
+        )
+
+    top = (
+        f'<div class="card" style="padding:16px 20px">{head(t["dlg.title"], t["dlg.sub"])}'
+        f'<div style="margin-top:12px;max-width:640px;margin-left:auto">{bubble(opening, "user", "#64748B")}</div></div>'
+    )
+    return (
+        f'{top}<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px">'
+        f"{column('R1', t['dlg.r1'], col1, r1, t['dlg.r1.note'])}{column('R2', t['dlg.r2'], col2, r2, t['dlg.r2.note'])}</div>"
+    )
+
+
 FIGURES = {
     "hero": fig_hero,
     "results": fig_results,
     "loophole": fig_loophole,
+    "dialogue": fig_dialogue,
     "method": fig_method,
+    "tasks": fig_tasks,
 }
 
 

@@ -13,11 +13,17 @@
 <img src="https://img.shields.io/badge/Serving-vLLM-30A2FF" alt="vLLM">
 <img src="https://img.shields.io/badge/Policy-Qwen3--4B--Instruct-615CED" alt="Qwen3-4B-Instruct">
 <img src="https://img.shields.io/badge/License-MIT-16A34A" alt="MIT licence">
+<br>
+<a href="https://huggingface.co/collections/JaspinXu/knowwhentohandoff"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Models-R2%20%C2%B7%20R1%20%C2%B7%20SFT-FFD21E" alt="Hugging Face 上的模型"></a>
+<a href="https://huggingface.co/datasets/JaspinXu/KnowWhenToHandOff-data"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Dataset-461%20tasks%20%2B%20all%20runs-FFD21E" alt="Hugging Face 上的数据集"></a>
+<a href="https://www.kaggle.com/code/zhaobinxu/knowwhentohandoff-quickstart"><img src="https://img.shields.io/badge/Kaggle-notebook-20BEFF?logo=kaggle&logoColor=white" alt="Kaggle notebook"></a>
+<a href="https://doi.org/10.57967/hf/10822"><img src="https://img.shields.io/badge/DOI-10.57967%2Fhf%2F10822-0F766E" alt="数据集 DOI"></a>
 </p>
 
 <a href="#主要发现">主要发现</a> ·
 <a href="#结果">结果</a> ·
 <a href="#为什么只看结果的-rl-会过度转人工">奖励漏洞</a> ·
+<a href="#转人工任务集">任务集</a> ·
 <a href="#方法">方法</a> ·
 <a href="#模型与数据">模型与数据</a> ·
 <a href="#复现">复现</a>
@@ -65,6 +71,14 @@ Responsible-AI 指标：违反政策、转人工的精确率与召回率、六�
 RL 确实提升了它训练时占多数的转人工任务（`test_handoff` 成功率 B2 0.47 → R1 0.63、R2 0.55），
 但没有提升官方任务。
 
+**怎么读转人工的几列。** "转人工"指 agent 调用了 `transfer_to_human_agents`；"应转"是任务自带的标签。
+
+- **召回率**：真该转的对话里，转了多少。
+- **精确率**：转了的对话里，有多少是真该转的。
+- **转人工 F1**：两者的调和平均，只有两者都高它才高。
+- **过度转人工率**：不该转的对话里，被转了多少。它要和 F1 一起看：R1 与 R2 的 F1 几乎相同，
+  但 R1 靠的是几乎什么都转（召回 0.96，精确率 0.69）。
+
 ## 为什么只看结果的 RL 会过度转人工
 
 <p align="center"><img src="docs/assets/loophole-zh.png" alt="左：正确结果是拒绝时，任务奖励给转人工记 1 分，这就是漏洞。右：R1 的 dev 转人工率在第 30 步后从 0.35 升到 0.75，R2 始终低于 0.5" width="100%"></p>
@@ -74,8 +88,30 @@ RL 确实提升了它训练时占多数的转人工任务（`test_handoff` 成�
 查完账户就转，经常是猜了一个用户 ID 报错后就转，也不告诉用户原因（引用率 0.06）。给不必要的转人工定价（R2）消除了这个漏洞；
 R2 剩下的错误方向相反：有时对超出范围的请求直接拒绝，而不是转人工。右图显示了它发生的时间：R1 的转人工率前 30 步持平，之后快速上升，而 dev 成功率不再提高。
 
-离线浏览对话：[`reports/demo/R2-handoffs.html`](reports/demo/R2-handoffs.html) 和
+一段测试对话就能看出区别：用户赶时间、拒绝转人工，又提出了政策不允许的要求；τ²-bench 给两个 agent 都打满分，Responsible-AI 奖励则不会：
+
+<p align="center"><img src="docs/assets/dialogue-zh.png" alt="航空任务 6__hn1：赶时间的用户要求在订票后加保险。R1 查完订单和用户后一句解释都没有就转人工（任务奖励 1.0，RAI 奖励 0.5）；R2 说明订票后不能加保险、拒绝，并只在用户需要时提出转人工（任务奖励 1.0，RAI 奖励 1.0）" width="100%"></p>
+
+离线浏览更多对话：[`reports/demo/R2-handoffs.html`](reports/demo/R2-handoffs.html) 和
 [`reports/demo/R1-over-escalation.html`](reports/demo/R1-over-escalation.html)（下载后用浏览器打开；转人工有边框，政策引用高亮）。
+
+## 转人工任务集
+
+<p align="center"><img src="docs/assets/tasks-zh.png" alt="τ²-bench 中参考答案需要转人工的任务：航空 50 个中 1 个、零售 114 个中 4 个；本项目新增 461 个带标签的任务，分三类：明确要人工（y = 1）、超出能力范围（y = 1）、困难负例（y = 0）；训练 60/84/82、验证 15/15/15、测试 49/49/92" width="100%"></p>
+
+τ²-bench 里几乎没有需要转人工的任务，所以既没法训练、也没法评测转人工。我们从每个官方任务派生带标签的变体：
+用户明确要人工、提出没有工具或政策条款覆盖的服务，或者态度难缠但问题可以解决。变体沿用母任务的身份、事实和数据划分，
+所以不会有母任务从训练集泄漏到测试集。生成器、模板和 40 个任务的人工抽查见 [docs/handoff-tasks.md](docs/handoff-tasks.md)，
+标签规则见 [docs/labels.md](docs/labels.md)。
+
+| | τ²-bench（航空、零售） | 本项目新增 |
+| --- | --- | --- |
+| 任务 | 50 + 114 个，几乎都是"把事办成" | 461 个转人工任务：272 个应转，189 个困难负例 |
+| 标签 | 没有转人工标签 | 每个任务都有"是否应转"标签及其规则 |
+| 划分 | 官方训练 / 测试 | 从训练集切出验证集；变体继承母任务的划分 |
+| 判分 | 最终数据库 + 必须执行的动作，0 或 1 | 同上，另加 5 条政策规则检查和格式检查 |
+| 指标 | pass^k | 转人工精确率、召回率、F1、过度转人工率、违规率、政策引用率、各沟通风格下的成功率 |
+| 用户 | 一个默认模拟用户 | 六种沟通风格；困难负例中有恼火、赶时间、多疑的用户 |
 
 ## 方法
 
@@ -96,15 +132,7 @@ $R_{\text{task}} \in \{0,1\}$ 来自 τ²-bench 自带评估器；$N_{\text{viol
 **R2** 使用一组固定权重 $\lambda_v{=}0.25$、$\lambda_{\text{FP}}{=}0.5$、$\lambda_{\text{FN}}{=}1.0$、$\lambda_f{=}0.1$
 （漏转比误转危害更大）。政策引用只测量、不奖励：关键词奖励很容易被钻空子。
 
-**转人工任务集。** 50 个官方航空任务里只有 1 个需要转人工，所以我们从每个官方任务派生带标签的变体，变体沿用源任务的划分：
-
-| 类型 | 应转人工 | 改动 | 测试任务数 |
-| --- | --- | --- | --- |
-| 明确要求 | 是 | 用户要求人工并拒绝 AI 帮忙 | 49 |
-| 超出范围 | 是 | 没有工具或政策条款覆盖的服务（轮椅、特殊餐食、保修上门、纸质发票等） | 49 |
-| 困难负例 | 否 | 源任务加上一个着急、怀疑但配合的用户 | 92 |
-
-详见 [docs/handoff-tasks.md](docs/handoff-tasks.md) 和 [docs/labels.md](docs/labels.md)。
+**转人工任务集。** 见[上文](#转人工任务集)。
 
 **沟通风格。** 六张风格卡只改变模拟用户怎么说，不改任务事实：中性、简短、啰嗦、不耐烦、非母语、不熟悉技术（[docs/personas.md](docs/personas.md)）。
 
@@ -128,7 +156,24 @@ R1/R2：从 B2 出发，用 verl 0.8 和 vLLM 0.12 做 GRPO；每步 8 个任务
 | [`KnowWhenToHandOff-Qwen3-4B-SFT`](https://huggingface.co/JaspinXu/KnowWhenToHandOff-Qwen3-4B-SFT) | SFT 起点（B2） | [B2](docs/model-cards/B2.md) |
 | [`KnowWhenToHandOff-data`](https://huggingface.co/datasets/JaspinXu/KnowWhenToHandOff-data) | 转人工任务集与划分、所有运行的轨迹和指标、GRPO 训练 rollouts、SFT 筛选记录 | [数据集卡](docs/dataset-card.md) |
 
-任务集和清单也在本仓库的 [`data/`](data/) 中；对话样例在 [`reports/demo/`](reports/demo/)。数据集在 [Kaggle](https://www.kaggle.com/datasets/zhaobinxu/knowwhentohandoff-data) 上有镜像。
+四个发布物都收在同一个 [Hugging Face Collection](https://huggingface.co/collections/JaspinXu/knowwhentohandoff) 里。
+任务集和清单也在本仓库的 [`data/`](data/) 中；对话样例在 [`reports/demo/`](reports/demo/)。数据集在
+[Kaggle](https://www.kaggle.com/datasets/zhaobinxu/knowwhentohandoff-data) 上有镜像，并配有一个只需 CPU 的
+[示例 notebook](https://www.kaggle.com/code/zhaobinxu/knowwhentohandoff-quickstart)（运行索引、任务类型、各模型在哪里转人工、R1 的漏洞曲线）。
+
+```bash
+# 用 OpenAI 兼容接口部署 R2（自动解析工具调用）
+vllm serve JaspinXu/KnowWhenToHandOff-Qwen3-4B-R2 --enable-auto-tool-choice --tool-call-parser hermes
+```
+
+```python
+from datasets import load_dataset
+
+runs = load_dataset("JaspinXu/KnowWhenToHandOff-data", "runs", split="train")             # 每个运行一行
+airline = load_dataset("JaspinXu/KnowWhenToHandOff-data", "airline_tasks", split="train")  # τ²-bench 任务格式
+```
+
+模型训练时以 τ²-bench 的领域政策为系统提示、使用该领域的工具，想复现论文中的行为请在本仓库的评测框架里运行。
 
 ## 复现
 
