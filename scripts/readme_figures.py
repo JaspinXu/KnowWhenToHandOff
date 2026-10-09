@@ -13,7 +13,8 @@ every quote is checked against them) and the task figure the committed task file
 and manifest (``data/``). Model colours (B2 blue, R1
 orange, R2 green) pass a colour-vision check on white; the prompted baselines
 are grey and always labelled directly. The hero illustration
-(``hero-art.jpg``) was made with an image model. Fonts: ``docs/assets/fonts``
+(``hero-art.jpg``) and the task-kind spot art (``kind-*.jpg``) were made with an
+image model. Fonts: ``docs/assets/fonts``
 (Space Grotesk, Inter, JetBrains Mono; OFL) plus Noto CJK for Chinese.
 
 Needs Python Playwright with Chromium (any machine, no GPU):
@@ -51,6 +52,11 @@ POSITIVES, NEGATIVES = 196, 184  # test_handoff episodes with y = 1 / y = 0
 
 # hand-off task kinds: mark colour, gradient partner (validated as a 3-colour set)
 KIND = [("#7C3AED", "#C084FC"), ("#0891B2", "#22D3EE"), ("#E11D48", "#FB7185")]
+ART = [
+    "kind-xr.jpg",
+    "kind-oos.jpg",
+    "kind-hn.jpg",
+]  # image-model spot art, one per kind
 DEMO_TASK = "6__hn1"
 # Quotes shown in the dialogue figure (assistant / user turns of DEMO_TASK);
 # each must occur verbatim in the committed demo conversation.
@@ -753,6 +759,7 @@ def fig_tasks(t: dict) -> str:
         n_test = count["test"][kinds[i]]
         cards += (
             '<div class="card" style="display:flex;flex-direction:column;gap:10px;padding:16px 18px">'
+            f'<img src="{jpeg_uri(ART[i])}" style="height:150px;width:100%;object-fit:contain;mix-blend-mode:multiply;margin:-4px 0 2px">'
             '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">'
             f'<span class="pill sg" style="font-size:14px;color:#fff;background:linear-gradient(90deg,{c1},{c2});padding:3px 12px">{e(name)}</span>'
             f'<span class="jb" style="font-size:11.5px;color:{c1};font-weight:700;white-space:nowrap">{e(label)}</span></div>'
