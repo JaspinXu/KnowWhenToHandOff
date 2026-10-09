@@ -3,7 +3,7 @@
 - Status: **Accepted** (29 Sep 2026); T0.4 spike recorded below (5 Oct 2026):
   go, with LoRA for R1/R2.
 - Related tasks: T0.3, T0.4, T2.2, T3.1–T3.4
-- Supersedes: ADR-007 (the evaluation client is tau2's own LiteLLM path)
+- Supersedes: an earlier draft for a separate async evaluation client, withdrawn (the evaluation client is tau2's own LiteLLM path)
 
 ## Context
 

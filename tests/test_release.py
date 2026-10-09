@@ -78,43 +78,6 @@ def test_scrub_replaces_longest_path_first():
     assert scrub(text, pairs) == "<scratch>/runs and ~/x"
 
 
-def test_kaggle_metadata_strips_card_front_matter():
-    from handoff.release import kaggle_metadata
-
-    card = (
-        "---\nlicense: mit\n---\n\n# Title\n\nBody text.\n\n"
-        "## Loading\n\nload_dataset(...)\n\n## Licence\n\nMIT\n"
-    )
-    meta = kaggle_metadata("someone", card)
-    assert meta["id"] == "someone/knowwhentohandoff-data"
-    assert meta["licenses"] == [{"name": "other"}]
-    description = str(meta["description"])
-    assert description.startswith("Body text.")
-    assert 'Path("/kaggle/input").rglob("runs.jsonl")' in description
-    assert "load_dataset" not in description and "## Licence" in description
-    assert meta["expectedUpdateFrequency"] == "never"
-    assert "license: mit" not in str(meta["description"])
-    assert "Licence: MIT" in str(meta["description"])
-    assert 6 <= len(str(meta["title"])) <= 50
-    assert 20 <= len(str(meta["subtitle"])) <= 80
-
-
-def test_kaggle_kernel_metadata_attaches_the_dataset_privately():
-    from handoff.release import (
-        KAGGLE_NOTEBOOK,
-        KAGGLE_NOTEBOOK_TITLE,
-        KAGGLE_SLUG,
-        kaggle_kernel_metadata,
-    )
-
-    meta = kaggle_kernel_metadata("someone", "kaggle_quickstart.ipynb")
-    assert meta["id"] == f"someone/{KAGGLE_NOTEBOOK}"
-    assert meta["dataset_sources"] == [f"someone/{KAGGLE_SLUG}"]
-    assert meta["is_private"] is True and meta["enable_internet"] is False
-    # Kaggle derives the notebook's slug from its title; they must agree.
-    assert KAGGLE_NOTEBOOK_TITLE.lower().replace(" ", "-") == KAGGLE_NOTEBOOK
-
-
 def _release_fixture(root):
     from pathlib import Path
 
@@ -196,20 +159,3 @@ def test_kaggle_notebook_is_clean():
         assert cell.get("outputs", []) == []  # Kaggle runs it; no stale outputs
         if cell["cell_type"] == "code":
             ast.parse("".join(cell["source"]))
-
-
-def test_kaggle_markdown_avoids_autolinks_and_soft_breaks():
-    from handoff.release import kaggle_markdown
-
-    card = (
-        "Code: <https://example.org/x>. Kaggle mirror: <https://kaggle.com/y>.\n"
-        "Second line\nof a paragraph.\n\n> quote\n> continued\n\n"
-        "- item\n  continued\n- next\n\n| a |\n| b |\n\n```python\nx = 1\ny = 2\n```\n"
-    )
-    out = kaggle_markdown(card)
-    assert "<https" not in out and "kaggle.com/y" not in out
-    assert "[https://example.org/x](https://example.org/x). Second line of a" in out
-    assert "> quote continued" in out
-    assert "- item continued\n- next" in out
-    assert "| a |\n| b |" in out and "x = 1\ny = 2" in out
-    assert kaggle_markdown("see `<host>`") == "see `<host>`"

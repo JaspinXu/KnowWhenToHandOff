@@ -162,7 +162,7 @@ R1/R2：从 B2 出发，用 verl 0.8 和 vLLM 0.12 做 GRPO；每步 8 个任务
 
 ## 模型与数据
 
-以研究用途发布在 Hugging Face（**不可用于部署**）；上传步骤见 [docs/release.md](docs/release.md)。
+以研究用途发布在 Hugging Face（**不可用于部署**）；发布了什么、数据集文件夹如何生成，见 [docs/release.md](docs/release.md)。
 
 | 发布物 | 内容 | 说明卡 |
 | --- | --- | --- |

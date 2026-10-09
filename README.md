@@ -207,7 +207,8 @@ Metric definitions: [docs/metrics.md](docs/metrics.md); protocol:
 ## Models and data
 
 Released on Hugging Face as research artefacts (**not for deployment**);
-upload steps in [docs/release.md](docs/release.md).
+what is published where and how the dataset folder is built:
+[docs/release.md](docs/release.md).
 
 | Artefact | What | Card |
 | --- | --- | --- |

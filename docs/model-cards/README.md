@@ -1,8 +1,8 @@
 # Model cards (T4.4)
 
-Filled-in cards for the released checkpoints, from the template in
-[../model-card.md](../model-card.md). Every number comes from a committed
-report table or a named run's `metrics.json`. Upload steps: [../release.md](../release.md).
+Cards of the released checkpoints, as published on Hugging Face. Every number
+comes from a committed report table or a named run's `metrics.json`. What is
+published where: [../release.md](../release.md).
 
 | Card | Hugging Face repository | Checkpoint | Why release it |
 | --- | --- | --- | --- |

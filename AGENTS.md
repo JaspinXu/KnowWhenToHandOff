@@ -68,134 +68,40 @@ on its own terms; write-ups (reports, venue papers) live outside it
 
 ## 2. Status board
 
-> Update this section at the end of every session (§16). Newest first; keep it
-> short and factual. Code verification is not a research result.
+> Update this section at the end of every session (§16). Keep it to the current
+> state; history lives in §17 and `git log`. Code verification is not a
+> research result.
 
-**As of 9 Oct 2026** (audits in §17):
+**As of 9 Oct 2026: the study is finished; no more GPU runs.**
 
-- **README pass (9 Oct):** results figure now has four panels (adds success per
-  user style and violation/citation rates from `reports/main/`); method figure
-  redrawn as pipeline + one episode + reward terms + GRPO group update; README
-  adds a five-systems line, an "Also" finding (RL lowers policy citations:
-  B2 0.653, R2 0.318, R1 0.064), a bottom-row explanation (violation rate is
-  mostly `off_reference_write`) and a reproduce stage table. EN and ZH in sync.
-- **All runs done (6–7 Oct; `reports/main/`):** test_main success B0 0.306,
-  B1 0.398, B2 0.327, R1 0.347, R2 0.342; paired Δ vs B2: R1 +0.020
-  [−0.066, 0.107], R2 +0.015 [−0.056, 0.082] (RQ1: RL does not beat SFT on
-  success; R1 pass^4 0.224 vs 0.102). test_handoff F1 / precision / recall /
-  over-escalation: B2 0.768 / 0.976 / 0.633 / 0.016, R1 0.802 / 0.689 / 0.959
-  / 0.462, R2 0.812 / 0.886 / 0.750 / 0.103 (RQ2: R2 keeps recall, cuts R1's
-  over-escalation). R1 over-escalation grows late (post-hoc step 40: 0.141).
-  Worst-style success B2 0.327, R1 0.286, R2 0.316 (RQ3: no change).
-  RQ4 audit in [docs/rl-audit.md](docs/rl-audit.md) (owner agreed with 3 spot-checks).
-- **Write-up (8 Oct):** T4.2 write-up done outside the repository (`report/`
-  is gitignored). T4.4: model cards in `docs/model-cards/`, `render_demo.py
-  --jsonl` for the trajectory sample. Laptop tier 1: 283 passed, 28 skipped;
-  ruff clean.
-- **Demo (8 Oct, `6e9f5de`):** `reports/demo/R2-handoffs.*` and
-  `R1-over-escalation.*` (HTML + JSONL) rendered on a CPU node; tier-2
-  `tests/test_cli_pipeline.py` 6 passed on a CPU node (the login node's memory
-  cap breaks it: run tests with `submit.sh cpu`, never `run.sh`).
-- **Release (8 Oct):** README rewritten (results first, figures in
-  `docs/assets/`, PNG in EN and ZH from `scripts/readme_figures.py`; the old execution plan,
-  risk register and compute plan were removed); `scripts/export_release.py` packages the task set, run
-  records, SFT data and RL rollouts for Hugging Face (`docs/release.md`); Hugging Face account `JaspinXu`, and `scripts/upload_kaggle.py` mirrors the dataset (not the weights) to Kaggle.
-- **Uploads (8 Oct; public since 9 Oct):** Hugging Face `JaspinXu/KnowWhenToHandOff-Qwen3-4B-{R2,R1,SFT}`
-  (14 files each; bookkeeping files with cluster paths removed and history squashed) and `JaspinXu/KnowWhenToHandOff-data` (160 files: 22 runs, 124.9 MB);
-  Kaggle `zhaobinxu/knowwhentohandoff-data` (dataset only; sub-folders as zip).
-  Re-exported the same day with machine names scrubbed to `<host>` and rollout
-  files renamed `part-NNN.jsonl` (HF history squashed, old Kaggle versions
-  deleted); `scripts/audit_release.py` then found no paths, host names, personal
-  or course identifiers, student IDs or tokens on either platform (only
-  τ²-bench's fictional e-mails and model-invented generic URLs).
-- **Release pages (9 Oct, done in the browser):** Hugging Face
-  collection `JaspinXu/knowwhentohandoff` (R2, R1, SFT, data, with notes);
-  Kaggle notebook `zhaobinxu/knowwhentohandoff-quickstart` (version 1 of
-  `notebooks/kaggle_quickstart.ipynb`, ran in 22 s on the real data); Kaggle
-  description re-saved through `kaggle_markdown` (the API upload had been cut
-  at the first `<https://...>` autolink) and *Collection methodology* filled in;
-  usability 5.63 → 6.88. Scripted equivalents: `upload_release.py --collection`,
-  `upload_kaggle.py --notebook` (`--dry-run` runs it on the local export) and
-  `--metadata-only`. Kaggle mounts the dataset at
+- **Results (`reports/main/`, README):** test_main success B0 0.306, B1 0.398,
+  B2 0.327, R1 0.347, R2 0.342; paired Δ vs B2: R1 +0.020 [−0.066, 0.107],
+  R2 +0.015 [−0.056, 0.082] (RQ1: RL does not beat SFT on success; R1 pass^4
+  0.224 vs 0.102). test_handoff F1 / precision / recall / over-escalation:
+  B2 0.768 / 0.976 / 0.633 / 0.016, R1 0.802 / 0.689 / 0.959 / 0.462, R2 0.812
+  / 0.886 / 0.750 / 0.103 (RQ2). Worst-style success B2 0.327, R1 0.286, R2
+  0.316 (RQ3: no change). R1's over-escalation grows late (post-hoc step 40:
+  0.141; RQ4). Citation rate B2 0.653, R2 0.318, R1 0.064. Every run is a row
+  in [docs/experiment-log.md](docs/experiment-log.md).
+- **Analyses:** baselines [docs/responsible-ai-audit.md](docs/responsible-ai-audit.md),
+  B2 failures [docs/error-analysis.md](docs/error-analysis.md), R1/R2 reward
+  hacking [docs/rl-audit.md](docs/rl-audit.md) (owner spot-checked each).
+- **Release (public since 9 Oct):** Hugging Face models R2, R1, SFT and the
+  dataset, in one collection, with DOIs; Kaggle dataset mirror and the
+  quickstart notebook ([docs/release.md](docs/release.md)). The dataset folder
+  comes from `scripts/export_release.py`; uploads and page edits are done by
+  hand or in the browser. Kaggle mounts the dataset at
   `/kaggle/input/datasets/<owner>/knowwhentohandoff-data/`.
-- **Public (9 Oct, owner's go-ahead):** the four Hugging Face repositories,
-  the collection and the Kaggle notebook were made public in the browser
-  (anonymous API check: `private=False`, 14/14/14/160 files); the Kaggle
-  dataset had been public since its upload. The Hugging Face dataset viewer
-  shows `runs`, `airline_tasks` and `retail_tasks`. The GitHub repository is
-  still private, so the cards' code links do not open for visitors yet.
-- **Next steps (owner):** make the GitHub repository public (decide on the
-  history squash first); DOIs are optional (see `docs/release.md`). No more GPU
-  runs.
-
-- **Experiments (5 Oct):** teacher → `b2_v1` SFT data (790 dialogues) → B2
-  (LoRA SFT r=64; full fine-tuning ran out of memory on the H100) →
-  B2 evaluations (`B2-*-s0-20261005`, 0 infra failures): dev success 0.504
-  (gate B0 0.496: pass), test_main 0.327 (paired Δ vs B0 +0.020
-  [−0.056, 0.107]; B1 +0.092 [0.020, 0.163]), rule violations 0.031
-  (B0 0.179), hand-off test F1 0.768, precision 0.976, recall 0.633,
-  over-escalation 0.016; worst-style success 0.327 (B0 0.306), style gap 0.112
-  because impatient rose to 0.439. RL spike done (ADR-001): R1/R2 use LoRA and
-  `max_response_tokens` 16384; ~4–10 min per step.
-- **Next steps (in order):** R1 then R2 on the long simulator (`serve` job
-  911507, queued for `gpu-long`) → final evaluations → report. T2.3 error
-  analysis done ([docs/error-analysis.md](docs/error-analysis.md); owner
-  agreed with 3 spot-checked annotations). T1.6 Responsible-AI audit drafted in
-  [docs/responsible-ai-audit.md](docs/responsible-ai-audit.md) (owner approved 5 Oct; results table v1 in `reports/m1/`).
-- **Code:** the whole pipeline is implemented and CPU-verified, including RL
-  learning curves (`scripts/rl_curves.py`). Tier results are in
-  [docs/implementation-status.md](docs/implementation-status.md); laptop tier 1:
-  281 passed, 28 skipped (5 Oct); tiers 2–3 on the cluster: 315 passed (3 Oct,
-  before the NL-assertion fix, whose tier-2 tests passed in Claude's sandbox).
-- **Cluster (done 3 Oct):** `setup` passed all tiers on the cluster (315
-  passed); both models downloaded (`state/models.lock.json`); task sets built,
-  hand-off sample reviewed (40/40) and frozen in `ef34428` (split manifest
-  `db3c9aed…`, hand-off manifest `d19492bb…`).
-- **Experiments (4 Oct):** smoke passed (0 infra failures, 0 format errors).
-  **B0 complete** (`B0-*-s0-20261004`, 1,306 episodes, 0 infra failures):
-  test_main success 0.306 [0.214, 0.408], pass^4 0.102; style gap 0.041
-  (worst style impatient 0.306); hand-off test F1 0.654, precision 0.866,
-  recall 0.526, over-escalation 0.087, under-escalation 0.474; format errors
-  ≤ 2.6 %. Throughput: 490 episodes in 23 min (32 concurrent). B1 and teacher
-  submitted. ADR-002 and ADR-005 accepted (protocol frozen); T1.4 style review
-  recorded in `docs/personas.md`.
-- **Cluster facts (3 Oct, SoC DocHub + a read-only check of the owner's
-  account):** no `/temp`; the cluster home and `/mnt/scratch/<letter>/<user>`
-  are NFS and shared, `/tmp` is node-local, so scratch defaults to
-  `$HOME/handoff`. Login and compute nodes reach PyPI, Hugging Face and GitHub
-  over HTTPS; SSH to github.com:22 is blocked (clone with HTTPS + a token).
-  **The H200 node is only in the 3-hour `gpu` partition**; `gpu-long`
-  (3 days) has 2 × `a100-80` nodes and 5 nodes with 2 × `h100-96`, so
-  `cluster.env.example` now uses `GPU_TYPE_BIG=h100-96`. Jobs get a node-local
-  `TMPDIR` (the owner's `~/.bashrc` points `TMPDIR` at NFS for an older
-  project); `cluster.env` also pins `HF_HUB_CACHE`, which `~/.bashrc` set to
-  the old project's cache. The owner's fair-share is low after September's LatentMAS runs.
-- **Open risks:** RL memory grows with episode length (LoRA peak 70 GB of 93
-  for a 22.7k-token response; responses now capped at 16,384). QoS `normal` caps each user at
-  1 × h100-96, 2 × a100-80 and 1 × h200-141 at a time, so `NGPUS=2` on
-  h100-96 is impossible, and the simulator must stay on a100-80 (only 2 such
-  nodes in `gpu-long`; queueing for it is the main schedule risk). A serve job that sits
-  idle for > 30 min may be cancelled under SoC policy (§15).
-- **First `setup` (job 904807, 3 Oct) failed:** it landed on a Titan RTX node
-  whose `nvidia-smi` saw no GPU, and the driver check crashed on the text. Setup
-  now runs on a CPU node (`PARTITION_CPU`, `GPU_TYPE_ANY` removed) and the
-  driver check skips when no numeric driver version is reported. The second
-  try (904848) stopped at `pip install --user uv` (PEP 668 on Ubuntu 24.04);
-  setup now passes `--break-system-packages` (writes only to `~/.local`).
-- **`tasks` job (3 Oct) failed:** at tau2 v1.0.1, 112 of 114 retail tasks list
-  `NL_ASSERTION` in the reward basis but only 40 list assertions (the others
-  score 1.0 without a judge). The guard now refuses only tasks that would call
-  the judge (`needs_llm_judge`), and the build leaves those 40 out of the splits
-  (`excluded` in the split manifest; ADR-005). Usable retail: train+dev 45,
-  test 29. Retail test hard negatives raised to 2 per source. The fixed build
-  and the review packet were run in Claude's sandbox against real tau2 data
-  (same counts expected on the cluster); 40/40 sampled tasks accepted
-  (`docs/handoff-tasks.md`).
-- **T1.3 (3 Oct):** retail out-of-scope templates are now 4 (price-drop refund
-  dropped, see `docs/handoff-tasks.md`). Laptop gates: ruff + 275 passed,
-  28 skipped; the tau2 tiers run in the next `setup` job.
-- **Owner decisions pending:** accept ADR-003 (simulator/teacher) and ADR-004
-  (reward).
+- **README:** results first; figures in `docs/assets/` (EN and ZH) from
+  `scripts/readme_figures.py` (four-panel results figure and a mechanism-level
+  method figure since 9 Oct).
+- **Repository:** process files removed on 9 Oct (§17). Laptop tier 1 and CI
+  green; tiers 2–3 last passed on the cluster.
+- **Next steps (owner):** make the GitHub repository public (decide on a
+  history squash first); until then the code links in the published cards do
+  not open for visitors. ADR-003 (simulator) and ADR-004 (reward) still say
+  *Proposed* although every run used them; the owner has not formally
+  accepted them.
 
 ---
 
@@ -297,10 +203,12 @@ The package is `handoff` (src layout). Each file's docstring says what it owns.
 | `src/handoff/train/rl_data.py`, `rl_launch.py`, `verl_main.py`, `export.py`, `monitors.py` | RL dataset rows, verl command, entry point with checkpoint export, reward-hacking monitor and learning curves (T3.2–T3.5) |
 | `src/handoff/ops/runs.py`, `provenance.py`, `slurm.py` | Run IDs, model identity, test ledger; immutable run records; Slurm queries |
 | `src/handoff/demo/viewer.py` | Offline HTML dialogue viewer (T4.3) |
-| `scripts/` | Thin CLI entry points only (no business logic): `build_task_sets`, `download_models`, `model_server`, `check_tokenization`, `run_eval`, `build_sft_data`, `train_sft`, `train_rl`, `monitor_rl`, `rl_curves`, `export_checkpoint`, `make_report`, `sample_review`, `append_experiment_log`, `render_demo`, `demo_chat`, `lock_cluster_env.sh` |
+| `scripts/` | Thin CLI entry points only (no business logic): `build_task_sets`, `download_models`, `model_server`, `check_tokenization`, `run_eval`, `build_sft_data`, `train_sft`, `train_rl`, `monitor_rl`, `rl_curves`, `export_checkpoint`, `make_report`, `sample_review`, `append_experiment_log`, `render_demo`, `demo_chat`, `export_release` (dataset folder, docs/release.md), `readme_figures` (README figures), `lock_cluster_env.sh` |
 | `slurm/submit.sh`, `run.sh`, `lib/common.sh`, `jobs/*.sbatch`, `cluster.env.example` | Cluster wrapper, login-node helper, shared shell functions, one job per step |
 | `tests/` | CPU tests (§12); `fakes.py`, `toy_tau2.py`, `tiny_hf.py` are shared doubles |
-| `docs/` | Runbook, metrics, labels, hand-off tasks, personas, ADRs, experiment log, status |
+| `src/handoff/release.py` | Dataset release packaging: which runs and files go out, path and host-name scrubbing |
+| `notebooks/kaggle_quickstart.ipynb` | CPU-only tour of the released dataset (published on Kaggle) |
+| `docs/` | Runbook, metrics, labels, hand-off tasks, personas, ADRs, experiment log, audits, model and dataset cards, release |
 | `reports/` | Generated tables and figures (final versions committed); `reports/review/` is not committed |
 
 ---
@@ -592,12 +500,11 @@ formatting code the library uses (backslashes get quoted in Hydra overrides).
 | Anything in `README.md` | `README.zh-CN.md` in the same commit (or a `TODO(zh-CN)` note at its top) |
 | Commands, jobs, env vars or script flags | §9 here, `docs/cluster-runbook.md`, `slurm/README.md` |
 | Config groups or presets | §8 here, `configs/README.md` |
-| Experiments or scope | README method + zh-CN, §10 here, runbook §7/§9, `docs/implementation-status.md` |
+| Experiments or scope | README method + zh-CN, §10 here, runbook §7/§9 |
 | A metric, split, trial count or simulator | ADR-005, `docs/metrics.md` (after M1: a new ADR) |
 | Reward terms or λ | ADR-004, README method (reward), §7 here |
 | Labels, rules or format errors | `docs/labels.md`, §7 here |
 | A shared contract (§7) | every caller, its tests, §7 here |
-| Task completion | `docs/implementation-status.md` (only when the whole DoD is met) |
 | Anything at session end | §2 status board and §17 decision log here |
 
 The claude.ai Project "KnowWhenToHandOff" keeps copies (`claude/README.md`,
@@ -661,6 +568,8 @@ Lessons already paid for; check here before debugging.
   Hydra reads a sweep); `rl_launch.format_value` quotes any value outside a safe
   character set (spaces, commas, Windows backslashes), so tests compare through it.
 - **SFT:** LoRA with FSDP is refused (use one GPU for LoRA).
+- **RL memory** grows with episode length: LoRA peaked at 70 GB of 93 for a
+  22.7k-token response, hence `max_response_tokens` 16,384 (ADR-001).
 - **Scratch:** must be shared across nodes (the simulator publishes its address
   there); the setup job refuses node-local filesystems.
 - **NUS SoC cluster policy:** login node `xlogin.comp.nus.edu.sg` (SoC
@@ -709,6 +618,7 @@ the ADRs; this is the short history agents need.
 
 | Date | Decision |
 | --- | --- |
+| 9 Oct 2026 | Owner: keep the repository free of process files; every reproduction step must still map to a file. Removed `docs/implementation-status.md`, the model-card template, the interim `reports/m1/`, the withdrawn ADR-007, and the release upload and audit scripts (`upload_release.py`, `upload_kaggle.py`, `audit_release.py`, the Kaggle helpers in `release.py`, the Kaggle cover). Publishing is now done by hand; `export_release.py` still builds the dataset folder. |
 | 8 Oct 2026 | The repository describes the project on its own terms; write-ups (`report/`, `paper/`) stay outside git. Release everything reusable on Hugging Face: R1, R2 and B2 weights, the hand-off task set and splits, all evaluation and training records. The GitHub repository goes public later. |
 | 7 Oct 2026 | R1's monitor flagged transfers on negatives (0.11 vs 0.04 in B2 dev). Per-step check: 0.22 at step 1 (B2 itself, before any update), then 0.00–0.25 with no trend, so not reward hacking; R1 continues. The B2 baseline is greedy dev evaluation; drift is now flagged only above 2× both the run's first 128 training episodes and B2 (`monitor_rl.py --self-baseline 128`; the first 128 had 0 format errors, so the run start alone is too noisy for rare events). |
 | 5 Oct 2026 | R1/R2 use LoRA (r=64) and 16,384 response tokens after the spike (ADR-001). The A100 simulator queue is the bottleneck: keep a running `serve` job until its time limit (SoC did not cancel an idle one in practice) and use 3-hour `gpu`-partition simulators for short evaluation batches. |
@@ -765,4 +675,4 @@ the ADRs; this is the short history agents need.
 | Test ledger | Scratch file that enforces one test evaluation per checkpoint and simulator |
 | Complete run | An evaluation with no lost episodes (or an explicitly accepted share) |
 | Finishing point | A milestone (M1, M2) whose result stands on its own if later stages fail |
-| Task IDs | T0.x–T4.x in `docs/implementation-status.md`; commit prefixes |
+| Task IDs | T0.x–T4.x: the plan's task numbers, still used in docstrings, runbook headings and commit prefixes |
